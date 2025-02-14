@@ -1,0 +1,140 @@
+﻿<div>
+    <img src="~/Assets/logo_ocesa.png" height="100px" />
+</div>
+
+<div class="jumbotron">
+    <div class="">
+        <div class="panel panel-default">
+            <div class="panel-heading"><h1 style="text-align: center; font-size: 40px; margin-top: 0; margin-bottom: 20px;">Visitors Check Page / Página de Consulta del Visitante</h1></div>
+            <div class="panel-body">
+                <div class="col-md-6 col-lg-6 col-sm-12">
+                    <div class="well">
+                        This page is only for registered visitors who have had issues receiving the invitation letter.
+                    </div>
+                </div>
+                <div class="col-md-6 col-lg-6 col-sm-12">
+                    <div class="well">
+                        Esta página es solo para visitantes registrados que han tenido problemas para recibir la carta de invitación.
+                    </div>
+                </div>
+
+                <div class="col-md-12 col-lg-12 col-sm-12">
+                    <div class="well">
+                        <div class="form-group">
+                            <label>Type your Code / Escriba su Código</label>
+                            <div class="input-group">
+                                <span class="input-group-addon" id="codeInputSpan">Code / Código</span>
+                                <input type="text" class="form-control" id="Codigo" placeholder="93753434" aria-describedby="codeInputSpan" />
+                                <span class="input-group-btn">
+                                    <button type="button" class="btn btn-default" onclick="buscaRegistro()">Find / Buscar</button>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- RESULTADOS -->
+<div class="panel panel-default">
+    <div class="panel-body">
+        <div class="col-md-12 col-lg-12 col-sm-12">
+            <div class="well">
+                <h3 id="CodeNotFound" style="color:red;"> </h3>
+                <h3 id="codigoEncontrado" style="color:green;"></h3>
+                <hr />
+                <h4 id="nombreEncontrado"></h4>
+                <h4 id="paisEncontrado"></h4>
+                <hr />
+                <div id="botonesDescarga" hidden>
+                    <h3>Download documents / Descargar documentos</h3>
+
+                    <div id="SeccionBotonesDinamicos"></div>
+                    @*<button type="button" onclick="generaDocumento()" class="btn btn-danger btn-lg"><span class="glyphicon glyphicon-download-alt"></span> Procedure</button>
+                    <button type="button" onclick="generaDocumento()" class="btn btn-danger btn-lg"><span class="glyphicon glyphicon-download-alt"></span> Invitation</button>
+                    <button type="button" onclick="generaDocumento()" class="btn btn-danger btn-lg"><span class="glyphicon glyphicon-download-alt"></span> Representatives</button>
+                    <button type="button" onclick="generaDocumento()" class="btn btn-danger btn-lg"><span class="glyphicon glyphicon-download-alt"></span> Representatives</button>*@
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- FIN RESULTADOS -->
+
+<script type="text/javascript">
+
+    document.addEventListener("DOMContentLoaded", function () {
+        hideLoader();
+
+
+    });
+
+
+    async function buscaRegistro() {
+
+        showLoader();
+        let codigoABuscar = document.getElementById("Codigo").value;
+        let url = "@Url.Content("~/Home/BuscaRegistro")";
+        let dataJson = { codigo: codigoABuscar }
+            const response = httpPost(
+                url,
+                dataJson
+            );
+            const dataResponse = await response
+                .then(data => {
+                    return data;
+                })
+                .catch(error => {
+                    console.log(error);
+                });
+
+        let seccionBotones = document.getElementById('botonesDescarga');
+        if (dataResponse.response === false) {
+            let messageError = dataResponse.message;
+            setErrorMessageForm(messageError, 'CodeNotFound');
+            cleanElementHTML('codigoEncontrado');
+            cleanElementHTML('nombreEncontrado');
+            cleanElementHTML('paisEncontrado');
+            seccionBotones.hidden = true;
+        }
+        else {
+            cleanElementHTML('CodeNotFound');
+            setNewValueHTML(dataResponse.result.Mensaje, 'codigoEncontrado');
+            setNewValueHTML(dataResponse.result.Nombre, 'nombreEncontrado');
+            setNewValueHTML(dataResponse.result.Pais, 'paisEncontrado');
+
+            let divBotonesDinamicos = document.getElementById("SeccionBotonesDinamicos");
+
+            let htmlBotones = "";
+
+            // console.log(dataResponse.result.ListaBotonesDocumentos);
+
+            dataResponse.result.ListaBotonesDocumentos.forEach(elem => {
+                console.log("nombre archivo: ", elem.NombreArchivo);
+                console.log("Identificador de documento: ", elem.IdentificadorDocumento);
+
+                htmlBotones += `<button type="button" onclick="generaDocumento(${elem.IdentificadorDocumento}, ${dataResponse.result.IdReg}, '${elem.TipoArchivo}')" class="btn btn-danger btn-lg"><span class="glyphicon glyphicon-download-alt"></span> ${elem.NombreArchivo}</button>`;
+            });
+
+            divBotonesDinamicos.innerHTML = htmlBotones;
+
+            seccionBotones.hidden = false;
+
+        }
+
+        hideLoader();
+    }
+
+
+    async function generaDocumento(idDocumento, idRegistro, TipoArchivo) {
+        showLoader();
+        let url = `@Url.Content("~/Home/GeneraDocumento")?idDocumento=${idDocumento}&idRegistro=${idRegistro}&TipoArchivo=${TipoArchivo}`;
+
+        window.open(url);
+        //postForm(url, dataJson, 'POST');
+        hideLoader();
+    }
+
+</script>

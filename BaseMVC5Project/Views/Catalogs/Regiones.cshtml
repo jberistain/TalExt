@@ -1,0 +1,209 @@
+﻿@model MigracionTalentoExtranjero.Models.Catalogs.CatalogoGeneral
+@{
+
+}
+
+<div>
+    <img src="~/Assets/logo_ocesa.png" height="100px" />
+</div>
+<div class="panel panel-default">
+    <!-- Default panel contents -->
+    <div class="panel-heading">CATÁLOGO DE REGIONES</div>
+    <div class="panel-body">
+        <!-- Table -->
+        <table class="table" id="registerFound">
+            <tr>
+                <th>IDENTIFICADOR</th>
+                <th>DESCRIPCIÓN</th>
+                @*<th>REPRESENTANTE LEGAL</th>*@
+                <th>Eliminar</th>
+                <th>EDICIÓN</th>
+            </tr>
+            @foreach (MigracionTalentoExtranjero.Models.Catalogs.CatalogoGeneral registro in ViewBag.CatalogList)
+            {
+                <tr>
+                    <td style="vertical-align:middle;">@registro.Id</td>
+                    <td style="vertical-align:middle;">@registro.Descripcion</td>
+                    @*<td style="vertical-align:middle;">@registro.AtributoAdicional1</td>*@
+                    <td>
+                        <button type="button" id="btn_elimina_@registro.Id" onclick="eliminarEvento(this.id)" class="glyphicon glyphicon-remove-sign"></button>
+                    </td>
+                    <td style="vertical-align:middle;"><button type="button" class="glyphicon glyphicon-pencil" id="open_register_@registro.Id" onclick="mostrarModal(this.id)"> Editar</button></td>
+                </tr>
+            }
+        </table>
+    </div>
+
+</div>
+
+@*MODAL EDITAR ---------------------------------------------*@
+<div class="contenedor-modales" id="container">
+    <div class="contenido-modal2">
+        <div class="p-2" style="width:30px; float: right; margin-top:10px;">
+            <span onclick="cerrarModal()" style="cursor: pointer; color: crimson; font-weight:bold; font-size:14px;">X</span>
+        </div>
+        <div id="modalEditarRegistroMensajeError"></div>
+        <div class="contenido-modal-grupos">
+            <div class="row">
+                <div class="col-xs-8 col-sm-12 col-md-12 col-lg-12">
+                    <h1 class="folio-editar">FOLIO: 945761945</h1>
+                </div>
+            </div>
+            <hr>
+            <p class="subtitulos-modal">Generales</p>
+            <hr>
+
+            <div class="row">
+                <div class="col-xs-8 col-sm-12 col-md-12 col-lg-12">
+                    <div class="input-group">
+                        <span class="input-group-addon">Descripción:</span>
+                        @Html.TextBoxFor(m => m.Descripcion, new { @class = "form-control" })
+                    </div>
+                </div>
+            </div>
+
+            @*<div class="row">
+                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                        <div class="input-group">
+                            <span class="input-group-addon">Representante Legal:</span>
+                            @Html.TextBoxFor(m => m.AtributoAdicional1, new { @class = "form-control" })
+                        </div>
+                    </div>
+                </div>*@
+            <button onclick="cerrarModal()" class="btn-block">Guardar Cambios</button>
+        </div>
+    </div>
+</div>
+
+
+<script type="text/javascript">
+
+    let arregloMarcados = [];
+
+
+    function agregaQuitaEventos(clicked_id) {
+        let idActual = clicked_id;
+        let elementoCheck = document.getElementById(idActual);
+        let idRegistro = obtenerIdDelFinal(idActual);
+        if (elementoCheck.checked) {
+            //console.log(`El elemento ${idActual} es Checked: `, elementoCheck.checked);
+            arregloMarcados.push(idRegistro);
+        }
+        else {
+            //console.log(`El elemento ${idActual} es Checked: `, elementoCheck.checked);
+            arregloMarcados.pop(idRegistro);
+        }
+        //console.log(`Los valores actuales del arreglo de marcados es: `, arregloMarcados);
+    }
+
+    function obtenerIdDelFinal(myIdString) {
+
+        let arrSplit = myIdString.split('_');
+        let currentId = arrSplit[arrSplit.length - 1];
+        return currentId;
+    }
+
+
+
+
+
+    async function eliminarEvento(clicked_id) {
+        let idRegistro = obtenerIdDelFinal(clicked_id);
+        let url = "@Url.Content("~/Administrator/EliminarRegistroEvento")";
+
+        let params =
+            {
+                id: idRegistro
+            };
+
+        const response = httpPost(
+            url,
+            params
+        );
+        const dataResponse = await response
+            .then(data => {
+                return data;
+            })
+            .catch(error => {
+                console.log("Cayo a Catch: ",error);
+            });
+        console.log(dataResponse);
+        if (dataResponse.response === false) {
+            let messageError = dataResponse.message;
+
+        }
+        console.log(dataResponse);
+
+    }
+
+
+    async function mostrarModal(clicked_id) {
+
+        let idRegistro = obtenerIdDelFinal(clicked_id);
+
+        let url = "@Url.Content("~/Administrator/ObtenerInformacionRegistroEvento")";
+
+        let params =
+            {
+                id : idRegistro
+            };
+
+        const response = httpPost(
+            url,
+            params
+        );
+        const dataResponse = await response
+            .then(data => {
+                return data;
+            })
+            .catch(error => {
+                console.log(error);
+            });
+
+        let popup = document.getElementById('container');
+        if (dataResponse.response === false) {
+            let messageError = dataResponse.message;
+            setErrorMessageForm(messageError, 'modalEditarRegistroMensajeError');
+        }
+        else {
+
+        }
+        popup.classList.add('show');
+
+
+    }
+
+    function cerrarModal() {
+        console.log("CLIC EN CERRAR")
+        let popup = document.getElementById('container');
+        popup.classList.remove('show');
+    }
+
+
+
+
+
+    function refreshPageWithFilters() {
+
+        let empresa = document.getElementById("Empresa").value;
+        let fechaInicio = document.getElementById("Fecha1").value;
+        let fechaFin = document.getElementById("Fecha2").value;
+        let busqueda = document.getElementById("TextoBusqueda").value;
+
+        let urlResultado = '@Url.Content("~/Administrator")';
+
+
+        let params = {
+            IdEmpresa: empresa,
+            FechaInicio: fechaInicio,
+            FechaFin: fechaFin,
+            Busqueda: busqueda
+        };
+        console.log(params);
+        let methodNewView = 'POST';
+        postForm(urlResultado, params, methodNewView);
+    }
+
+
+
+</script>

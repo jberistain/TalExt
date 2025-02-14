@@ -1,0 +1,182 @@
+﻿@{
+
+}
+
+@*<div class="center-ocesa">
+        <img src="~/Assets/logo_ocesa.png" height="100px" />
+    </div>*@
+
+
+<div class="container-slider">
+    <div class="slider" id="slider">
+
+        <div class="slider__section">
+            <img src="~/Assets/slider/OCESA-televisa.jpg" alt="" class="slider__img" />
+        </div>
+
+        <div class="slider__section">
+            <img src="~/Assets/slider/ocesa0.jpeg" alt="" class="slider__img" />
+        </div>
+
+        <div class="slider__section">
+            <img src="~/Assets/slider/ocesa1.jpeg" alt="" class="slider__img" />
+        </div>
+    </div>
+
+    <div class="slider__btn slider__btn--right" id="btn-right">
+        &nbsp;&nbsp;&#62;
+    </div>
+
+    <div class="slider__btn slider__btn--left" id="btn-left">
+        &nbsp;&nbsp;&#60;
+    </div>
+</div>
+
+
+
+<br />
+<br />
+<br />
+<div class="jumbotron">
+    <h1 style="text-align: center; font-size: 40px; margin-top: 0; margin-bottom: 20px;">Sistema Migratorio para Talento Extranjero</h1>
+    <div class="">
+        <div class="panel panel-default">
+            <div class="panel-heading" style="text-align:center;font-size:29px;color:green;"><b>REGISTRATION PAGE FOR FOREIGN VISITORS</b></div>
+            <div class="panel-body">
+                <div class="col-md-6 col-lg-6 col-sm-12">
+                    <div class="well">
+
+                        <p align="justify">
+                            <b>
+                                Welcome to the <span style="color: green;">registration site for foreign visitors</span>, it will help you obtain the invitation letter to enter the country for the team that will develop activities in OCESA events
+                            </b>
+                        </p>
+                        <p>
+                            <b>
+                                Sign up, <a href="@Url.Content("~/Home/PassportSearch")/EN">click here.</a>
+                            </b>
+                        </p>
+
+                    </div>
+                </div>
+                <div class="col-md-6 col-lg-6 col-sm-12">
+                    <div class="well">
+                        <p align="justify">
+                            <b>
+                                Bienvenido al <span style="color: green;">sitio de registro para visitantes extranjeros</span> que te ayudará a obtener la carta invitación  para el ingreso al país del equipo que desarrollará actividades en los eventos de OCESA.
+                            </b>
+                        </p>
+                        <p>
+                            <b>
+                                Para dar de alta tus datos da clic <a href="@Url.Content("~/Home/PassportSearch")/ES">aquí.</a>
+                            </b>
+                        </p>
+                    </div>
+                </div>
+
+                <div class="row" style="margin-left:0px; margin-right:0px;">
+                    <div class="col-md-12">
+                        <div class="panel panel-default">
+                            <div class="panel-heading" style="text-align:center;font-size:20px;color:green;">
+                                <b>
+                                    <p style="margin-bottom:0px;margin-top:0px;"><span style="color:red;">Important / Importante</span></p>
+                                    <p style="margin-bottom:0px;margin-top:0px;">Retrieve your invitation documents / Obtenga sus documentos de invitación</p>
+                                </b>
+                            </div>
+                            <div class="panel-body">
+                                <div class="col-md-6 col-lg-6 col-sm-12">
+                                    <div class="">
+                                        <p style="font-size: 14px; " align="justify">
+                                            After your registration, a period of time has to pass in order to verify the documentation, once it is checked, you will receive your invitation documents in an email sent to you to the email address that you specified in the registration form. If for some reason you don't get the documents in 3 days, get back to the site , click the button below, then type the secret code you will receive at end of the registration process, you will be able to download your invitation documents.
+                                        </p>
+                                        <p>
+                                            <a href="@Url.Content("~/Home/VisitorSearch")" style="border-style:solid; border-color:red;"><span>Retrieve invitation documents</span></a>
+                                        </p>
+
+                                    </div>
+                                </div>
+                                <div class="col-md-6 col-lg-6 col-sm-12">
+                                    <div class="">
+                                        <p style="font-size:14px" align="justify">
+                                            Después de registrarse, es necesario que transcurra un periodo de tiempo para verificar la documentación. Después de eso, usted recibirá los documentos de la invitación en el correo electrónico que especifique en la forma de registro. Si por alguna razón no recibe los documentos por correo en tres días, ingresa al sitio nuevamente y podrá descargarlos usando el botón en la parte inferior, escribirá el código privado que recibirá al final del proceso de registro y podrá descargar los documentos de su invitación.
+                                        </p>
+                                        <p>
+                                            <a href="@Url.Content("~/Home/VisitorSearch")" style="border-style:solid; border-color:red;"><span>Recuperar documentos de invitación</span></a>
+                                        </p>
+                                    </div>
+                                </div>
+
+                            </div>
+                            <div class="panel-body">
+                                <div class="col-md-12 col-lg-12 col-sm-12">
+                                    <div class="">
+                                        <p style="font-size: 18px; " align="center"
+                                           >
+                                            <a href="@Url.Content("~/Home/Tutorial")">Watch the tutorial for the form register here / Mira el tutorial para llenar el registro aquí</a>
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+
+    document.addEventListener("DOMContentLoaded", function () {
+        hideLoader();
+
+
+    });
+
+
+    const slider = document.querySelector("#slider");
+    let sliderSection = document.querySelectorAll(".slider__section");
+    let sliderSectionLast = sliderSection[sliderSection.length - 1];
+
+    const btnLeft = document.querySelector("#btn-left");
+    const btnRight = document.querySelector("#btn-right");
+
+    slider.insertAdjacentElement("afterbegin", sliderSectionLast);
+
+    function Next() {
+        let sliderSectionFirst =
+            document.querySelectorAll(".slider__section")[0];
+        slider.style.marginLeft = "-200%";
+        slider.style.transition = "all 10.10s";
+        setTimeout(function () {
+            slider.style.transition = "none";
+            slider.insertAdjacentElement("beforeend", sliderSectionFirst);
+            slider.style.marginLeft = "-100%";
+        }, 500);
+    }
+
+    function Prev() {
+        let sliderSection = document.querySelectorAll(".slider__section");
+        let sliderSectionLast = sliderSection[sliderSection.length - 1];
+        slider.style.marginLeft = "0%";
+        slider.style.transition = "all 10.0s";
+        setTimeout(function () {
+            slider.style.transition = "none";
+            slider.insertAdjacentElement("afterbegin", sliderSectionLast);
+            slider.style.marginLeft = "-100%";
+        }, 500);
+    }
+
+    btnRight.addEventListener("click", function () {
+        Next();
+    });
+
+    btnLeft.addEventListener("click", function () {
+        Prev();
+    });
+    setInterval(function () {
+        Next();
+    }, 9000);
+</script>
+

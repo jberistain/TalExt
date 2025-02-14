@@ -1,0 +1,329 @@
+﻿@model MigracionTalentoExtranjero.Models.Administrator.DashboardModel
+@{
+
+}
+
+<div>
+    <img src="~/Assets/logo_ocesa.png" height="100px" />
+</div>
+<div class="panel panel-default">
+    <!-- Default panel contents -->
+    <div class="panel-heading">Catálogos</div>
+    <div class="panel-body">
+        @using (Html.BeginForm("", "", FormMethod.Post, new { id = "frm-filtros" }))
+        {
+
+            <div class="row">
+                <div class="col-xs-12 col-sm-3 col-md-2">
+                    <div class="form-group">
+                        <label>Filtrar por Empresa</label>
+                        
+                    </div>
+                </div>
+                <div class="col-xs-12 col-sm-3 col-md-2">
+                    <div class="form-group">
+                        <label>Nombre</label>
+                        
+                    </div>
+                </div>
+
+
+
+                <div class="col-xs-12 col-sm-3 col-md-8">
+                    <div class="col-xs-12 col-sm-12 col-md-2 col-md-offset-1">
+                        <label>Rango de Fechas</label>
+                    </div>
+                    <div class="col-xs-12 col-sm-12 col-md-3">
+                        
+                    </div>
+                    <div class="col-xs-12 col-sm-12 col-md-3">
+                        
+                    </div>
+                    <div class="col-xs-12 col-sm-12 col-md-3">
+                        
+                        <button type="button" class="btn btn-default" onclick="refreshPageWithFilters()"> Filtrar</button>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-xs-12 col-sm-12 col-md-3">
+                    <button type="button" class="btn btn-default" onclick="enviarInvitaciones()"> Enviar Invitaciones a Marcados</button>
+                </div>
+                <div class="col-xs-12 col-sm-12 col-md-3">
+                    <button type="button" class="btn btn-default" onclick="generaCsvDeConsulta()"> Exportar Excel</button>
+                </div>
+                <div class="col-xs-12 col-sm-12 col-md-3">
+                    <button type="button" class="btn btn-default" onclick="mostrarModalEmpresa();"> Nueva Empresa</button>
+                </div>
+                <div class="col-xs-12 col-sm-12 col-md-3">
+                    <button type="button" class="btn btn-default" onclick="mostrarModalEvento()"> Nuevo Evento</button>
+                </div>
+            </div>
+            <div class="row" style="margin-top:10px;">
+                <div class="col-xs-12 col-sm-12 col-md-2">
+
+                </div>
+                <div class="col-xs-12 col-sm-12 col-md-2">
+                    <span class="label label-default" style="white-space:break-spaces;">Capturado  </span>
+                </div>
+                <div class="col-xs-12 col-sm-12 col-md-2">
+                    <span class="label label-danger" style="white-space: break-spaces; background-color: lightgray; color: black;">Confirmado</span>
+                </div>
+                <div class="col-xs-12 col-sm-12 col-md-2">
+                    <span class="label label-warning" style="white-space:break-spaces;">    Alerta      </span>
+                </div>
+                <div class="col-xs-12 col-sm-12 col-md-2">
+                    <span class="label label-success" style="white-space:break-spaces;">   Invitado   </span>
+                </div>
+                <div class="col-xs-12 col-sm-12 col-md-2">
+                    <span class="label label-primary" style="white-space:break-spaces;">Asegurado </span>
+                </div>
+            </div>
+        }
+    </div>
+
+</div>
+
+
+<script type="text/javascript">
+
+    let arregloMarcados = [];
+
+
+    function agregaQuitaEventos(clicked_id) {
+        let idActual = clicked_id;
+        let elementoCheck = document.getElementById(idActual);
+        let idRegistro = obtenerIdDelFinal(idActual);
+        if (elementoCheck.checked) {
+            //console.log(`El elemento ${idActual} es Checked: `, elementoCheck.checked);
+            arregloMarcados.push(idRegistro);
+        }
+        else {
+            //console.log(`El elemento ${idActual} es Checked: `, elementoCheck.checked);
+            arregloMarcados.pop(idRegistro);
+        }
+        //console.log(`Los valores actuales del arreglo de marcados es: `, arregloMarcados);
+    }
+
+    function obtenerIdDelFinal(myIdString) {
+
+        let arrSplit = myIdString.split('_');
+        let currentId = arrSplit[arrSplit.length - 1];
+        return currentId;
+    }
+
+
+
+
+    function generaCsvDeConsulta() {
+        let url = "@Url.Content("~/Administrator/GeneraCsv")";
+        // let dataJson = { codigo: '1234', tipoReporte: 'tipo1'}
+        let empresa = document.getElementById("Empresa").value;
+        let fechaInicio = document.getElementById("Fecha1").value;
+        let fechaFin = document.getElementById("Fecha2").value;
+        let busqueda = document.getElementById("TextoBusqueda").value;
+
+        url += `?empresa=${empresa}&fechaInicio=${fechaInicio}&fechaFin=${fechaFin}&busqueda=${busqueda}`;
+        window.open(url);
+
+    }
+
+
+    async function eliminarEvento(clicked_id) {
+        let idRegistro = obtenerIdDelFinal(clicked_id);
+        let url = "@Url.Content("~/Administrator/EliminarRegistroEvento")";
+
+        let params =
+            {
+                id: idRegistro
+            };
+
+        const response = httpPost(
+            url,
+            params
+        );
+        const dataResponse = await response
+            .then(data => {
+                return data;
+            })
+            .catch(error => {
+                console.log("Cayo a Catch: ",error);
+            });
+        console.log(dataResponse);
+        if (dataResponse.response === false) {
+            let messageError = dataResponse.message;
+
+        }
+        console.log(dataResponse);
+
+    }
+
+
+    async function mostrarModal(clicked_id) {
+
+        let idRegistro = obtenerIdDelFinal(clicked_id);
+
+        let url = "@Url.Content("~/Administrator/ObtenerInformacionRegistroEvento")";
+
+        let params =
+            {
+                id : idRegistro
+            };
+
+        const response = httpPost(
+            url,
+            params
+        );
+        const dataResponse = await response
+            .then(data => {
+                return data;
+            })
+            .catch(error => {
+                console.log(error);
+            });
+
+        let popup = document.getElementById('container');
+        if (dataResponse.response === false) {
+            let messageError = dataResponse.message;
+            setErrorMessageForm(messageError, 'modalEditarRegistroMensajeError');
+        }
+        else {
+
+        }
+        popup.classList.add('show');
+
+
+    }
+
+    function mostrarModalEmpresa() {
+        let popup = document.getElementById('container-empresa');
+        popup.classList.add('show');
+    }
+
+    function mostrarModalEvento() {
+        let popup = document.getElementById('container-evento');
+        popup.classList.add('show');
+    }
+
+
+    function cerrarModal() {
+        console.log("CLIC EN CERRAR")
+        let popup = document.getElementById('container');
+        popup.classList.remove('show');
+    }
+
+    function cerrarModalEmpresa() {
+        console.log("CLIC EN CERRAR")
+        let popup = document.getElementById('container-empresa');
+        popup.classList.remove('show');
+
+
+    }
+
+    function cerrarModalEvento() {
+        console.log("CLIC EN CERRAR")
+        let popup = document.getElementById('container-evento');
+        popup.classList.remove('show');
+    }
+
+    async function enviarInvitaciones() {
+        let url = "@Url.Content("~/Administrator/EnviarInvitaciones")";
+        let dataJson = arregloMarcados;
+
+        const response = httpPost(
+            url,
+            dataJson
+        );
+        const dataResponse = await response
+            .then(data => {
+                return data;
+            })
+            .catch(error => {
+                console.log(error);
+            });
+        console.log(dataResponse);
+        if (dataResponse.response === false) {
+            let messageError = dataResponse.message;
+
+        }
+
+    }
+
+
+
+        function refreshPageWithFilters() {
+
+            let empresa = document.getElementById("Empresa").value;
+            let fechaInicio = document.getElementById("Fecha1").value;
+            let fechaFin = document.getElementById("Fecha2").value;
+            let busqueda = document.getElementById("TextoBusqueda").value;
+
+            let urlResultado = '@Url.Content("~/Administrator")';
+
+
+            let params = {
+                IdEmpresa: empresa,
+                FechaInicio: fechaInicio,
+                FechaFin: fechaFin,
+                Busqueda: busqueda
+            };
+            console.log(params);
+            let methodNewView = 'POST';
+            postForm(urlResultado, params, methodNewView);
+        }
+
+
+    async function filtrarRegistros() {
+
+        let form = document.getElementById('frm-filtros');
+        console.log(form);
+            let formJson = serializeForm(form);
+            let url = "@Url.Content("~/Administrator/FiltrarRegistros")";
+
+            const response = httpPost(
+                url,
+                formJson
+            );
+            const dataResponse = await response
+                .then(data => {
+                    return data;
+                })
+                .catch(error => {
+                    console.log(error);
+                });
+
+        console.log(dataResponse);
+        if (dataResponse.response !== false) {
+            let tableRegisters = document.getElementById('registerFound');
+            tableRegisters.innerHTML = '';
+            let rowHeaderTable = '<tr><th></th><th>NOMBRE</th><th>NACIONALIDAD</th><th>EMPRESA</th><th>PASAPORTE</th><th>ACTIVIDAD</th><th>FOLIO Y FECHA DE REGISTRO</th><th>CORREO ELECTRÓNICO</th><th>STATUS</th><th></th><th>EDICIÓN</th></tr>';
+            let rowsRegisterTable = ``;
+
+            dataResponse.result.forEach((registro) => {
+                rowsRegisterTable += `<tr style="background-color:${registro.CssBackground};">
+	                                    <td style="vertical-align:middle;"><input type="checkbox" /></td>
+	                                    <td style="vertical-align:middle;">${registro.Nombre}</td>
+	                                    <td style="vertical-align:middle;">${registro.Nacionalidad}</td>
+	                                    <td style="vertical-align:middle;">${registro.Empresa}</td>
+	                                    <td style="vertical-align:middle;">${registro.Pasaporte}</td>
+	                                    <td style="vertical-align:middle;">${registro.Actividad}</td>
+	                                    <td style="vertical-align:middle;">${registro.FolioYFechaRegistro}</td>
+	                                    <td style="vertical-align:middle;">${registro.CorreoElectronico}</td>
+	                                    <td style="vertical-align:middle;">${registro.Estatus}</td>
+	                                    <td>
+		                                    <button type="button" class="glyphicon glyphicon-pawn"></button>
+		                                    <button type="button" class="glyphicon glyphicon-remove-sign"></button>
+	                                    </td>
+	                                    <td style="vertical-align:middle;"><button type="button" class="glyphicon glyphicon-pencil"> Editar</button></td>
+                                    </tr>`;
+            });
+
+            tableRegisters.innerHTML = rowHeaderTable + rowsRegisterTable;
+
+        }
+
+
+
+    }
+
+</script>

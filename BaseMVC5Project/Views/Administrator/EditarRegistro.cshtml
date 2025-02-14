@@ -1,0 +1,1157 @@
+﻿@model MigracionTalentoExtranjero.Models.Home.RegistroInvitadoModel
+@{
+
+}
+
+<div id="registro">
+    <h1 class="page-header text-center">@ViewBag.Title.</h1>
+    <div class="row">
+        @using (Html.BeginForm("", "", FormMethod.Post, new { id = "frm-registro-invitado" }))
+        {
+            @Html.HiddenFor(m => m.IdiomaActual)
+            @Html.HiddenFor(m => m.Id)
+            <!-- PASAPORTE-->
+            <div class="col-xs-12 col-sm-12 col-md-12">
+                <div class="panel panel-default">
+                    <div class="panel-heading">PASAPORTE</div>
+                    <div id="responseMessage"></div>
+                    <div class="panel-body">
+                        <div class="container">
+                            <div class="row">
+                                <div class="col-xs-12 col-sm-12 col-md-12">
+                                    <div class="">
+                                        <div class="form-group">
+                                            <label>* @Model.LabelNumPasaporte</label>
+                                            @Html.TextBoxFor(m => m.NumeroPasaporte, new { @class = "form-control", required = "required" })
+                                            @Html.ValidationMessageFor(m => m.NumeroPasaporte, null, new { @class = "label label-danger" })
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-xs-12 col-sm-12 col-md-3">
+                                    <div class="form-group">
+                                        <label>* @Model.LabelFechaExpedicion</label>
+                                    </div>
+                                </div>
+                                <div class="col-xs-12 col-sm-3 col-md-3">
+                                    <div class="form-group">
+                                        <div class="input-group">
+                                            <span class="input-group-addon" id="basic-addon1">@Model.LabelFechaDia</span>
+                                            @Html.DropDownListFor(m => m.DiaExpPas, (List<SelectListItem>)ViewBag.DiasList, new { @class = "form-control", style = "position:initial", required = "required" })
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-xs-12 col-sm-3 col-md-3">
+                                    <div class="form-group">
+                                        <div class="input-group">
+                                            <span class="input-group-addon" id="basic-addon1">@Model.LabelFechaMes</span>
+                                            @Html.DropDownListFor(m => m.MesExpPas, (List<SelectListItem>)ViewBag.MesList, new { @class = "form-control", style = "position:initial", required = "required" })
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-xs-12 col-sm-3 col-md-3">
+                                    <div class="form-group">
+                                        <div class="input-group">
+                                            <span class="input-group-addon" id="basic-addon1">@Model.LabelFechaAnio</span>
+                                            @Html.DropDownListFor(m => m.AnioExpPas, (List<SelectListItem>)ViewBag.AniosPasadoList, new { @class = "form-control", style = "position:initial", required = "required" })
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+
+                                <div class="col-xs-12 col-sm-12 col-md-3">
+                                    <div class="form-group">
+                                        <label>* @Model.LabelFechaVencimiento</label>
+                                    </div>
+                                </div>
+                                <div class="col-xs-12 col-sm-3 col-md-3">
+                                    <div class="form-group">
+                                        <div class="input-group">
+                                            <span class="input-group-addon" id="basic-addon1">@Model.LabelFechaDia</span>
+                                            @Html.DropDownListFor(m => m.DiaVenPas, (List<SelectListItem>)ViewBag.DiasList, new { @class = "form-control", style = "position:initial", required = "required" })
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-xs-12 col-sm-3 col-md-3">
+                                    <div class="form-group">
+                                        <div class="input-group">
+                                            <span class="input-group-addon" id="basic-addon1">@Model.LabelFechaMes</span>
+                                            @Html.DropDownListFor(m => m.MesVenPas, (List<SelectListItem>)ViewBag.MesList, new { @class = "form-control", style = "position:initial", required = "required" })
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-xs-12 col-sm-3 col-md-3">
+                                    <div class="form-group">
+                                        <div class="input-group">
+                                            <span class="input-group-addon" id="basic-addon1">@Model.LabelFechaAnio</span>
+                                            @Html.DropDownListFor(m => m.AnioVenPas, (List<SelectListItem>)ViewBag.AniosFuturoList, new { @class = "form-control", style = "position:initial", required = "required" })
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                                    <div class="">
+                                        <div class="form-group">
+                                            <label>* @Model.LabelNacionalidad</label>
+                                            @*@Html.DropDownListFor(m => m.Nacionalidad, (List<SelectListItem>)ViewBag.NacionalidadesList, new { @class = "form-control", style = "position:initial", required = "required" })*@
+                                            @Html.Raw(ViewBag.HTMLNacionalidades)
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- FIN PASAPORTE-->
+
+
+            <!-- DATOS DEL EXTRANJERO VISITANTE-->
+            <div class="col-xs-12 col-sm-12 col-md-12">
+                <div class="panel panel-default">
+                    <div class="panel-heading">DATOS DEL EXTRANJERO VISITANTE</div>
+                    <div id="responseMessage"></div>
+                    <div class="panel-body">
+                        <div class="container">
+
+                            <div class="row">
+                                <div class="col-xs-6 col-sm-6 col-md-6">
+                                    <div class="form-group">
+                                        <label>* @Model.LabelEmpresa</label>
+                                        @Html.DropDownListFor(m => m.Empresa, (List<SelectListItem>)ViewBag.CompaniasList, new { @class = "form-control", required = "required", @onchange = "validarEmpresaSeleccionada()" })
+                                    </div>
+                                </div>
+
+                                <div class="col-xs-6 col-sm-6 col-md-6" id="seccionNuevaEmpresa" hidden>
+                                    <div class="form-group">
+                                        <label>* @Model.LabelEmpresa</label>
+                                        @Html.TextBoxFor(m => m.NuevaEmpresa, new { @class = "form-control", style = "position:initial" })
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-xs-12 col-sm-12 col-md-12">
+                                    <div class="form-group">
+                                        <label>* @Model.LabelNombrePasaporte</label>
+                                    </div>
+                                </div>
+                                <div class="col-xs-12 col-sm-12 col-md-6">
+                                    <div class="form-group">
+                                        <div class="input-group">
+                                            <span class="input-group-addon" id="basic-addon1">@Model.LabelNombre</span>
+                                            @Html.TextBoxFor(m => m.Nombre, new { @class = "form-control", style = "position:initial; width:400;", required = "required" })
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-xs-12 col-sm-12 col-md-6">
+                                    <div class="form-group">
+                                        <div class="input-group">
+                                            <span class="input-group-addon" id="basic-addon1">@Model.LabelApellidos</span>
+                                            @Html.TextBoxFor(m => m.Apellidos, new { @class = "form-control", style = "position:initial;  width:400;", required = "required" })
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-xs-12 col-sm-12 col-md-12">
+                                    <div class="form-group">
+                                        <label>@Model.LabelSexo</label>
+                                        @Html.DropDownListFor(m => m.Sexo, (List<SelectListItem>)ViewBag.GenerosList, new { @class = "form-control" })
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-xs-12 col-sm-12 col-md-6">
+                                    <div class="form-group">
+                                        <label>* @Model.LabelCorreoElectronico</label>
+                                        @Html.TextBoxFor(m => m.Correo, new { @class = "form-control", type = "email", required = "required" })
+                                        @Html.ValidationMessageFor(m => m.NumeroPasaporte, null, new { @class = "label label-danger" })
+                                    </div>
+                                </div>
+                                <div class="col-xs-12 col-sm-12 col-md-6">
+                                    <div class="form-group">
+                                        <label>* @Model.LabelConfirmaCorreoElectronico</label>
+                                        @Html.TextBoxFor(m => m.ConfirmacionCorreo, new { @class = "form-control", type = "email", required = "required" })
+                                        @Html.ValidationMessageFor(m => m.NumeroPasaporte, null, new { @class = "label label-danger" })
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- FIN DATOS DEL EXTRANJERO VISITANTE-->
+
+            <!-- PAIS DE NACIMIENTO-->
+            <div class="col-xs-12 col-sm-12 col-md-12">
+                <div class="panel panel-default">
+                    <div class="panel-heading">PAÍS DE NACIMIENTO</div>
+                    <div id="responseMessage"></div>
+                    <div class="panel-body">
+                        <div class="container">
+                            <div class="row">
+                                <div class="col-xs-12 col-sm-12 col-md-12">
+                                    <div class="form-group">
+                                        <label>* @Model.LabelPaisNacimiento</label>
+                                        @Html.DropDownListFor(m => m.PaisNacimiento, (List<SelectListItem>)ViewBag.PaisesList, new { @class = "form-control", required = "required" })
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- FIN PAIS DE NACIMIENTO-->
+
+            <!-- INFORMACIÓN ADICIONAL DEL EXTRANJERO QUE NOS VISITA-->
+            <div class="col-xs-12 col-sm-12 col-md-12">
+                <div class="panel panel-default">
+                    <div class="panel-heading">INFORMACIÓN ADICIONAL DEL EXTRANJERO QUE NOS VISITA</div>
+                    <div id="responseMessage"></div>
+                    <div class="panel-body">
+                        <div class="container">
+
+                            <div class="row">
+                                <div class="col-xs-12 col-sm-12 col-md-12">
+                                    <div class="form-group">
+                                        <label>@Model.LabelActividadPaisResidencia</label>
+                                        @Html.TextBoxFor(m => m.ActividadPaisResidencia, new { @class = "form-control" })
+                                        @Html.ValidationMessageFor(m => m.NumeroPasaporte, null, new { @class = "label label-danger" })
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-xs-12 col-sm-12 col-md-5">
+                                    <div class="form-group">
+                                        <div class="input-group">
+                                            <span class="input-group-addon" id="basic-addon1">Añadir Excepción (Enviar Invitación)</span>
+                                            @Html.CheckBoxFor(m=>m.CHECK_VERIFY, new { @class = "form-control", style = "position:initial" })
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-xs-12 col-sm-12 col-md-5">
+                                    <div class="form-group">
+                                        <div class="input-group">
+                                            <span class="input-group-addon" id="basic-addon1">@Model.LabelExpulsadoDeMexico</span>
+                                            @Html.DropDownListFor(m => m.FueExpulsadoDeMexico, (List<SelectListItem>)ViewBag.ExpulsadoSiNoList, new { @class = "form-control", style = "position:initial", @onchange = "validarAntecedentesExpulsionSeleccionada()", disabled="disabled" })
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-xs-12 col-sm-12 col-md-6">
+                                    <div class="form-group">
+                                        <div class="input-group">
+                                            <span class="input-group-addon" id="basic-addon1">@Model.LabelAntecedentesPenalesMexico</span>
+                                            @Html.DropDownListFor(m => m.AntecedentesPenalesEnMexico, (List<SelectListItem>)ViewBag.AntecedentesSiNoList, new { @class = "form-control", style = "position:initial", @onchange = "validarAntecedentesExpulsionSeleccionada()", disabled = "disabled" })
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-xs-12 col-sm-12 col-md-6" id="seccionAntecedentesExpulsion">
+                                    <div class="form-group">
+                                        <label>@Model.LabelExplicacionAntecedentesExpulsion</label>
+                                        @Html.TextBoxFor(m => m.ExplicacionAntecedentesExpulsion, new { @class = "form-control", style = "position:initial", disabled = "disabled" })
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-xs-12 col-sm-12 col-md-12">
+                                    <div class="form-group">
+                                        <label>
+                                            * @Model.LabelActividadEnMexico
+                                        </label>
+                                        @Html.TextBoxFor(m => m.ActividadEnMexico, new { @class = "form-control", required = "required" })
+                                        @Html.ValidationMessageFor(m => m.ActividadEnMexico, null, new { @class = "label label-danger" })
+                                    </div>
+                                </div>
+                            </div>
+                            <div id="eventsSection">
+                                @for (int index = 0; index < Model.Eventos.Count; index++)
+                                {
+                                    <div class="panel panel-info" id="panel_evento_@index" style="margin-right: 60px;">
+                                        @Html.HiddenFor(m => m.Eventos[index].Id)
+                                        <div class="row">
+                                            <div class="col-xs-12 col-sm-12 col-md-12">
+                                                <div class="form-group">
+                                                    <label>* Nombre del Evento</label>
+                                                    @Html.DropDownListFor(m => m.Eventos[index].NombreEvento, Model.SelectListEvents[index], new { @class = "form-control", style = "position:initial", required = "required" })
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-xs-12 col-sm-12 col-md-12">
+                                                <div class="form-group">
+                                                    <label>* Inmueble del Evento</label>
+                                                    @Html.DropDownListFor(m => m.Eventos[index].InmuebleEvento, Model.SelectListInmuebles[index], new { @class = "form-control", style = "position:initial" })
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-xs-12 col-sm-12 col-md-12">
+                                                <div class="form-group">
+                                                    <label>* Ubicacion del Inmueble</label>
+                                                    @Html.TextBoxFor(m => m.Eventos[index].UbicacionInmueble, new { @class = "form-control" })
+                                                    @Html.ValidationMessageFor(m => m.Eventos[index].UbicacionInmueble, null, new { @class = "label label-danger" })
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-xs-12 col-sm-12 col-md-3">
+                                                <div class="form-group">
+                                                    <label>Fecha de Inicio del Evento</label>
+                                                </div>
+                                            </div>
+                                            <div class="col-xs-12 col-sm-3 col-md-3">
+                                                <div class="form-group">
+                                                    <div class="input-group">
+                                                        <span class="input-group-addon">Día</span>
+                                                        @Html.DropDownListFor(m => m.Eventos[index].DiaInicioEvento, Model.SelectListDiaInicioEvento[index], new { @class = "form-control", style = "position:initial", required = "required" })
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-xs-12 col-sm-3 col-md-3">
+                                                <div class="form-group">
+                                                    <div class="input-group">
+                                                        <span class="input-group-addon">Mes</span>
+                                                        @Html.DropDownListFor(m => m.Eventos[index].MesInicioEvento, Model.SelectListMesInicioEvento[index], new { @class = "form-control", style = "position:initial", required = "required" })
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-xs-12 col-sm-3 col-md-3">
+                                                <div class="form-group">
+                                                    <div class="input-group">
+                                                        <span class="input-group-addon">Año</span>
+                                                        @Html.DropDownListFor(m => m.Eventos[index].AnioInicioEvento, Model.SelectListAnioInicioEvento[index], new { @class = "form-control", style = "position:initial", required = "required" })
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-xs-12 col-sm-12 col-md-3">
+                                                <div class="form-group">
+                                                    <label>Fecha de Fin del Evento</label>
+                                                </div>
+                                            </div>
+                                            <div class="col-xs-12 col-sm-3 col-md-3">
+                                                <div class="form-group">
+                                                    <div class="input-group">
+                                                        <span class="input-group-addon">Día</span>
+                                                        @Html.DropDownListFor(m => m.Eventos[index].DiaFinEvento, Model.SelectListDiaFinEvento[index], new { @class = "form-control", style = "position:initial", required = "required" })
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-xs-12 col-sm-3 col-md-3">
+                                                <div class="form-group">
+                                                    <div class="input-group">
+                                                        <span class="input-group-addon">Mes</span>
+                                                        @Html.DropDownListFor(m => m.Eventos[index].MesFinEvento, Model.SelectListMesFinEvento[index], new { @class = "form-control", style = "position:initial", required = "required" })
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-xs-12 col-sm-3 col-md-3">
+                                                <div class="form-group">
+                                                    <div class="input-group">
+                                                        <span class="input-group-addon">Año</span>
+                                                        @Html.DropDownListFor(m => m.Eventos[index].AnioFinEvento, Model.SelectListAnioFinEvento[index], new { @class = "form-control", style = "position:initial", required = "required" })
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+                            <div class="row">
+                                <div class="col-xs-12 col-sm-12 col-md-3">
+                                    <button type="button" class="btn btn-default" onclick="AgregaNuevoEvento()">@Model.LabelAgregarOtroEvento</button>
+                                </div>
+                            </div>
+                            <br />
+
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- FIN INFORMACIÓN ADICIONAL DEL EXTRANJERO QUE NOS VISITA-->
+
+            <!-- INFORMACIÓN DE INGRESO AL PAÍS-->
+            <div class="col-xs-12 col-sm-12 col-md-12">
+                <div class="panel panel-default">
+                    <div class="panel-heading">INFORMACIÓN DE INGRESO AL PAÍS (opcional)</div>
+                    <div id="responseMessage"></div>
+                    <div class="panel-body">
+                        <div class="container">
+                            <div class="row">
+                                <div class="col-xs-12 col-sm-12 col-md-3">
+                                    <div class="form-group">
+                                        <label>@Model.LabelFechaLlegada</label>
+                                    </div>
+                                </div>
+                                <div class="col-xs-12 col-sm-3 col-md-3">
+                                    <div class="form-group">
+                                        <div class="input-group">
+                                            <span class="input-group-addon" id="basic-addon1">@Model.LabelFechaDia</span>
+                                            @Html.DropDownListFor(m => m.DiaEntrada, (List<SelectListItem>)ViewBag.DiasList, new { @class = "form-control", style = "position:initial" })
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-xs-12 col-sm-3 col-md-3">
+                                    <div class="form-group">
+                                        <div class="input-group">
+                                            <span class="input-group-addon" id="basic-addon1">@Model.LabelFechaMes</span>
+                                            @Html.DropDownListFor(m => m.MesEntrada, (List<SelectListItem>)ViewBag.MesList, new { @class = "form-control", style = "position:initial" })
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-xs-12 col-sm-3 col-md-3">
+                                    <div class="form-group">
+                                        <div class="input-group">
+                                            <span class="input-group-addon" id="basic-addon1">@Model.LabelFechaAnio</span>
+                                            @Html.DropDownListFor(m => m.AnioEntrada, (List<SelectListItem>)ViewBag.AniosFuturoList, new { @class = "form-control", style = "position:initial" })
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-xs-12 col-sm-12 col-md-3">
+                                    <div class="form-group">
+                                        <label>@Model.LabelFechaSalida</label>
+                                    </div>
+                                </div>
+                                <div class="col-xs-12 col-sm-3 col-md-3">
+                                    <div class="form-group">
+                                        <div class="input-group">
+                                            <span class="input-group-addon" id="basic-addon1">@Model.LabelFechaDia</span>
+                                            @Html.DropDownListFor(m => m.DiaSalida, (List<SelectListItem>)ViewBag.DiasList, new { @class = "form-control", style = "position:initial" })
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-xs-12 col-sm-3 col-md-3">
+                                    <div class="form-group">
+                                        <div class="input-group">
+                                            <span class="input-group-addon" id="basic-addon1">@Model.LabelFechaMes</span>
+                                            @Html.DropDownListFor(m => m.MesSalida, (List<SelectListItem>)ViewBag.MesList, new { @class = "form-control", style = "position:initial" })
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-xs-12 col-sm-3 col-md-3">
+                                    <div class="form-group">
+                                        <div class="input-group">
+                                            <span class="input-group-addon" id="basic-addon1">@Model.LabelFechaAnio</span>
+                                            @Html.DropDownListFor(m => m.AnioSalida, (List<SelectListItem>)ViewBag.AniosFuturoList, new { @class = "form-control", style = "position:initial" })
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <label>@Model.LabelMensajeVuelo</label>
+                            <div class="row">
+                                <div class="col-xs-12 col-sm-6 col-md-6">
+                                    <div class="form-group">
+                                        <label>@Model.LabelAeropuertoLlegada</label>
+                                        @Html.DropDownListFor(m => m.AeropuertoLlegada, (List<SelectListItem>)ViewBag.AeropuertosList, new { @class = "form-control", @onchange = "validarAeropuertoSeleccionada()" })
+                                    </div>
+                                </div>
+                                <div class="col-xs-12 col-sm-6 col-md-6" id="seccionNuevoAeropuerto" hidden>
+                                    <div class="form-group">
+                                        <label>@Model.LabelAeropuertoLlegada</label>
+                                        @Html.TextBoxFor(m => m.NuevoAeropuerto, new { @class = "form-control", style = "position:initial" })
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-xs-12 col-sm-12 col-md-2">
+                                    <div class="form-group">
+                                        <label>@Model.LabelVuelo</label>
+                                    </div>
+                                </div>
+                                <div class="col-xs-12 col-sm-6 col-md-5">
+                                    <div class="form-group">
+                                        <label>@Model.LabelAerolinea</label>
+                                        @Html.DropDownListFor(m => m.Aerolinea, (List<SelectListItem>)ViewBag.AerolineasList, new { @class = "form-control", style = "position:initial", @onchange = "validarAerolineaSeleccionada()" })
+                                    </div>
+                                </div>
+                                <div class="col-xs-12 col-sm-6 col-md-5" id="seccionNuevaAerolinea" hidden>
+                                    <div class="form-group">
+                                        <label>@Model.LabelAerolinea</label>
+                                        @Html.TextBoxFor(m => m.NuevaAerolinea, new { @class = "form-control", style = "position:initial" })
+                                    </div>
+                                </div>
+                                <div class="col-xs-12 col-sm-12 col-md-12 col-md-offset-2">
+                                    <div class="form-group">
+                                        <label>@Model.LabelNumeroVuelo</label>
+                                        @Html.TextBoxFor(m => m.NumeroVuelo, new { @class = "form-control", style = "position:initial" })
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-xs-12 col-sm-12 col-md-12">
+                                <div class="form-group">
+                                    <div style="text-align:center;">
+                                        <button type="submit" id="btnFormSubmit" class="btn btn-success"><span class="glyphicon glyphicon-modal-window"></span> Guardar</button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-xs-12 col-sm-12 col-md-12">
+                                <div id="mensajeError"></div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- FIN INFORMACIÓN DEL VUELO DE LLEGADA-->
+
+            <!-- MODAL -->
+            <div id="ventanaModal" class="modal-aviso">
+                <div class="contenido-modal">
+                    <span class="close-modal" onclick="closeModal()">&times;</span>
+                    <div class="page-header">
+                        <h2>Importante</h2>
+                    </div>
+                    <div class="well">
+                        <p>
+                            Operadora de Centros de Espectáculos, S.A. de C.V. (en adelante OCESA) y/o sus empresas filiares y subsidiarias con domicilio fiscal en Avenida Rio Churubusco y Añil S/N, Colonia Granjas México, Alcaldía Iztacalco, C.P. 08400, Ciudad de México, es responsable del tratamiento de los datos personales recabados en este formato tales como nombre completo, domicilio, teléfono, correo electrónico e información contenida en la identificación oficial presentada, dicha información única y exclusivamente será utilizada por OCESA y/o sus empresas filiales y subsidiarias, para la aceptación de los términos y condiciones establecidas en este párrafo, así como para identificarlo como participante acreditado, la información se conservara por un periodo indeterminado, lo que resulte de los siguientes periodos (i) el tiempo que sea necesario para la actividad (ii) cualquier periodo de retención requerido por la ley, (iii) el final del periodo en el cual pueden surgir litigios o investigaciones con respecto a los servicios. El texto completo del aviso de privacidad integral se pondrá a su disposición cuando así se requiera por escrito el cual debe presentarse en el domicilio indicado en el presente párrafo o enviado al correo electrónico talentoextranjero@ocesa.mx
+                        </p>
+                    </div>
+                    <div class="row">
+                        <div class="col-xs-6 col-sm-6 col-md-4 col-lg-4">
+                            <input type="checkbox" id="aceptaAvisoPrivacidad" onclick="avisoPrivacidadCheckEvent()" />
+                            <span class="label label-info"><label for="aceptaAvisoPrivacidad">Acepto la política de privacidad</label></span>
+                        </div>
+                        <div class="col-xs-6 col-sm-6 col-md-8 col-lg-8">
+                            <div id="alertaPoliticaPrivacidad"></div>
+                        </div>
+
+                    </div>
+                    <div class="row">
+                        <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6" style="text-align:center;">
+                            <button type="button" class="btn btn-danger" onclick="closeModal()">Cancelar</button>
+                        </div>
+                        <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6" style="text-align:center;">
+                            <button type="button" onclick="" class="btn btn-success" id="btnEnviarAvisoPrivacidad" disabled>Aceptar</button>
+                        </div>
+                        <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6" style="text-align:center;">
+                            <div id="g-captcha" data-type="image"></div>
+
+                        </div>
+
+                    </div>
+                    <div class="row">
+                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12" style="text-align:center;">
+                            <div id="messageErrorModal"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- FIN MODAL -->
+
+        }
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script type="text/javascript">
+
+    var onloadCallback = function () {
+        grecaptcha.render('g-captcha', {
+            'sitekey': '6Lct-wolAAAAAMHFDiQg-AJ_VjiVxDs0igxNVK5w',
+            'callback': reCaptchaCallback,
+            theme: 'light', //light or dark
+            type: 'image',// image or audio
+            size: 'normal'//normal or compact
+        });
+    };
+
+    let elementoCheck = document.getElementById("aceptaAvisoPrivacidad");
+    let btn = document.getElementById("btnEnviarAvisoPrivacidad");
+
+    let req = "";
+
+    var reCaptchaCallback = function (response) {
+        if (response !== '') {
+            console.log(response);
+             req = response;
+            btn.disabled = false;
+        }
+    };
+
+
+    document.addEventListener("DOMContentLoaded", function () {
+        document.getElementById("btnFormSubmit").addEventListener("click", function (event) {
+
+            console.log("Se entro a la funcion de validando ")
+            let camposRequeridosVacios = validaCamposRequeridos();
+            if (isANullOrEmptyString(camposRequeridosVacios)) {
+                console.log("El formulario es validoooo");
+                formularioValido = true;
+            } else {
+                let message = 'Debe llenar los campos requeridos: ' + camposRequeridosVacios;
+                setErrorMessageForm(message, 'mensajeError');
+            }
+        });
+    });
+
+    let idiomaActualValue = document.getElementById("IdiomaActual").value;
+    let mensaje0 = idiomaActualValue === "ES" ? "La fecha de expiración del pasaporte no debe ser mayor o igual a la fecha de expedición" : "The expiration date of the passport must not be greater than or equal to the date of issue";
+    let mensaje1 = idiomaActualValue === "ES" ? "La fecha de inicio del evento no debe ser mayor a la fecha término del evento" : "The start date of the event must not be greater than the end date of the event";
+    let mensaje2 = idiomaActualValue === "ES" ? "La fecha de llegada no debe ser mayor a la fecha de salida" : "The arrival date must not be later than the departure date";
+    let banderaFecha0 = false;
+    let banderaFecha1 = false;
+    let banderaFechaOpcional = false;
+    let dia;
+    let mes;
+
+    document.addEventListener("DOMContentLoaded", function () {
+        hideLoader();
+
+        document.getElementById("AnioVenPas").addEventListener("blur", function (event) {
+            banderaFecha0 = validaFechasCongruencia("ExpPas", "VenPas", mensaje0);
+        });
+
+        document.getElementById("Eventos_0__AnioFinEvento").addEventListener("blur", function (event) {
+            banderaFecha1 = validaFechasCongruencia("InicioEvento", "FinEvento", mensaje1, 1);
+        });
+
+        document.getElementById("AnioSalida").addEventListener("blur", function (event) {
+            banderaFechaOpcional = validaFechasCongruencia("Entrada", "Salida", mensaje2);
+        });
+
+        // Llenado dinamico de fechas
+        document.getElementById("DiaExpPas").addEventListener("blur", function (event) {
+            dia = document.getElementById("DiaExpPas").value;
+            document.getElementById("DiaVenPas").value = dia;
+        });
+
+        document.getElementById("MesExpPas").addEventListener("blur", function (event) {
+            mes = document.getElementById("MesExpPas").value;
+            document.getElementById("MesVenPas").value = mes;
+        });
+
+        document.getElementById("Eventos_0__DiaInicioEvento").addEventListener("blur", function (event) {
+            dia = document.getElementById("Eventos_0__DiaInicioEvento").value;
+            document.getElementById("Eventos_0__DiaFinEvento").value = dia;
+        });
+
+        document.getElementById("Eventos_0__MesInicioEvento").addEventListener("blur", function (event) {
+            mes = document.getElementById("Eventos_0__MesInicioEvento").value;
+            document.getElementById("Eventos_0__MesFinEvento").value = mes;
+        });
+
+        document.getElementById("DiaEntrada").addEventListener("blur", function (event) {
+            dia = document.getElementById("DiaEntrada").value;
+            document.getElementById("DiaSalida").value = dia;
+        });
+
+        document.getElementById("MesEntrada").addEventListener("blur", function (event) {
+            dia = document.getElementById("MesEntrada").value;
+            document.getElementById("MesSalida").value = dia;
+        });
+
+
+        //llenando las segundas fechas
+        document.getElementById("frm-registro-invitado").addEventListener("submit", async function (event) {
+            event.preventDefault();
+
+            let banderaFechaPasaporte = false;
+            console.log("Valor de banderaFechaPasaporte : ", banderaFechaPasaporte);
+            banderaFechaPasaporte = validaFechasCongruencia("ExpPas", "VenPas", mensaje0);
+            console.log("Valor de banderaFechaPasaporte : ", banderaFechaPasaporte);
+            let banderaFechaEvento =  validaFechasCongruencia("InicioEvento", "FinEvento", mensaje1, 1);
+            let _banderaFechaOpcional =  validaFechasCongruencia("Entrada", "Salida", mensaje2);
+
+            console.log("Banderas : " + banderaFechaPasaporte + "---" + banderaFechaEvento + "---" + _banderaFechaOpcional);
+            /* formularioValido = true;*/
+            //Si el formulario esta bien se muestra el formulario
+                if (formularioValido === true && banderaFechaPasaporte === true ) {
+                    console.log("Entre  a las 3 banderas");
+                    await enviarFormulario();
+                }
+            
+            hideLoader();
+        });
+
+
+
+        function validaFechasCongruencia(seccionInicio, seccionFin, mensaje, flujo = 0) {
+            //Ejemplo parametro:
+            // seccionInicio = Dia(ExpPas), Mes(ExPas), Anio(ExPas)
+
+            console.log("VALIDAR FECHAS");
+            let diaInicio, mesInicio, anioInicio;
+            let diaFin, mesFin, anioFin;
+
+            if (flujo == 0) {
+                diaInicio = document.getElementById(`Dia${seccionInicio}`);
+                mesInicio = document.getElementById(`Mes${seccionInicio}`);
+                anioInicio = document.getElementById(`Anio${seccionInicio}`);
+
+                diaFin = document.getElementById(`Dia${seccionFin}`);
+                mesFin = document.getElementById(`Mes${seccionFin}`);
+                anioFin = document.getElementById(`Anio${seccionFin}`);
+            } else {
+                console.log("Entre a flujo alterno");
+                diaInicio = document.getElementById(`Eventos_0__Dia${seccionInicio}`);
+                mesInicio = document.getElementById(`Eventos_0__Mes${seccionInicio}`);
+                anioInicio = document.getElementById(`Eventos_0__Anio${seccionInicio}`);
+                console.log(diaInicio);
+
+                diaFin = document.getElementById(`Eventos_0__Dia${seccionFin}`);
+                mesFin = document.getElementById(`Eventos_0__Mes${seccionFin}`);
+                anioFin = document.getElementById(`Eventos_0__Anio${seccionFin}`);
+            }
+
+            const selectedInDiaPass = diaInicio.options[diaInicio.selectedIndex].text;
+            const selectedInMesPass = mesInicio.options[mesInicio.selectedIndex].text;
+            const selectedInAnioPass = anioInicio.options[anioInicio.selectedIndex].text;
+
+            const selectedFinDia = diaFin.options[diaFin.selectedIndex].text;
+            const selectedFinMes = mesFin.options[mesFin.selectedIndex].text;
+            const selectedFinAnio = anioFin.options[anioFin.selectedIndex].text;
+
+            console.log("primer fecha recuperada");
+            const fechaInicial =
+                selectedInAnioPass + "-" + selectedInMesPass + "-" + selectedInDiaPass;
+            const fechaInicialFormat = new Date(fechaInicial);
+            console.log(fechaInicialFormat);
+
+            console.log("Segunda fecha recuperada");
+            const fechaFinal =
+                selectedFinAnio + "-" + selectedFinMes + "-" + selectedFinDia;
+            const fechaFinalFormat = new Date(fechaFinal);
+            console.log(fechaFinalFormat);
+
+            if (fechaInicialFormat > fechaFinalFormat) {
+                Swal.fire({
+                    icon: "error",
+                    title: "Oops...",
+                    text: `${mensaje}`,
+                    imageWidth: "40px",
+                });
+                console.log("Entro al false");
+                return false;
+            } else {
+                console.log("TODO OK");
+                return true;
+            }
+
+        }
+
+
+
+    });
+
+
+
+    function avisoPrivacidadCheckEvent() {
+        let elementoCheck = document.getElementById("aceptaAvisoPrivacidad");
+        let btn = document.getElementById("btnEnviarAvisoPrivacidad");
+        if (elementoCheck.checked) {
+            btn.disabled = false;
+        }
+        else {
+            btn.disabled = true;
+        }
+    }
+
+    function closeModal() {
+        let modal = document.getElementById("ventanaModal");
+        modal.style.display = "none";
+    }
+
+    async function enviarFormulario() {
+
+        //const btnEnviarAvisoPrivacidad = document.getElementById("btnEnviarAvisoPrivacidad");
+        //btnEnviarAvisoPrivacidad.disabled = true;
+        showLoader();
+        let formularioCompleto = true;
+
+        if (formularioCompleto) {
+            let form = document.getElementById('frm-registro-invitado');
+            let formJson = serializeForm(form);
+            let url = "@Url.Content("~/Administrator/ActualizarRegistroInvidato")";
+            console.log(url);
+            const response = httpPost(
+                url,
+                formJson
+            );
+            const dataResponse = await response
+                .then(data => {
+                    return data;
+                })
+                .catch(error => {
+                    console.log(error);
+                    btnEnviarAvisoPrivacidad.disabled = false;
+                    hideLoader();
+                });
+
+            if (dataResponse.response === false) {
+                let messageError = dataResponse.message;
+                setErrorMessageForm(messageError, 'messageErrorModal');
+                btnEnviarAvisoPrivacidad.disabled = false;
+                hideLoader();
+            }
+            else {
+                //Escenario correccto, redireccionar
+                let urlResultado = dataResponse.href;
+                let params = {
+                };
+                let methodNewView = 'POST';
+                postForm(urlResultado, params, methodNewView);
+            }
+        }
+        else {
+            btnEnviarAvisoPrivacidad.disabled = false;
+        }
+
+        hideLoader();
+
+    }
+
+    function validaCamposRequeridos() {
+        let result = '';
+        let NumeroPasaporte = document.getElementById("NumeroPasaporte") !== null ? document.getElementById("NumeroPasaporte").value : "-";
+        //console.log(NumeroPasaporte);
+        let DiaExpPas = document.getElementById("DiaExpPas") !== null ? document.getElementById("DiaExpPas").value : "-";
+        //console.log(DiaExpPas);
+        let MesExpPas = document.getElementById("MesExpPas") !== null ? document.getElementById("MesExpPas").value : "-";
+        //console.log(MesExpPas);
+        let AnioExpPas = document.getElementById("AnioExpPas") !== null ? document.getElementById("AnioExpPas").value : "-";
+        //console.log(AnioExpPas);
+        let DiaVenPas = document.getElementById("DiaVenPas") !== null ? document.getElementById("DiaVenPas").value : "-";
+        //console.log(DiaVenPas);
+        let MesVenPas = document.getElementById("MesVenPas") !== null ? document.getElementById("MesVenPas").value : "-";
+        //console.log(MesVenPas);
+        let AnioVenPas = document.getElementById("AnioVenPas") !== null ? document.getElementById("AnioVenPas").value : "-";
+        //console.log(AnioVenPas);
+        let Nacionalidad = document.getElementById("Nacionalidad") !== null ? document.getElementById("Nacionalidad").value : "-";
+        //console.log(Nacionalidad);
+
+        let Empresa = document.getElementById("Empresa").value;
+        let Nombre = document.getElementById("Nombre").value;
+        let Apellidos = document.getElementById("Apellidos").value;
+        //let Sexo = document.getElementById("Sexo").value;
+        let Correo = document.getElementById("Correo").value;
+        let ConfirmacionCorreo = document.getElementById("ConfirmacionCorreo").value;
+
+        if (Correo !== ConfirmacionCorreo)
+            result += "<br>El correo debe ser igual a la confirmación del correo, ";
+
+        let PaisNacimiento = document.getElementById("PaisNacimiento").value;
+
+        //let ActividadPaisResidencia = document.getElementById("ActividadPaisResidencia").value;
+        //let FueExpulsadoDeMexico = document.getElementById("FueExpulsadoDeMexico").value;
+        //let AntecedentesPenalesEnMexico = document.getElementById("AntecedentesPenalesEnMexico").value;
+        let ActividadEnMexico = document.getElementById("ActividadEnMexico").value;
+        let NombreEvento = document.getElementById("Eventos_0__NombreEvento").value;
+        let DiaInicioEvento = document.getElementById("Eventos_0__DiaInicioEvento").value;
+        let MesInicioEvento = document.getElementById("Eventos_0__MesInicioEvento").value;
+        let AnioInicioEvento = document.getElementById("Eventos_0__AnioInicioEvento").value;
+
+        //let AeropuertoLlegada = document.getElementById("AeropuertoLlegada").value;
+        //let Aerolinea = document.getElementById("Aerolinea").value;
+        //let NumeroVuelo = document.getElementById("NumeroVuelo").value;
+
+        if (isANullOrEmptyString(NumeroPasaporte)) {
+            result += "<br>Número de Pasaporte, ";
+        }
+        if (isANullOrEmptyString(DiaExpPas)) {
+            result += "<br>Fecha de Expedición de Pasaporte (Día), ";
+        }
+        if (isANullOrEmptyString(MesExpPas)) {
+            result += "<br>Fecha de Expedición de Pasaporte (Mes), ";
+        }
+        if (isANullOrEmptyString(AnioExpPas)) {
+            result += "<br>Fecha de Expedición de Pasaporte (Año), ";
+        }
+        if (isANullOrEmptyString(DiaVenPas)) {
+            result += "<br>Fecha de Vencimiento de Pasaporte (Día), ";
+        }
+        if (isANullOrEmptyString(MesVenPas)) {
+            result += "<br>Fecha de Vencimiento de Pasaporte (Mes), ";
+        }
+        if (isANullOrEmptyString(AnioVenPas)) {
+            result += "<br>Fecha de Vencimiento de Pasaporte (Año), ";
+        }
+        if (isANullOrEmptyString(Nacionalidad)) {
+            result += "<br>Nacionalidad (En Pasaporte), ";
+        }
+        if (isANullOrEmptyString(Empresa)) {
+            result += "<br>Empresa, ";
+        }
+        if (isANullOrEmptyString(Nombre)) {
+            result += "<br>Nombre, ";
+        }
+        if (isANullOrEmptyString(Apellidos)) {
+            result += "<br>Apellidos, ";
+        }
+        if (isANullOrEmptyString(Correo)) {
+            result += "<br>Correo, ";
+        }
+        if (isANullOrEmptyString(ConfirmacionCorreo)) {
+            result += "<br>Confirmación de Correo, ";
+        }
+        if (isANullOrEmptyString(PaisNacimiento)) {
+            result += "<br>País de Nacimiento, ";
+        }
+
+        if (isANullOrEmptyString(ActividadEnMexico)) {
+            result += "<br>Actividad en el GP de México, ";
+        }
+        if (isANullOrEmptyString(NombreEvento)) {
+            result += "<br>Nombre del Evento, ";
+        }
+        if (isANullOrEmptyString(DiaInicioEvento)) {
+            result += "<br>Fecha de Inicio del Evento (Día), ";
+        }
+        if (isANullOrEmptyString(MesInicioEvento)) {
+            result += "<br>Fecha de Inicio del Evento (Mes), ";
+        }
+        if (isANullOrEmptyString(AnioInicioEvento)) {
+            result += "<br>Fecha de Inicio del Evento (Año), ";
+        }
+
+        return result;
+    }
+
+
+
+    function validarEmpresaSeleccionada() {
+        let valorEmpresaSeleccionada = document.getElementById("Empresa").value;
+        let seccionNuevaEmpresa = document.getElementById("seccionNuevaEmpresa");
+        // console.log(valorEmpresaSeleccionada);
+        if (valorEmpresaSeleccionada === 'OTRA') {
+            seccionNuevaEmpresa.style.display = 'block';
+
+        }
+        else {
+            let nuevaEmpresa = document.getElementById("NuevaEmpresa");
+            nuevaEmpresa.value = '';
+
+            seccionNuevaEmpresa.style.display = 'none';
+
+        }
+    }
+
+    function validarAeropuertoSeleccionada() {
+        let valorAeropuertoLlegada = document.getElementById("AeropuertoLlegada").value;
+        let seccionNuevoAeropuerto = document.getElementById("seccionNuevoAeropuerto");
+        // console.log(valorEmpresaSeleccionada);
+        if (valorAeropuertoLlegada === 'OTRA') {
+            seccionNuevoAeropuerto.style.display = 'block';
+
+        }
+        else {
+            let NuevoAeropuerto = document.getElementById("NuevoAeropuerto");
+            NuevoAeropuerto.value = '';
+
+            seccionNuevoAeropuerto.style.display = 'none';
+
+        }
+    }
+
+
+    function validarAerolineaSeleccionada() {
+        let valor = document.getElementById("Aerolinea").value;
+        let seccion = document.getElementById("seccionNuevaAerolinea");
+        // console.log(valorEmpresaSeleccionada);
+        if (valor === 'OTRA') {
+            seccion.style.display = 'block';
+        }
+        else {
+            let NuevoElemento = document.getElementById("NuevaAerolinea");
+            NuevoElemento.value = '';
+
+            seccion.style.display = 'none';
+
+        }
+    }
+
+
+
+
+    function validarInmuebleSeleccionado(indice) {
+        indice = 0;
+        console.log("indice recibido: " + indice);
+        let valor = document.getElementById(`Eventos_${indice}__InmuebleEvento`).value;
+        let seccion = document.getElementById(`seccionNuevoInmueble_${indice}`);
+        // console.log(valorEmpresaSeleccionada);
+        if (valor === 'OTRA') {
+            seccion.style.display = 'block';
+
+        }
+        else {
+            let NuevoElemento = document.getElementById(`Eventos_${indice}__NuevoInmuebleEvento`);
+            NuevoElemento.value = '';
+
+            seccion.style.display = 'none';
+
+        }
+    }
+
+    function validarAntecedentesExpulsionSeleccionada() {
+        let FueExpulsadoDeMexico = document.getElementById("FueExpulsadoDeMexico").value;
+        let AntecedentesPenalesEnMexico = document.getElementById("AntecedentesPenalesEnMexico").value;
+
+        let seccionAntecedentesExpulsion = document.getElementById("seccionAntecedentesExpulsion");
+        // console.log(valorEmpresaSeleccionada);
+        if (FueExpulsadoDeMexico === 'SI' || AntecedentesPenalesEnMexico === 'SI') {
+            seccionAntecedentesExpulsion.style.display = 'block';
+
+        }
+        else {
+            let ExplicacionAntecedentesExpulsion = document.getElementById("ExplicacionAntecedentesExpulsion");
+            ExplicacionAntecedentesExpulsion.value = '';
+
+            seccionAntecedentesExpulsion.style.display = 'none';
+
+        }
+    }
+
+    function AgregaNuevoEvento() {
+
+        // console.log("Entro a agregar nuevo evento");
+        //Obtener los paneles actuales
+        let currentEventsArr = document.querySelectorAll('[id^="panel_evento_"]');
+        let currentEventsLength = currentEventsArr.length;
+        let nextEventId = currentEventsLength;
+
+        let newTagElement = `
+                                        <div class="row">
+                                            <div class="col-xs-12 col-sm-12 col-md-12">
+                                                <div class="form-group">
+                                                    <label>* Nombre del Evento</label>
+													<select class="form-control" id="Eventos_${nextEventId}__NombreEvento" name="Eventos[${nextEventId}].NombreEvento" required="required" style="position:initial" wtx-context="E79F8156-4935-4A60-862A-0E72462AED8E">
+														@Html.Raw(ViewBag.EventosOptionsHTML)
+													</select>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-xs-12 col-sm-12 col-md-12">
+                                                <div class="form-group">
+                                                    <label>* Inmueble del Evento</label>
+													<select class="form-control" id="Eventos_${nextEventId}__InmuebleEvento" name="Eventos[${nextEventId}].InmuebleEvento" style="position:initial" wtx-context="00C8D930-EF5F-4FA9-A88D-E4CECCC7C974">
+														@Html.Raw(ViewBag.InmueblesOptionsHTML)
+													</select>
+												</div>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-xs-12 col-sm-12 col-md-12">
+                                                <div class="form-group">
+                                                    <label>* Ubicacion del Inmueble</label>
+                                                    <input class="form-control" id="Eventos_${nextEventId}__UbicacionInmueble" name="Eventos[${nextEventId}].UbicacionInmueble" type="text" value="" wtx-context="CC91F8CA-7582-4F2D-98CF-5510ADB2CF13">
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-xs-12 col-sm-12 col-md-3">
+                                                <div class="form-group">
+                                                    <label>Fecha de Inicio del Evento</label>
+                                                </div>
+                                            </div>
+                                            <div class="col-xs-12 col-sm-3 col-md-3">
+                                                <div class="form-group">
+                                                    <div class="input-group">
+                                                        <span class="input-group-addon" id="basic-addon1">Día</span>
+                                                        <select class="form-control" id="Eventos_${nextEventId}__DiaInicioEvento" name="Eventos[${nextEventId}].DiaInicioEvento" required="required" style="position:initial" wtx-context="CE141112-0B68-4E4E-AC68-DC0E5D43B658">
+															@Html.Raw(ViewBag.DiasOptionsHTML)
+														</select>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-xs-12 col-sm-3 col-md-3">
+                                                <div class="form-group">
+                                                    <div class="input-group">
+                                                        <span class="input-group-addon" id="basic-addon1">Mes</span>
+														<select class="form-control" id="Eventos_${nextEventId}__MesInicioEvento" name="Eventos[${nextEventId}].MesInicioEvento" required="required" style="position:initial" wtx-context="24160B61-E83C-4115-89AD-542FC6827459">
+															@Html.Raw(ViewBag.MesOptionsHTML)
+														</select>
+													</div>
+                                                </div>
+                                            </div>
+                                            <div class="col-xs-12 col-sm-3 col-md-3">
+                                                <div class="form-group">
+                                                    <div class="input-group">
+                                                        <span class="input-group-addon" id="basic-addon1">Año</span>
+														<select class="form-control" id="Eventos_${nextEventId}__AnioInicioEvento" name="Eventos[${nextEventId}].AnioInicioEvento" required="required" style="position:initial" wtx-context="0F1AE14B-4C43-4ADE-8E13-710E5E18A317">
+															@Html.Raw(ViewBag.AniosOptionsHTML)
+														</select>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                         <div class="row">
+                                            <div class="col-xs-12 col-sm-12 col-md-3">
+                                                <div class="form-group">
+                                                    <label>Fecha de Fin del Evento</label>
+                                                </div>
+                                            </div>
+                                            <div class="col-xs-12 col-sm-3 col-md-3">
+                                                <div class="form-group">
+                                                    <div class="input-group">
+                                                        <span class="input-group-addon" id="basic-addon1">Día</span>
+                                                        <select class="form-control" id="Eventos_${nextEventId}__DiaFinEvento" name="Eventos[${nextEventId}].DiaFinEvento" required="required" style="position:initial" wtx-context="CE141112-0B68-4E4E-AC68-DC0E5D43B658">
+															@Html.Raw(ViewBag.DiasOptionsHTML)
+														</select>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-xs-12 col-sm-3 col-md-3">
+                                                <div class="form-group">
+                                                    <div class="input-group">
+                                                        <span class="input-group-addon" id="basic-addon1">Mes</span>
+														<select class="form-control" id="Eventos_${nextEventId}__MesFinEvento" name="Eventos[${nextEventId}].MesFinEvento" required="required" style="position:initial" wtx-context="24160B61-E83C-4115-89AD-542FC6827459">
+															@Html.Raw(ViewBag.MesOptionsHTML)
+														</select>
+													</div>
+                                                </div>
+                                            </div>
+                                            <div class="col-xs-12 col-sm-3 col-md-3">
+                                                <div class="form-group">
+                                                    <div class="input-group">
+                                                        <span class="input-group-addon" id="basic-addon1">Año</span>
+														<select class="form-control" id="Eventos_${nextEventId}__AnioFinEvento" name="Eventos[${nextEventId}].AnioFinEvento" required="required" style="position:initial" wtx-context="0F1AE14B-4C43-4ADE-8E13-710E5E18A317">
+															@Html.Raw(ViewBag.AniosOptionsHTML)
+														</select>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>`;
+
+        let newNode = document.createElement('div');
+        newNode.id = `panel_evento_${nextEventId}`;
+        newNode.className = 'panel panel-info';
+        newNode.style = 'style="margin-right: 60px;';
+        newNode.innerHTML = newTagElement;
+
+        let contenedor = document.getElementById('eventsSection');
+        contenedor.appendChild(newNode);
+    }
+
+
+    function soloPermiteNumeros(e) {
+        // console.log(e.code);
+        if (e.key === '0' || e.key === '1' || e.key === '2' || e.key === '3' || e.key === '4'
+            || e.key === '5' || e.key === '6' || e.key === '7' || e.key === '8' || e.key === '9') {
+            console.log("Se resiono un numero");
+        }
+        else {
+            if (e.code !== 'Tab') {
+                e.preventDefault();
+                return false;
+            }
+        }
+    }
+
+</script>
+
+<script src="https://www.google.com/recaptcha/api.js?onload=onloadCallback&render=explicit"
+        async defer>
+</script>

@@ -1,0 +1,104 @@
+﻿<div>
+    <img src="~/Assets/logo_ocesa.png" height="100px" />
+</div>
+
+<div class="jumbotron">
+    <div class="">
+        <div class="panel panel-default">
+            <div class="panel-heading"><h1 style="text-align: center; font-size: 40px; margin-top: 0; margin-bottom: 20px;">Search Your Passport / Busca tu Pasaporte</h1></div>
+            <div class="panel-body">
+                <div class="col-md-12 col-lg-12 col-sm-12">
+                    <div class="well">
+                        <a href="@Url.Content("~/Home/RegistroInvitado")/@ViewBag.Lenguaje"><button style="color: red;">Es mi primer evento en OCESA / It is my first event in OCESA</button></a>
+                    </div>
+                </div>
+
+                <div class="col-md-12 col-lg-12 col-sm-12">
+                    <div class="well">
+                        <div class="form-group">
+                            <label>
+                                Si usted ha participado en eventos anteriores, por favor indique el número de su pasaporte
+                            </label>
+                            <label>
+                                If you have participated in previous events, please indicate your passport number
+                            </label>
+                            <div class="input-group">
+                                <span class="input-group-addon" id="codeInputSpan" style="text-align:left;"># Pasaporte <br /># Passport</span>
+                                <input type="text" class="form-control" style="min-width:100px; height:42px;" id="Pasaporte" placeholder="93753434" aria-describedby="codeInputSpan" />
+                            </div>
+                            <button type="button" class="btn btn-default" onclick="buscaPasaporte()">Find / Buscar</button>
+                            <button type="button" class="btn btn-default" onclick="LimpiarCampos()">Limpiar / Clean</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-12 col-lg-12 col-sm-12" hidden="hidden" id="seccionBotonRedir">
+                    <div class="well">
+                        <div class="form-group">
+                            <div class="input-group">
+                                <a href="@Url.Content("~/Home/RegistroInvitado")/@ViewBag.Lenguaje"><button style="color:red;">NO se encontró el pasaporte, haga clic aquí para capturar uno nuevo</button></a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script type="text/javascript">
+
+
+    document.addEventListener("DOMContentLoaded", function () {
+        hideLoader();
+
+
+    });
+
+
+    function LimpiarCampos()
+    {
+
+        document.getElementById('Pasaporte').value='';
+    }
+    async function buscaPasaporte() {
+        showLoader();
+        let codigoABuscar = document.getElementById("Pasaporte").value;
+        let url = "@Url.Content("~/Home/BuscarPasaporte")";
+        let dataJson = { pasaporte: codigoABuscar }
+            const response = httpPost(
+                url,
+                dataJson
+            );
+            const dataResponse = await response
+                .then(data => {
+                    return data;
+                })
+                .catch(error => {
+                    console.log(error);
+                });
+
+        let seccionBotones = document.getElementById('seccionBotonRedir');
+        if (dataResponse.response === false) {
+            seccionBotones.hidden = false;
+        }
+        else {
+            //Escenario correccto, redireccionar
+
+                let urlResultado = dataResponse.href+'/'+ '@ViewBag.Lenguaje';
+
+            console.log(urlResultado);
+
+                let params = dataResponse.result;
+                let methodNewView = 'POST';
+                postForm(urlResultado, params, methodNewView);
+
+            seccionBotones.hidden = true;
+        }
+        hideLoader();
+
+    }
+
+
+
+</script>

@@ -1,0 +1,5 @@
+C:\Users\jberistain\OneDrive - OCESA\Documents\Ocesa\Talento extranjero\Código\2024MigracionTalentoExtranjero\Migracion.Talento.Entities\obj\Debug\net6.0\Migracion.Talento.Entities.csproj.AssemblyReference.cache
+C:\Users\jberistain\OneDrive - OCESA\Documents\Ocesa\Talento extranjero\Código\2024MigracionTalentoExtranjero\Migracion.Talento.Entities\obj\Debug\net6.0\Migracion.Talento.Entities.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\jberistain\OneDrive - OCESA\Documents\Ocesa\Talento extranjero\Código\2024MigracionTalentoExtranjero\Migracion.Talento.Entities\obj\Debug\net6.0\Migracion.Talento.Entities.AssemblyInfoInputs.cache
+C:\Users\jberistain\OneDrive - OCESA\Documents\Ocesa\Talento extranjero\Código\2024MigracionTalentoExtranjero\Migracion.Talento.Entities\obj\Debug\net6.0\Migracion.Talento.Entities.AssemblyInfo.cs
+C:\Users\jberistain\OneDrive - OCESA\Documents\Ocesa\Talento extranjero\Código\2024MigracionTalentoExtranjero\Migracion.Talento.Entities\obj\Debug\net6.0\Migracion.Talento.Entities.csproj.CoreCompileInputs.cache

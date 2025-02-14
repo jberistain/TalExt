@@ -1,0 +1,341 @@
+﻿@model MigracionTalentoExtranjero.Models.Catalogs.CatalogoGeneral
+@{
+
+}
+
+    <div class="navbar navbar-inverse navbar-fixed-top">
+        <div class="container">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+            </div>
+            <div class="navbar-collapse collapse">
+                <ul class="nav navbar-nav navbar-right">
+                    <li>
+                        <a href="@Url.Content("~/Administrator/logout")">Finalizar Sesión</a>
+                    </li>
+
+                </ul>
+            </div>
+        </div>
+    </div>
+
+
+
+<div>
+    <p>
+        <img src="~/Assets/logo_ocesa.png" height="100px" />
+    </p>
+</div>
+
+<div class="panel panel-default">
+    <!-- Default panel contents -->
+    <div class="panel-heading">CATÁLOGO DE FIRMAS DE DOCUMENTOS</div>
+    <div class="panel-body">
+        <!-- Table -->
+        <table class="table" id="registerFound">
+            <tr>
+                <th>IDENTIFICADOR</th>
+                <th>DESCRIPCIÓN</th>
+                @*<th>REPRESENTANTE LEGAL</th>*@
+                <th>EDICIÓN</th>
+            </tr>
+            @foreach (MigracionTalentoExtranjero.Models.Catalogs.CatalogoGeneral registro in ViewBag.CatalogList)
+            {
+                <tr>
+                    <td style="vertical-align:middle;">@registro.Id</td>
+                    <td style="vertical-align:middle;">@registro.AtributoAdicionalStr1</td>
+                    @*<td style="vertical-align:middle;">@registro.AtributoAdicional1</td>*@
+                    <td style="vertical-align:middle;"><button type="button" class="glyphicon glyphicon-pencil" id="open_register_@registro.Id" onclick="mostrarModal(this.id)"> Editar</button></td>
+                </tr>
+            }
+        </table>
+    </div>
+
+</div>
+
+@*MODAL EDITAR ---------------------------------------------*@
+<div class="contenedor-modales" id="container">
+    <div class="contenido-modal2">
+        <div class="p-2" style="width:30px; float: right; margin-top:10px;">
+            <span onclick="cerrarModal()" style="cursor: pointer; color: crimson; font-weight:bold; font-size:14px;">X</span>
+        </div>
+        <div id="modalEditarRegistroMensajeError"></div>
+        <div class="contenido-modal-grupos">
+            <div class="row">
+                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                    <h1 class="folio-editar"></h1>
+                </div>
+            </div>
+            <hr>
+            <p class="subtitulos-modal">Datos de catálogo</p>
+            <hr>
+            @Html.HiddenFor(m => m.Id)
+            <div class="row">
+                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                    <div class="input-group">
+                        <span class="input-group-addon">Tipo de Evento:</span>
+                        @Html.DropDownListFor(m => m.AtributoAdicionalStr6, (List<SelectListItem>)ViewBag.ListaTiposEvento, new { @class = "form-control", disabled = "disabled" })
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-xs-8 col-sm-12 col-md-12 col-lg-12">
+                    <div class="input-group">
+                        <span class="input-group-addon">Titulo:</span>
+                        @Html.TextAreaFor(m => m.AtributoAdicionalStr1, new { @class = "form-control", style = "max-width:100%;", disabled = "disabled" })
+                    </div>
+                </div>
+            </div>
+
+
+            <div class="row">
+                <div class="col-xs-8 col-sm-12 col-md-12 col-lg-12">
+                    <div class="input-group">
+                        <span class="input-group-addon">Firma:</span>
+                        @Html.TextAreaFor(m => m.AtributoAdicionalStr4, new { @class = "form-control", style = "max-width:100%;", disabled = "disabled" })
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-xs-8 col-sm-12 col-md-12 col-lg-12">
+                    <div class="input-group">
+                        <img src="" id="idImagenBase64" width="300px" height="200px" />
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-xs-8 col-sm-12 col-md-12 col-lg-12">
+                    <div class="input-group">
+                        <span class="input-group-addon">Cargar Nueva Imagen de Firma:</span>
+                        <input type="file" id="ArchivoImagen" accept=".png" />
+                    </div>
+                </div>
+            </div>
+            <button onclick="GuardarCatalogo()" class="btn-block">Guardar Cambios</button>
+
+        </div>
+    </div>
+</div>
+
+
+
+<div class="contenedor-modales" id="containerAlert">
+    <div class="contenido-modal2">
+        <div class="p-2" style="width:30px; float: right; margin-top:10px;">
+            <span onclick="cerrarModalAlert()" style="cursor: pointer; color: crimson; font-weight:bold; font-size:14px;">X</span>
+        </div>
+        <div class="contenido-modal-grupos">
+            <hr>
+            <p class="subtitulos-modal">Resultado</p>
+            <hr>
+            <div class="row">
+                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                    <div id="modalAlertMessageResult"></div>
+                </div>
+            </div>
+            <button onclick="cerrarModalAlert()" class="btn-block">Cerrar</button>
+        </div>
+    </div>
+</div>
+
+
+<script type="text/javascript">
+
+    let accionCRUD = '';
+    let popupAlert = document.getElementById('containerAlert');
+    let accionPopupAlert = '';
+
+    function obtenerIdDelFinal(myIdString) {
+
+        let arrSplit = myIdString.split('_');
+        let currentId = arrSplit[arrSplit.length - 1];
+        return currentId;
+    }
+
+
+
+    document.addEventListener("DOMContentLoaded", function () {
+        hideLoader();
+
+
+    });
+
+
+
+
+    async function mostrarModalVacio() {
+
+        let popup = document.getElementById('container');
+
+        accionCRUD = "CREAR";
+        popup.classList.add('show');
+
+
+    }
+
+    async function mostrarModal(clicked_id) {
+        showLoader();
+        let idRegistro = obtenerIdDelFinal(clicked_id);
+
+        let url = "@Url.Content("~/Catalogs/ObtenerElementoCatalogo")";
+
+        let params =
+        {
+            Id: idRegistro,
+            NombreCatalogo: "IMAGENFIRMA"
+        };
+
+        const response = httpPost(
+            url,
+            params
+        );
+        const dataResponse = await response
+            .then(data => {
+                return data;
+            })
+            .catch(error => {
+                console.log(error);
+            });
+
+
+        if (dataResponse.response === false) {
+            let messageError = dataResponse.message;
+            //setErrorMessageForm(messageError, 'modalEditarRegistroMensajeError');
+            setErrorMessageForm(messageError, 'modalAlertMessageResult');
+            popupAlert.classList.add('show');
+        }
+        else {
+
+            console.log(dataResponse.result);
+
+            let id = document.getElementById("Id");
+            let AtributoAdicionalStr1 = document.getElementById("AtributoAdicionalStr1");
+            let AtributoAdicionalStr4 = document.getElementById("AtributoAdicionalStr4");
+            let AtributoAdicionalStr6 = document.getElementById("AtributoAdicionalStr6");
+            let idImagenBase64 = document.getElementById("idImagenBase64");
+
+            id.value = dataResponse.result.Id;
+            AtributoAdicionalStr1.value = dataResponse.result.AtributoAdicionalStr1;
+            AtributoAdicionalStr4.value = dataResponse.result.AtributoAdicionalStr4;
+            AtributoAdicionalStr6.value = dataResponse.result.AtributoAdicionalStr6;
+            idImagenBase64.src = `data:image/png;base64, ${dataResponse.result.AtributoAdicionalStr7}`;
+
+
+            accionCRUD = "MODIFICAR";
+
+            let popup = document.getElementById('container');
+            popup.classList.add('show');
+        }
+
+        hideLoader();
+
+    }
+
+    function cerrarModal() {
+        console.log("CLIC EN CERRAR")
+        let popup = document.getElementById('container');
+        popup.classList.remove('show');
+    }
+
+    function cerrarModalAlert() {
+        popupAlert.classList.remove('show');
+        evaluaAccionPopUpAlert(accionPopupAlert);
+    }
+
+
+    async function GuardarCatalogo() {
+        showLoader();
+        let url = "";
+        if (accionCRUD === "MODIFICAR") {
+            url = "@Url.Content("~/Catalogs/ActualizarElementoCatalogo")";
+        }
+        else
+            return;
+
+        const archivo = document.getElementById("ArchivoImagen").files[0];
+
+        if (archivo === undefined) {
+            setErrorMessageForm("El campo de carga de archivo está vació. Debe seleccionar un archivo de imagen PNG para actualizar", 'modalAlertMessageResult');
+            hideLoader();
+            popupAlert.classList.add('show');
+            return;
+        }
+
+        if (!archivo.name.endsWith(".png") )
+        {
+            setErrorMessageForm("Debe seleccionar un archivo de imagen PNG para actualizar", 'modalAlertMessageResult');
+            hideLoader();
+            popupAlert.classList.add('show');
+            return;
+        }
+
+        console.log('Valor de Archivo: ',archivo);
+
+        let idRegistro = document.getElementById("Id");
+        let AtributoAdicionalStr1 = document.getElementById("AtributoAdicionalStr1");
+        let AtributoAdicionalStr4 = document.getElementById("AtributoAdicionalStr4");
+        let AtributoAdicionalStr6 = document.getElementById("AtributoAdicionalStr6");
+        
+        
+
+        const formDataFile = new FormData();
+        formDataFile.append("ArchivoImagen", archivo, "ArchivoImagen.png");
+        formDataFile.append("Id", idRegistro.value);
+        formDataFile.append("AtributoAdicionalStr1", AtributoAdicionalStr1.value);
+        formDataFile.append("AtributoAdicionalStr4", AtributoAdicionalStr4.value);
+        formDataFile.append("AtributoAdicionalStr6", AtributoAdicionalStr6.value);
+        formDataFile.append("NombreCatalogo", "IMAGENFIRMA");
+
+        const response = httpPostFile(
+            url,
+            formDataFile
+        );
+        const dataResponse = await response
+            .then(data => {
+                return data;
+            })
+            .catch(error => {
+                console.log(error);
+            });
+
+
+        let popup = document.getElementById('container');
+        popup.classList.remove('show');
+        if (dataResponse.response === false) {
+            //setErrorMessageForm(message, 'modalEditarRegistroMensajeError');
+            setErrorMessageForm(dataResponse.message, 'modalAlertMessageResult');
+        }
+        else {
+            idRegistro.value = '';
+            AtributoAdicionalStr1.value='';
+            AtributoAdicionalStr4.value='';
+            AtributoAdicionalStr6.value = '';
+            AtributoAdicionalStr6.value = '';
+            let idImagenBase64 = document.getElementById("idImagenBase64");
+            idImagenBase64.src = '';
+
+            setSuccessMessageForm(dataResponse.message, 'modalAlertMessageResult');
+            accionPopupAlert = 'REFRESCAR';
+        }
+        popupAlert.classList.add('show');
+        hideLoader();
+    }
+
+
+    function evaluaAccionPopUpAlert(accion) {
+        switch (accion) {
+            case 'REFRESCAR':
+                window.location.reload();
+                break;
+            default:
+                return;
+                break;
+        }
+    }
+
+</script>

@@ -1,0 +1,33 @@
+﻿@{
+    
+}
+<div class="">
+    <div class="panel panel-default">
+        <div class="panel-body" style="text-align:center;">
+            <div>
+                <img src="~/Assets/logo_ocesa.png" height="100px" />
+            </div>
+
+            <h1 style="text-align: center;  margin-top: 0; margin-bottom: 20px;">Correo electrónico confirmado / Email confirmed</h1>
+            <h4 style="text-align: center;  margin-top: 0; margin-bottom: 20px;">
+                Apreciable @ViewBag.NombreCompleto. Su cuenta de correo ha sido confirmada con el código @ViewBag.Codigo. Su solicitud será procesada. Una vez que sea autorizada, recibirá el documento de la invitación y las instrucciones necesarias.
+                La autorización se otorgará cuando su empresa confirme por escrito su participación en el evento. En caso de duda puede plantearla a <a href="mail:to talentoextranjero@ocesa.mx">talentoextranjero@ocesa.mx</a>
+            </h4>
+            <h4 style="text-align: center;  margin-top: 0; margin-bottom: 20px;">
+                Dear @ViewBag.NombreCompleto. Your email account has been confirmed with the code @ViewBag.Codigo. Your request will be processed. Once it is authorized, you will receive the invitation document and the necessary instructions.
+                The authorization will be granted when your company confirms writing your participation in the event. In case of doubt, you can ask to <a href="mail:to talentoextranjero@ocesa.mx">talentoextranjero@ocesa.mx</a>
+            </h4>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+
+    document.addEventListener("DOMContentLoaded", function () {
+        hideLoader();
+
+
+    });
+
+
+</script>

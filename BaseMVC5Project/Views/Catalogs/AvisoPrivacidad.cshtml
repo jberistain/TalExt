@@ -1,0 +1,176 @@
+﻿@model MigracionTalentoExtranjero.Models.Catalogs.CatalogoGeneral
+@{
+
+}
+<div class="panel panel-default">
+    <!-- Default panel contents -->
+
+    <div class="panel-heading">CATÁLOGO DE AVISO DE PRIVACIDAD </div>
+    <label>NOTA: Para agregar un link se debe usar la siguiente estructura: Entre corchetes se debe escribir el texto a mostrar seguido de paréntesis con la url a la que se va a direccionar. Ejemplo:</label>
+    <label>[enlace de ejemplo](https://www.ocesa.com.mx/especiales/conciertos)</label>
+    <div class="panel-body">
+        @Html.HiddenFor(m=>m.Id)
+        <div class="row">
+            <div class="col-xs-8 col-sm-12 col-md-12 col-lg-12">
+                <div class="input-group">
+                    <span class="input-group-addon">Texto en Español:</span>
+                    @Html.TextAreaFor(m => m.AtributoAdicionalStr1, new { @class = "form-control", style = "max-width:100%;z-index: 1;" })
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-xs-8 col-sm-12 col-md-12 col-lg-12">
+                <div class="input-group">
+                    <span class="input-group-addon">Texto en Ingles:</span>
+                    @Html.TextAreaFor(m => m.AtributoAdicionalStr2, new { @class = "form-control", style = "max-width:100%;z-index: 1;" })
+                </div>
+            </div>
+        </div>
+        <button onclick="GuardarCatalogo()" class="btn-block">Guardar Cambios</button>
+    </div>
+
+</div>
+
+@*MODAL EDITAR ---------------------------------------------*@
+<div class="contenedor-modales" id="container">
+    <div class="contenido-modal2">
+        <div class="p-2" style="width:30px; float: right; margin-top:10px;">
+            <span onclick="cerrarModal()" style="cursor: pointer; color: crimson; font-weight:bold; font-size:14px;">X</span>
+        </div>
+        <div id="modalEditarRegistroMensajeError"></div>
+        <div class="contenido-modal-grupos">
+            
+        </div>
+    </div>
+</div>
+
+
+
+<div class="contenedor-modales" id="containerAlert">
+    <div class="contenido-modal2">
+        <div class="p-2" style="width:30px; float: right; margin-top:10px;">
+            <span onclick="cerrarModalAlert()" style="cursor: pointer; color: crimson; font-weight:bold; font-size:14px;">X</span>
+        </div>
+        <div class="contenido-modal-grupos">
+            <hr>
+            <p class="subtitulos-modal">Resultado</p>
+            <hr>
+            <div class="row">
+                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                    <div id="modalAlertMessageResult"></div>
+                </div>
+            </div>
+            <button onclick="cerrarModalAlert()" class="btn-block">Cerrar</button>
+        </div>
+    </div>
+</div>
+
+
+
+<script type="text/javascript">
+
+    let accionCRUD = '';
+    let popupAlert = document.getElementById('containerAlert');
+    let accionPopupAlert = '';
+    
+
+    function obtenerIdDelFinal(myIdString) {
+
+        let arrSplit = myIdString.split('_');
+        let currentId = arrSplit[arrSplit.length - 1];
+        return currentId;
+    }
+
+
+    document.addEventListener("DOMContentLoaded", function () {
+        hideLoader();
+        
+        
+    });
+
+
+
+
+
+    function formatDate(date) {
+        console.log('Fecha de la funcion: ', date);
+        let arrDate = date.split('/');
+
+        let day = arrDate[0];
+        let month = arrDate[1];
+        let year = arrDate[2];
+
+
+        return [year, month, day].join('-');
+    }
+
+
+    function cerrarModal() {
+        console.log("CLIC EN CERRAR")
+        let popup = document.getElementById('container');
+        popup.classList.remove('show');
+    }
+
+    function cerrarModalAlert() {
+        popupAlert.classList.remove('show');
+        evaluaAccionPopUpAlert(accionPopupAlert);
+    }
+
+
+    async function GuardarCatalogo() {
+        showLoader();
+        let url = "@Url.Content("~/Catalogs/ActualizarElementoCatalogo")";
+
+        let idRegistro = document.getElementById("Id");
+        let AtributoAdicionalStr1 = document.getElementById("AtributoAdicionalStr1");
+        let AtributoAdicionalStr2 = document.getElementById("AtributoAdicionalStr2");
+
+
+        let params =
+        {
+            Id: idRegistro.value,
+            NombreCatalogo: "AVISOPRIVACIDAD",
+            AtributoAdicionalStr1: AtributoAdicionalStr1.value,
+            AtributoAdicionalStr2: AtributoAdicionalStr2.value
+        };
+
+        const response = httpPost(
+            url,
+            params
+        );
+        const dataResponse = await response
+            .then(data => {
+                return data;
+            })
+            .catch(error => {
+                console.log(error);
+            });
+
+        let popup = document.getElementById('container');
+        popup.classList.remove('show');
+        if (dataResponse.response === false) {
+            //setErrorMessageForm(message, 'modalEditarRegistroMensajeError');
+            setErrorMessageForm(dataResponse.message, 'modalAlertMessageResult');
+        }
+        else {
+            setSuccessMessageForm(dataResponse.message, 'modalAlertMessageResult');
+            accionPopupAlert = 'REFRESCAR';
+        }
+        popupAlert.classList.add('show');
+        hideLoader();
+    }
+
+
+    function evaluaAccionPopUpAlert(accion) {
+        switch (accion) {
+            case 'REFRESCAR':
+                window.location.reload();
+                break;
+            default:
+                return;
+                break;
+        }
+    }
+
+</script>

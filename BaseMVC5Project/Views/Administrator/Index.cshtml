@@ -1,0 +1,695 @@
+﻿@using MigracionTalentoExtranjero.Models.Catalogs
+@model MigracionTalentoExtranjero.Models.Administrator.DashboardModel
+@{
+
+}
+<div class="navbar navbar-inverse navbar-fixed-top">
+    <div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            @Html.ActionLink("Migración de Talento Extranjero", "Index", "Administrator", new { area = "" }, new { @class = "navbar-brand" })
+        </div>
+        <div class="navbar-collapse collapse">
+            <ul class="nav navbar-nav navbar-right">
+                <li class="dropdown">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+                        Catálogos <span class="caret"></span>
+                    </a>
+                    <ul class="dropdown-menu">
+                        @{
+                            List<ModuloDto> listaModulos = ConsultaModulosPerfil.ObtenerModulosDeSesion();
+
+                            foreach (var modulo in listaModulos)
+                            {
+                                if (!string.IsNullOrEmpty(modulo.DESC_PROCESS_SP) && !string.IsNullOrEmpty(modulo.URL_PROCESS))
+                                {
+                                    <li><a href="@Url.Content(modulo.URL_PROCESS)">@modulo.DESC_PROCESS_SP</a></li>
+                                }
+                            }
+                            @*<li><a href="@Url.Content("~/Catalogs/Eventos")">Eventos</a></li>
+            <li><a href="@Url.Content("~/Catalogs/Empresas")">Empresas</a></li>
+            <li><a href="@Url.Content("~/Catalogs/Paises")">Paises</a></li>
+            <li><a href="@Url.Content("~/Catalogs/Aerolineas")">Aerolineas</a></li>
+            <li><a href="@Url.Content("~/Catalogs/Aeropuertos")">Aeropuertos</a></li>
+            <li><a href="@Url.Content("~/Catalogs/Inmuebles")">Inmuebles</a></li>
+            <li><a href="@Url.Content("~/Catalogs/Nacionalidades")">Nacionalidades</a></li>
+            <li><a href="@Url.Content("~/Catalogs/Sexos")">Sexos</a></li>
+            <li><a href="@Url.Content("~/Catalogs/Usuarios")">Usuarios</a></li>
+            <li><a href="@Url.Content("~/Catalogs/Documentos")">Documentos</a></li>
+            <li><a href="@Url.Content("~/Catalogs/PDFs")">PDFs</a></li>
+            <li><a href="@Url.Content("~/Catalogs/TipoEventos")">Tipos de evento</a></li>
+            <li><a href="@Url.Content("~/Catalogs/AvisoPrivacidad")">Aviso de Privacidad</a></li>
+            <li><a href="@Url.Content("~/Catalogs/Perfiles")">Perfiles</a></li>*@
+                        }
+                    </ul>
+                </li>
+                <li>
+                    <a href="@Url.Content("~/Administrator/logout")">Finalizar Sesión</a>
+                </li>
+
+            </ul>
+        </div>
+    </div>
+</div>
+<div>
+    <img src="~/Assets/logo_ocesa.png" height="100px" />
+</div>
+<div class="panel panel-default">
+    @{
+        if (ViewBag.muestraRegistros)
+        {
+        <!-- Default panel contents -->
+        <div class="panel-heading">Visitantes en Eventos</div>
+        <div class="panel-body">
+            @using (Html.BeginForm("", "", FormMethod.Post, new { id = "frm-filtros" }))
+            {
+                @Html.HiddenFor(m => m.EstatusBuscado)
+                <div class="row">
+                    <div class="col-xs-12 col-sm-3 col-md-2">
+                        <div class="form-group">
+                            <label>Filtrar por Evento</label>
+                            @Html.DropDownListFor(m => m.Empresa, (List<SelectListItem>)ViewBag.CompaniasList, new { @class = "form-control", style = "position:initial" })
+                        </div>
+                    </div>
+                    <div class="col-xs-12 col-sm-3 col-md-2">
+                        <div class="form-group">
+                            <label>Nombre</label>
+                            @Html.TextBoxFor(m => m.TextoBusqueda, new { @class = "form-control", type = "text" })
+                        </div>
+                    </div>
+
+
+
+                    <div class="col-xs-12 col-sm-3 col-md-8">
+                        <div class="col-xs-12 col-sm-12 col-md-2 col-md-offset-1">
+                            <label>Rango de Fechas</label>
+                        </div>
+                        <div class="col-xs-12 col-sm-12 col-md-3">
+                            @Html.TextBoxFor(m => m.Fecha1, new { @class = "form-control", type = "date" })
+                        </div>
+                        <div class="col-xs-12 col-sm-12 col-md-3">
+                            @Html.TextBoxFor(m => m.Fecha2, new { @class = "form-control", type = "date" })
+                        </div>
+                        <div class="col-xs-12 col-sm-12 col-md-3">
+                            @*<button type="button" class="btn btn-default" onclick="filtrarRegistros()"> Filtrar</button>*@
+                            <button type="button" class="btn btn-default" onclick="refreshPageWithFilters()"> Filtrar</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-xs-12 col-sm-12 col-md-3">
+                        <button type="button" class="btn btn-default" onclick="enviarInvitaciones()"> Enviar Invitaciones a Marcados</button>
+                    </div>
+                    <div class="col-xs-12 col-sm-12 col-md-3">
+                        <button type="button" class="btn btn-default" onclick="generaCsvDeConsulta()"> Exportar Excel</button>
+                    </div>
+                    <div class="col-xs-12 col-sm-12 col-md-3">
+                        <button type="button" class="btn btn-default" onclick="limpiarFiltros()"> Limpiar Filtros</button>
+                    </div>
+
+                    @*<div class="col-xs-12 col-sm-12 col-md-3">
+                            <button type="button" class="btn btn-default" onclick="mostrarModalEvento()"> Nuevo Evento</button>
+                        </div>*@
+                </div>
+                <div class="row" style="margin-top:10px;">
+                    <div class="col-xs-12 col-sm-12 col-md-2">
+
+                    </div>
+                    <div class="col-xs-12 col-sm-12 col-md-2">
+                        <span class="label label-default" onclick="filtraPorEstatus(1)" style="white-space: break-spaces; cursor: pointer;">Capturado  </span>
+                    </div>
+                    <div class="col-xs-12 col-sm-12 col-md-2">
+                        <span class="label label-danger" onclick="filtraPorEstatus(2)" style="white-space: break-spaces; cursor: pointer; background-color: lightgray; color: black;">Confirmado</span>
+                    </div>
+                    <div class="col-xs-12 col-sm-12 col-md-2">
+                        <span class="label label-warning" onclick="filtraPorEstatus(3)" style="white-space: break-spaces; cursor: pointer;">    Alerta      </span>
+                    </div>
+                    <div class="col-xs-12 col-sm-12 col-md-2">
+                        <span class="label label-success" onclick="filtraPorEstatus(4)" style="white-space: break-spaces; cursor: pointer;">   Invitado   </span>
+                    </div>
+                    <div class="col-xs-12 col-sm-12 col-md-2">
+                        <span class="label label-primary" onclick="filtraPorEstatus(5)" style="white-space: break-spaces; cursor: pointer;">Asegurado </span>
+                    </div>
+                </div>
+            }
+        </div>
+
+        <!-- Table -->
+        <table class="table table-condensed" id="registerFound">
+            <tr>
+                <th style="vertical-align:middle;"><input type="checkbox" id="check_all_elements" onclick="marcaTodosLosChecksEnPantalla(this.id)" /></th>
+                <th>NOMBRE</th>
+                <th>NACIONALIDAD</th>
+                <th>EVENTOS</th>
+                <th>PASAPORTE</th>
+                <th>ACTIVIDAD</th>
+                <th>FOLIO Y FECHA DE REGISTRO</th>
+                <th>CORREO ELECTRÓNICO</th>
+                <th>STATUS</th>
+                <th></th>
+                <th>EDICIÓN</th>
+            </tr>
+            @foreach (MigracionTalentoExtranjero.Models.Administrator.Registro registro in Model.Registros)
+            {
+                <tr style="background-color:@registro.CssBackground;">
+                    <td style="vertical-align:middle;"><input type="checkbox" id="check_element_@registro.Id" onclick="agregaQuitaEventos(this.id)" /></td>
+                    <td style="vertical-align:middle;">@registro.Nombre</td>
+                    <td style="vertical-align:middle;">@registro.Nacionalidad</td>
+                    <td style="vertical-align:middle;">@registro.Empresa</td>
+                    <td style="vertical-align:middle;">@registro.Pasaporte</td>
+                    <td style="vertical-align:middle;">@registro.Actividad</td>
+                    <td style="vertical-align:middle;">@registro.FolioYFechaRegistro</td>
+                    <td style="vertical-align:middle;">@registro.CorreoElectronico</td>
+                    <td style="vertical-align:middle;">@registro.EstatusDesc</td>
+                    <td>
+                        <button type="button" id="btn_bloquea_@registro.Id" onclick="mostrarModalEvento('@registro.ClaveSecreta')" class="glyphicon glyphicon-pawn"></button>
+                        <button type="button" id="btn_elimina_@registro.Id" onclick="eliminarEvento(this.id)" class="glyphicon glyphicon-remove-sign"></button>
+                    </td>
+                    <td style="vertical-align:middle;"><button type="button" class="glyphicon glyphicon-pencil" id="open_register_@registro.Id" onclick="editarRegistro(this.id)"> Editar</button></td>
+                </tr>
+            }
+        </table>
+        }
+    }
+</div>
+
+
+@*MODAL EMPRESA ---------------------------------------------*@
+<div class="contenedor-modales" id="container-empresa">
+    <div class="contenido-modal2">
+
+        <div class="p-2" style="width:30px; float: right; margin-top:10px;">
+            <span onclick="cerrarModalEmpresa()" style="cursor: pointer; color: crimson; font-weight:bold; font-size:14px;">X</span>
+        </div>
+        <hr>
+        <p class="subtitulos-modal" style="text-align:center; font-size: 24px;">Empresa</p>
+        <hr>
+        <div class="contenido-modal-grupos">
+            <div class="row">
+                <div class="col-xs-12 col-sm-12 col-md-12">
+                    <div class="form-group">
+                        <label>* Nombre de la empresa</label>
+                        <input class="form-control" type="text" value="">
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-xs-12 col-sm-12 col-md-12">
+                    <div class="form-group">
+                        <label>* Direccion</label>
+                        <input class="form-control" type="text" value="">
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-xs-12 col-sm-12 col-md-12">
+                    <div class="form-group">
+                        <label>* Calle</label>
+                        <input class="form-control" type="text" value="">
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-xs-12 col-sm-12 col-md-12">
+                    <div class="form-group">
+                        <label>* Número (Lote)</label>
+                        <input class="form-control" type="text" value="">
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-xs-12 col-sm-12 col-md-12">
+                    <div class="form-group">
+                        <label>* Código Postal:</label>
+                        <input class="form-control" type="number" value="">
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-xs-12 col-sm-12 col-md-12">
+                    <div class="form-group">
+                        <label>* Ciudad:</label>
+                        <input class="form-control" type="number" value="">
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-xs-12 col-sm-12 col-md-12">
+                    <div class="form-group">
+                        <label>* País:</label>
+                        <input class="form-control" type="number" value="">
+                    </div>
+                </div>
+            </div>
+
+
+
+            <br />
+            <button onclick="cerrarModalEmpresa()" class="btn-group-sm center-block">Guardar Cambios</button>
+            <br />
+        </div>
+    </div>
+</div>
+
+
+@*MODAL EVENTO ---------------------------------------------*@
+<div class="contenedor-modales" id="container-evento">
+
+    <div class="contenido-modal2">
+        <div class="p-2" style="width:30px; float: right; margin-top:10px;">
+            <span onclick="cerrarModalEvento()" style="cursor: pointer; color: crimson; font-weight:bold; font-size:14px;">X</span>
+        </div>
+        <hr>
+        <p class="subtitulos-modal" style="text-align:center; font-size: 24px;">Código del registro</p>
+        <hr>
+        <div class="contenido-modal-grupos">
+
+            <div class="row">
+                <div class="col-xs-12 col-sm-12 col-md-12">
+                    <div class="form-group">
+                        <label>Código de registro: <span style="font-size:20px;" id="claveSecretaEnModal"></span></label>
+                    </div>
+                </div>
+            </div>
+
+            <hr>
+            <p class="subtitulos-modal">Url de consulta: <a href="@Url.Content("~/Home/VisitorSearch")" style=""><span style="font-size:20px;">Consulta de código del visitante aquí</span></a></p>
+            <hr>
+
+            <br />
+            <button onclick="cerrarModalEvento()" class="btn-block">Cerrar</button>
+            <br />
+        </div>
+    </div>
+</div>
+
+
+
+
+<div class="contenedor-modales" id="containerAlert">
+    <div class="contenido-modal2">
+        <div class="p-2" style="width:30px; float: right; margin-top:10px;">
+            <span onclick="cerrarModalAlert()" style="cursor: pointer; color: crimson; font-weight:bold; font-size:14px;">X</span>
+        </div>
+        <div class="contenido-modal-grupos">
+            <hr>
+            <p class="subtitulos-modal">Resultado</p>
+            <hr>
+            <div class="row">
+                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                    <div id="modalAlertMessageResult"></div>
+                </div>
+            </div>
+            <button onclick="cerrarModalAlert()" class="btn-block">Cerrar</button>
+        </div>
+    </div>
+</div>
+
+
+
+<script type="text/javascript">
+    document.addEventListener("DOMContentLoaded", function () {
+        hideLoader();
+
+
+
+        //Agregar Listeners para agregar evento enter al filtro
+        let Empresa = document.getElementById("Empresa");
+        let TextoBusqueda = document.getElementById("TextoBusqueda");
+        let Fecha1 = document.getElementById("Fecha1");
+        let Fecha2 = document.getElementById("Fecha2");
+        Empresa.addEventListener('keydown', ejecutaAccionEnter);
+        TextoBusqueda.addEventListener('keydown', ejecutaAccionEnter);
+        Fecha1.addEventListener('keydown', ejecutaAccionEnter);
+        Fecha2.addEventListener('keydown', ejecutaAccionEnter);
+
+
+    });
+
+    function filtraPorEstatus(idEstatus) {
+
+        const elementIdEstatusFilter = document.getElementById("EstatusBuscado");
+        elementIdEstatusFilter.value = idEstatus;
+        refreshPageWithFilters();
+    }
+
+
+    function marcaTodosLosChecksEnPantalla(id) {
+
+        let checkAllElement = document.getElementById(id);
+        let tabla = document.getElementById("registerFound");
+        let checksList = tabla.querySelectorAll('[id^="check_element_"]');
+        let activarChecks = checkAllElement.checked ? true : false;
+
+        checksList.forEach(element => {
+            let elementIsChecked = element.checked;
+            if (activarChecks) {
+                if (!elementIsChecked) {
+                    element.click();
+                }
+            }
+            else {//Desactivar los checks marcados
+                if (elementIsChecked) {
+                    element.click();
+                }
+            }
+        })
+
+
+
+    }
+
+
+    function ejecutaAccionEnter(e) {
+        // console.log(e.code);
+        if (e.keyCode == 13) {
+            console.log("Se resiono un Enter");
+            e.preventDefault();
+            refreshPageWithFilters();
+        }
+        else {
+            if (e.code !== 'Tab') {
+                return false;
+            }
+        }
+    }
+
+
+    let accionPopupAlert = '';
+    let popupAlert = document.getElementById('containerAlert');
+    let arregloMarcados = [];
+
+
+    function agregaQuitaEventos(clicked_id) {
+        let idActual = clicked_id;
+        let elementoCheck = document.getElementById(idActual);
+        let idRegistro = obtenerIdDelFinal(idActual);
+        // console.log(idRegistro);
+        if (elementoCheck.checked) {
+            //console.log(`El elemento ${idActual} es Checked: `, elementoCheck.checked);
+            arregloMarcados.push(idRegistro);
+        }
+        else {
+            //console.log(`El elemento ${idActual} es Checked: `, elementoCheck.checked);
+            const indice = arregloMarcados.indexOf(idRegistro);
+            arregloMarcados.splice(indice, 1);
+
+        }
+        // console.log(arregloMarcados);
+        //console.log(`Los valores actuales del arreglo de marcados es: `, arregloMarcados);
+    }
+
+    function obtenerIdDelFinal(myIdString) {
+
+        let arrSplit = myIdString.split('_');
+        let currentId = arrSplit[arrSplit.length - 1];
+        return currentId;
+    }
+
+
+
+
+    function generaCsvDeConsulta() {
+        let url = "@Url.Content("~/Administrator/GeneraCsv")";
+        // let dataJson = { codigo: '1234', tipoReporte: 'tipo1'}
+        let empresa = document.getElementById("Empresa").value;
+        let fechaInicio = document.getElementById("Fecha1").value;
+        let fechaFin = document.getElementById("Fecha2").value;
+        let busqueda = document.getElementById("TextoBusqueda").value;
+
+        url += `?empresa=${empresa}&fechaInicio=${fechaInicio}&fechaFin=${fechaFin}&busqueda=${busqueda}&idEvento=${empresa}`;
+        window.open(url);
+
+    }
+
+
+    async function eliminarEvento(clicked_id) {
+        let idRegistro = obtenerIdDelFinal(clicked_id);
+        if (confirm(`¿Seguro que desea eliminar el registro ${idRegistro}?`)) {
+            showLoader();
+            let url = "@Url.Content("~/Administrator/EliminarRegistroEvento")";
+
+            let params =
+            {
+                id: idRegistro
+            };
+
+            const response = httpPost(
+                url,
+                params
+            );
+            const dataResponse = await response
+                .then(data => {
+                    return data;
+                })
+                .catch(error => {
+                    console.log("Cayo a Catch: ", error);
+                });
+            console.log(dataResponse);
+            if (dataResponse.response === false) {
+                setAlertMessageForm(dataResponse.message, 'modalAlertMessageResult');
+                popupAlert.classList.add('show');
+
+            }
+            else {
+                setSuccessMessageForm(dataResponse.message, 'modalAlertMessageResult');
+                popupAlert.classList.add('show');
+                accionPopupAlert = 'REFRESCAR';
+            }
+            hideLoader();
+            console.log(dataResponse);
+        }
+
+    }
+
+
+    function editarRegistro(clicked_id) {
+        let idRegistro = obtenerIdDelFinal(clicked_id);
+        let url = `@Url.Content("~/Administrator/EditarRegistro")?id=${idRegistro}`;
+
+        window.location.href = url;
+
+    }
+
+    async function mostrarModal(clicked_id) {
+
+        let idRegistro = obtenerIdDelFinal(clicked_id);
+
+        let url = "@Url.Content("~/Administrator/ObtenerInformacionRegistroEvento")";
+
+        let params =
+            {
+                id : idRegistro
+            };
+
+        const response = httpPost(
+            url,
+            params
+        );
+        const dataResponse = await response
+            .then(data => {
+                return data;
+            })
+            .catch(error => {
+                console.log(error);
+            });
+
+        let popup = document.getElementById('container');
+        if (dataResponse.response === false) {
+            let messageError = dataResponse.message;
+            setErrorMessageForm(messageError, 'modalEditarRegistroMensajeError');
+        }
+        else {
+
+        }
+        popup.classList.add('show');
+
+
+    }
+
+    function mostrarModalEmpresa() {
+        let popup = document.getElementById('container-empresa');
+        popup.classList.add('show');
+    }
+
+    function mostrarModalEvento(claveSecreta) {
+
+        let spanClaveSecreta = document.getElementById("claveSecretaEnModal");
+
+        spanClaveSecreta.innerHTML = `${claveSecreta}`;
+
+        let popup = document.getElementById('container-evento');
+        popup.classList.add('show');
+    }
+
+
+    function cerrarModal() {
+
+        let popup = document.getElementById('container');
+        popup.classList.remove('show');
+    }
+
+
+    function cerrarModalEmpresa() {
+        console.log("CLIC EN CERRAR")
+        let popup = document.getElementById('container-empresa');
+        popup.classList.remove('show');
+
+
+    }
+
+    function cerrarModalEvento() {
+        console.log("CLIC EN CERRAR")
+        let popup = document.getElementById('container-evento');
+        popup.classList.remove('show');
+    }
+
+    async function enviarInvitaciones() {
+        let url = "@Url.Content("~/Administrator/EnviarInvitaciones")";
+        let dataJson = arregloMarcados;
+
+        showLoader();
+
+        const response = httpPost(
+            url,
+            dataJson
+        );
+        const dataResponse = await response
+            .then(data => {
+                return data;
+            })
+            .catch(error => {
+                console.log(error);
+                hideLoader();
+            });
+        console.log(dataResponse);
+        if (dataResponse.response === false) {
+            setSuccessMessageForm(dataResponse.message, 'modalAlertMessageResult');
+            popupAlert.classList.add('show');
+            accionPopupAlert = 'REFRESCAR';
+            hideLoader();
+        }
+        else {
+            setSuccessMessageForm(dataResponse.message, 'modalAlertMessageResult');
+            popupAlert.classList.add('show');
+            accionPopupAlert = 'REFRESCAR';
+            hideLoader();
+        }
+
+    }
+
+
+    function cerrarModalAlert() {
+        popupAlert.classList.remove('show');
+        evaluaAccionPopUpAlert(accionPopupAlert);
+    }
+
+    function evaluaAccionPopUpAlert(accion) {
+        switch (accion) {
+            case 'REFRESCAR':
+                window.location.reload();
+                break;
+            default:
+                return;
+                break;
+        }
+    }
+
+    function limpiarFiltros() {
+        document.getElementById("Empresa").value = '';
+        document.getElementById("Fecha1").value='';
+        document.getElementById("Fecha2").value='';
+        document.getElementById("TextoBusqueda").value='';
+        document.getElementById("EstatusBuscado").value = '';
+
+        refreshPageWithFilters();
+    }
+
+        function refreshPageWithFilters() {
+
+            let empresa = document.getElementById("Empresa").value;
+            let fechaInicio = document.getElementById("Fecha1").value;
+            let fechaFin = document.getElementById("Fecha2").value;
+            let busqueda = document.getElementById("TextoBusqueda").value;
+            let EstatusBuscado = document.getElementById("EstatusBuscado").value;
+
+            let urlResultado = '@Url.Content("~/Administrator")';
+
+
+            let params = {
+                IdEvento: empresa,
+                FechaInicio: fechaInicio,
+                FechaFin: fechaFin,
+                Busqueda: busqueda,
+                EstatusBuscado: EstatusBuscado
+            };
+            console.log(params);
+            let methodNewView = 'POST';
+            postForm(urlResultado, params, methodNewView);
+        }
+
+
+    async function filtrarRegistros() {
+        showLoader();
+        let form = document.getElementById('frm-filtros');
+        console.log(form);
+            let formJson = serializeForm(form);
+            let url = "@Url.Content("~/Administrator/FiltrarRegistros")";
+
+            const response = httpPost(
+                url,
+                formJson
+            );
+            const dataResponse = await response
+                .then(data => {
+                    return data;
+                })
+                .catch(error => {
+                    console.log(error);
+                });
+
+        console.log(dataResponse);
+        if (dataResponse.response !== false) {
+            let tableRegisters = document.getElementById('registerFound');
+            tableRegisters.innerHTML = '';
+            let rowHeaderTable = '<tr><th></th><th>NOMBRE</th><th>NACIONALIDAD</th><th>EMPRESA</th><th>PASAPORTE</th><th>ACTIVIDAD</th><th>FOLIO Y FECHA DE REGISTRO</th><th>CORREO ELECTRÓNICO</th><th>STATUS</th><th></th><th>EDICIÓN</th></tr>';
+            let rowsRegisterTable = ``;
+
+            dataResponse.result.forEach((registro) => {
+                rowsRegisterTable += `<tr style="background-color:${registro.CssBackground};">
+	                                    <td style="vertical-align:middle;"><input type="checkbox" /></td>
+	                                    <td style="vertical-align:middle;">${registro.Nombre}</td>
+	                                    <td style="vertical-align:middle;">${registro.Nacionalidad}</td>
+	                                    <td style="vertical-align:middle;">${registro.Empresa}</td>
+	                                    <td style="vertical-align:middle;">${registro.Pasaporte}</td>
+	                                    <td style="vertical-align:middle;">${registro.Actividad}</td>
+	                                    <td style="vertical-align:middle;">${registro.FolioYFechaRegistro}</td>
+	                                    <td style="vertical-align:middle;">${registro.CorreoElectronico}</td>
+	                                    <td style="vertical-align:middle;">${registro.Estatus}</td>
+	                                    <td>
+		                                    <button type="button" class="glyphicon glyphicon-pawn"></button>
+		                                    <button type="button" class="glyphicon glyphicon-remove-sign"></button>
+	                                    </td>
+	                                    <td style="vertical-align:middle;"><button type="button" class="glyphicon glyphicon-pencil"> Editar</button></td>
+                                    </tr>`;
+            });
+
+            tableRegisters.innerHTML = rowHeaderTable + rowsRegisterTable;
+
+        }
+
+        hideLoader();
+
+    }
+
+</script>

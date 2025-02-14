@@ -1,0 +1,7 @@
+C:\Users\jberistain\OneDrive - OCESA\Documents\Ocesa\Talento extranjero\Código\2024MigracionTalentoExtranjero\Migracion.Talento.CoreWebApi\obj\Debug\net6.0\Migracion.Talento.CoreWebApi.csproj.AssemblyReference.cache
+C:\Users\jberistain\OneDrive - OCESA\Documents\Ocesa\Talento extranjero\Código\2024MigracionTalentoExtranjero\Migracion.Talento.CoreWebApi\obj\Debug\net6.0\Migracion.Talento.CoreWebApi.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\jberistain\OneDrive - OCESA\Documents\Ocesa\Talento extranjero\Código\2024MigracionTalentoExtranjero\Migracion.Talento.CoreWebApi\obj\Debug\net6.0\Migracion.Talento.CoreWebApi.AssemblyInfoInputs.cache
+C:\Users\jberistain\OneDrive - OCESA\Documents\Ocesa\Talento extranjero\Código\2024MigracionTalentoExtranjero\Migracion.Talento.CoreWebApi\obj\Debug\net6.0\Migracion.Talento.CoreWebApi.AssemblyInfo.cs
+C:\Users\jberistain\OneDrive - OCESA\Documents\Ocesa\Talento extranjero\Código\2024MigracionTalentoExtranjero\Migracion.Talento.CoreWebApi\obj\Debug\net6.0\Migracion.Talento.CoreWebApi.csproj.CoreCompileInputs.cache
+C:\Users\jberistain\OneDrive - OCESA\Documents\Ocesa\Talento extranjero\Código\2024MigracionTalentoExtranjero\Migracion.Talento.CoreWebApi\obj\Debug\net6.0\Migracion.Talento.CoreWebApi.MvcApplicationPartsAssemblyInfo.cs
+C:\Users\jberistain\OneDrive - OCESA\Documents\Ocesa\Talento extranjero\Código\2024MigracionTalentoExtranjero\Migracion.Talento.CoreWebApi\obj\Debug\net6.0\Migracion.Talento.CoreWebApi.MvcApplicationPartsAssemblyInfo.cache

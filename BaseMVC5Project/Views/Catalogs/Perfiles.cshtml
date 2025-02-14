@@ -1,0 +1,404 @@
+﻿@model MigracionTalentoExtranjero.Models.Catalogs.CatalogoPerfilesModel
+@{
+
+}
+
+<div>
+    <p>
+        <img src="~/Assets/logo_ocesa.png" height="100px" />
+        <button type="button" onclick="mostrarModalVacio()" class="btn btn-info" text-align:right;>CREAR NUEVO ELEMENTO</button>
+    </p>
+</div>
+<div class="panel panel-default">
+    <!-- Default panel contents -->
+
+    <div class="panel-heading">CATÁLOGO DE PERFILES </div>
+    <div class="panel-body">
+       
+        <!-- Table -->
+        <table class="table" id="registerFound">
+            <tr>
+                <th>IDENTIFICADOR</th>
+                <th>DESCRIPCIÓN</th>
+                <th>Eliminar</th>
+                <th>EDICIÓN</th>
+            </tr>
+            @foreach (MigracionTalentoExtranjero.Models.Catalogs.CatalogoGeneral registro in ViewBag.CatalogList)
+            {
+                <tr>
+                    <td style="vertical-align:middle;">@registro.Id</td>
+                    <td style="vertical-align:middle;">@registro.Descripcion</td>
+                  
+                    <td>
+                        <button type="button" id="btn_elimina_@registro.Id" onclick="eliminar(this.id)" class="glyphicon glyphicon-remove-sign"></button>
+                    </td>
+                    <td style="vertical-align:middle;"><button type="button" class="glyphicon glyphicon-pencil" id="open_register_@registro.Id" onclick="mostrarModal(this.id)"> Editar</button></td>
+                </tr>
+            }
+        </table>
+    </div>
+
+</div>
+
+@*MODAL EDITAR ---------------------------------------------*@
+<div class="contenedor-modales" id="container">
+    @using (Html.BeginForm("", "", FormMethod.Post, new { id = "frm-registro-modulos" }))
+    {
+        @Html.HiddenFor(m=> m.IdRol)
+        <div class="contenido-modal2">
+            <div class="p-2" style="width:30px; float: right; margin-top:10px;">
+                <span onclick="cerrarModal()" style="cursor: pointer; color: crimson; font-weight:bold; font-size:14px;">X</span>
+            </div>
+            <div id="modalEditarRegistroMensajeError"></div>
+            <div class="contenido-modal-grupos">
+                <div class="row">
+                    <div class="col-xs-8 col-sm-12 col-md-12 col-lg-12">
+                        <h1 class="folio-editar"></h1>
+                    </div>
+                </div>
+                <hr>
+                <p class="subtitulos-modal">Datos de catálogo</p>
+                <hr>
+                
+                <div class="row">
+                    <div class="col-xs-8 col-sm-12 col-md-12 col-lg-12">
+                        <div class="input-group">
+                            <span class="input-group-addon">Descripción:</span>
+                            @Html.TextBoxFor(m => m.Descripcion, new { @class = "form-control" })
+                        </div>
+                    </div>
+                </div>
+
+                <div id="seccionTablaModulos">
+
+                </div>
+
+                <button onclick="GuardarCatalogo()" class="btn-block">Guardar Cambios</button>
+            </div>
+        </div>
+        
+    }
+</div>
+
+
+
+<div class="contenedor-modales" id="containerAlert">
+    <div class="contenido-modal2">
+        <div class="p-2" style="width:30px; float: right; margin-top:10px;">
+            <span onclick="cerrarModalAlert()" style="cursor: pointer; color: crimson; font-weight:bold; font-size:14px;">X</span>
+        </div>
+        <div class="contenido-modal-grupos">
+            <hr>
+            <p class="subtitulos-modal">Resultado</p>
+            <hr>
+            <div class="row">
+                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                    <div id="modalAlertMessageResult"></div>
+                </div>
+            </div>
+
+
+
+            <button onclick="cerrarModalAlert()" class="btn-block">Cerrar</button>
+        </div>
+    </div>
+</div>
+
+
+<script type="text/javascript">
+
+    let accionCRUD = '';
+    let popupAlert = document.getElementById('containerAlert');
+    let accionPopupAlert = '';
+    const nombreCatalogo = 'PERFILES';
+
+
+    document.addEventListener("DOMContentLoaded", function () {
+        hideLoader();
+
+
+    });
+
+
+    document.getElementById("frm-registro-modulos").addEventListener("submit", function (event) {
+        event.preventDefault();
+    });
+
+
+
+    function obtenerIdDelFinal(myIdString) {
+
+        let arrSplit = myIdString.split('_');
+        let currentId = arrSplit[arrSplit.length - 1];
+        return currentId;
+    }
+
+
+    async function eliminar(clicked_id) {
+        let idRegistro = obtenerIdDelFinal(clicked_id);
+
+        if (confirm(`¿Seguro que desea eliminar el registro ${idRegistro}?`)) {
+            showLoader();
+
+            let url = "@Url.Content("~/Catalogs/EliminarElementoCatalogo")";
+
+            let params =
+                {
+                    Id: idRegistro,
+                    NombreCatalogo: nombreCatalogo
+                };
+
+            const response = httpPost(
+                url,
+                params
+            );
+            const dataResponse = await response
+                .then(data => {
+                    return data;
+                })
+                .catch(error => {
+                    console.log("Cayo a Catch: ",error);
+                });
+
+            if (dataResponse.response === false) {
+                setErrorMessageForm(dataResponse.message, 'modalAlertMessageResult');
+                popupAlert.classList.add('show');
+            }
+            else {
+                setSuccessMessageForm(dataResponse.message, 'modalAlertMessageResult');
+                popupAlert.classList.add('show');
+                accionPopupAlert = 'REFRESCAR';
+            }
+            hideLoader();
+        }
+    }
+
+
+
+    async function mostrarModalVacio() {
+        showLoader();
+        let idRegistro = 0;
+
+        let url = "@Url.Content("~/Catalogs/ObtenerElementoCatalogo")";
+
+        let params =
+        {
+            Id: idRegistro,
+            NombreCatalogo: nombreCatalogo
+        };
+
+        const response = httpPost(
+            url,
+            params
+        );
+        const dataResponse = await response
+            .then(data => {
+                return data;
+            })
+            .catch(error => {
+                console.log(error);
+            });
+
+
+        if (dataResponse.response === false) {
+            let messageError = dataResponse.message;
+            //setErrorMessageForm(messageError, 'modalEditarRegistroMensajeError');
+            setErrorMessageForm(messageError, 'modalAlertMessageResult');
+            popupAlert.classList.add('show');
+        }
+        else {
+            let descripcion = document.getElementById("Descripcion");
+            let IdRol = document.getElementById("IdRol");
+
+            console.log(dataResponse);
+
+            descripcion.value = dataResponse.result.Descripcion;
+            IdRol.value = dataResponse.result.IdRol;
+
+
+            const newTagElement = dataResponse.result.HtmlTablaModulos;
+
+            const seccionTablaModulos = document.getElementById('seccionTablaModulos');
+            seccionTablaModulos.innerHTML = '';
+            seccionTablaModulos.innerHTML = newTagElement;
+
+            let popup = document.getElementById('container');
+
+            accionCRUD = "CREAR";
+            popup.classList.add('show');
+        }
+        hideLoader();
+
+    }
+
+    async function mostrarModal(clicked_id) {
+        showLoader();
+        let idRegistro = obtenerIdDelFinal(clicked_id);
+
+        let url = "@Url.Content("~/Catalogs/ObtenerElementoCatalogo")";
+
+        let params =
+        {
+            Id: idRegistro,
+            NombreCatalogo: nombreCatalogo
+        };
+
+        const response = httpPost(
+            url,
+            params
+        );
+        const dataResponse = await response
+            .then(data => {
+                return data;
+            })
+            .catch(error => {
+                console.log(error);
+            });
+
+
+        if (dataResponse.response === false) {
+            let messageError = dataResponse.message;
+            //setErrorMessageForm(messageError, 'modalEditarRegistroMensajeError');
+            setErrorMessageForm(messageError, 'modalAlertMessageResult');
+            popupAlert.classList.add('show');
+        }
+        else {
+            let descripcion = document.getElementById("Descripcion");
+            let IdRol = document.getElementById("IdRol");
+
+            console.log(dataResponse);
+
+            descripcion.value = dataResponse.result.Descripcion;
+            IdRol.value = dataResponse.result.IdRol;
+
+
+            const newTagElement = dataResponse.result.HtmlTablaModulos;
+
+            const seccionTablaModulos = document.getElementById('seccionTablaModulos');
+            seccionTablaModulos.innerHTML = '';
+            seccionTablaModulos.innerHTML = newTagElement;
+            //seccionTablaModulos.appendChild(nodoTabla);
+
+            accionCRUD = "MODIFICAR";
+
+            let popup = document.getElementById('container');
+            popup.classList.add('show');
+        }
+
+        hideLoader();
+
+    }
+
+    function formatDate(date) {
+        console.log('Fecha de la funcion: ', date);
+        let arrDate = date.split('/');
+
+        let day = arrDate[0];
+        let month = arrDate[1];
+        let year = arrDate[2];
+
+
+        return [year, month, day].join('-');
+    }
+
+
+    function cerrarModal() {
+        console.log("CLIC EN CERRAR")
+        let popup = document.getElementById('container');
+        popup.classList.remove('show');
+    }
+
+    function cerrarModalAlert() {
+        popupAlert.classList.remove('show');
+        evaluaAccionPopUpAlert(accionPopupAlert);
+    }
+
+
+    async function GuardarCatalogo() {
+        showLoader();
+        try {
+            let url = "";
+            if (accionCRUD === "CREAR") {
+                url = "@Url.Content("~/Catalogs/CreaCatalogoPerfile")";
+            }
+            else if (accionCRUD === "MODIFICAR") {
+                url = "@Url.Content("~/Catalogs/ActualizarCatalogoPerfile")";
+            }
+            else
+                return;
+
+
+
+            let form = document.getElementById('frm-registro-modulos');
+            let formJson = serializeForm(form);
+
+            console.log('FormJson', formJson);
+
+            try {
+                const bodyStr = JSON.stringify(formJson);
+                console.log(bodyStr);
+            }
+            catch (error) {
+                console.log(error);
+            }
+
+
+            const responseSave = httpPost(
+                url,
+                formJson
+            );
+            console.log('Se creo el response');
+            const dataResponseSave = await responseSave
+                .then(data => {
+                    console.log('Then promise response', data);
+                    return data;
+                })
+                .catch(error => {
+                    console.log('Catch promise response');
+                    console.log(error);
+                });
+
+            console.log('Respuesta de guardado', dataResponseSave);
+            let popup = document.getElementById('container');
+            popup.classList.remove('show');
+
+            if (dataResponseSave.response === false) {
+                console.log('Estoy en el response false');
+                //setErrorMessageForm(message, 'modalEditarRegistroMensajeError');
+                setErrorMessageForm(dataResponseSave.message, 'modalAlertMessageResult');
+            }
+            else {
+                console.log('Estoy en el response true');
+                let idRegistro = document.getElementById("IdRol");
+                let descripcion = document.getElementById("Descripcion");
+                idRegistro.value = '';
+                descripcion.value = '';
+                const seccionTablaModulos = document.getElementById('seccionTablaModulos');
+                seccionTablaModulos.innerHTML = '';
+
+                setSuccessMessageForm(dataResponseSave.message, 'modalAlertMessageResult');
+                accionPopupAlert = 'REFRESCAR';
+            }
+            popupAlert.classList.add('show');
+        }
+        catch (error) {
+            console.error(error);
+        }
+        finally {
+            hideLoader();
+        }
+    }
+
+
+    function evaluaAccionPopUpAlert(accion) {
+        switch (accion) {
+            case 'REFRESCAR':
+                window.location.reload();
+                break;
+            default:
+                return;
+                break;
+        }
+    }
+
+</script>
