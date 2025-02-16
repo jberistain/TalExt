@@ -1,0 +1,289 @@
+﻿input[required]:invalid {
+    box-shadow: 0 0 3px 1px red
+}
+
+select[required]:invalid {
+    box-shadow: 0 0 3px 1px red
+}
+
+
+
+.background-shadow-1 {
+    background-color: lightgray;
+    margin-right: 60px;
+    padding-bottom: 5px;
+    margin-bottom: 10px;
+}
+
+.background-shadow-2 {
+    background-color: darkgray;
+    margin-right: 60px;
+    padding-bottom: 5px;
+    margin-bottom: 10px;
+}
+
+.center-vertical {
+    vertical-align: middle;
+}
+
+.alinear {
+    float: right;
+}
+/** *** modal*/
+.contenedor-modales {
+    display: none; /* Por defecto, estará oculto */
+    position: fixed; /* Posición fija */
+    z-index: 1; /* Se situará por encima de otros elementos de la página*/
+    padding-top: 100px; /* El contenido estará situado a 200px de la parte superior */
+    left: 0;
+    top: 0;
+    width: 100%; /* Ancho completo */
+    height: 100%; /* Algura completa */
+    overflow: auto; /* Se activará el scroll si es necesario */
+    background-color: rgba(0,0,0,0.5); /* Color negro con opacidad del 50% */
+}
+
+/* Ventana o caja modal */
+.contenido-modal2 {
+    border: 2px solid gray;
+    position: relative; /* Relativo con respecto al contenedor -modal- */
+    background-color: white;
+    margin: auto; /* Centrada */
+    padding: 5px;
+    width: 90%;
+    height: 90%;
+    -webkit-animation-name: animarsuperior;
+    -webkit-animation-duration: 0.5s;
+    animation-name: animarsuperior;
+    animation-duration: 0.5s;
+    overflow: auto;
+    position: sticky; /* Posición fija */
+    margin-top: 0px;
+    border-radius: 6px;
+}
+
+
+.row {
+    margin: 5px 0px;
+    width: 100%;
+}
+
+.input-group-addon {
+    width: 30%;
+}
+
+.input-group {
+    width: 80%;
+}
+
+.fechas {
+    display: flex;
+    flex: 1 1;
+}
+
+.contenido-modal-grupos {
+    /*border: 2px solid red;*/
+    width: 86%;
+    margin: auto;
+}
+
+.show {
+    display: block;
+    pointer-events: all;
+    opacity: 1;
+}
+
+.noShow {
+    display: none;
+    margin-top: -200px;
+    opacity: 0;
+}
+
+.folio-editar {
+    text-align: left;
+    font-size: medium;
+}
+
+.subtitulos-modal {
+    font-weight: bold;
+    text-align: left;
+    padding: 0;
+    margin: -10px auto;
+}
+
+
+/* Fondo modal: negro con opacidad al 50% */
+.modal-aviso {
+    display: none; /* Por defecto, estará oculto */
+    position: fixed; /* Posición fija */
+    z-index: 1; /* Se situará por encima de otros elementos de la página*/
+    padding-top: 100px; /* El contenido estará situado a 200px de la parte superior */
+    left: 0;
+    top: 0;
+    width: 100%; /* Ancho completo */
+    height: 100%; /* Algura completa */
+    overflow: auto; /* Se activará el scroll si es necesario */
+    background-color: rgba(0,0,0,0.5); /* Color negro con opacidad del 50% */
+}
+
+.center-ocesa{
+    text-align:center;
+}
+
+/* Ventana o caja modal */
+.contenido-modal {
+    position: relative; /* Relativo con respecto al contenedor -modal- */
+    background-color: white;
+    margin: auto; /* Centrada */
+    padding: 20px;
+    width: 60%;
+    -webkit-animation-name: animarsuperior;
+    -webkit-animation-duration: 0.5s;
+    animation-name: animarsuperior;
+    animation-duration: 0.5s
+}
+
+/* Aqui empieza el loader spiner */
+.preloader {
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.623);
+    position: fixed;
+    left: 0;
+    top: 0;
+    z-index: 1;
+}
+
+.spinner {
+    width: 70px;
+    height: 70px;
+    border-top: 5px solid white;
+    box-shadow: 2px 2px 10px 2px gray;
+    border-right: 5px solid transparent;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    right: 0;
+    margin: auto;
+    z-index: -1;
+}
+
+    .spinner > div {
+        box-sizing: border-box;
+        margin: auto;
+        width: 100%;
+        height: 100%;
+        animation: spin 1s linear infinite;
+    }
+
+@keyframes spin {
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+/* Aqui termina el loader spiner */
+
+/*Aqui empieza el slider */
+.container-slider {
+    width: 100%;
+    margin: auto;
+    margin-top: 20px;
+    overflow: hidden;
+    box-shadow: 4px 10px 10px 5px #4b4b4b, 4px 8px 12px;
+    position: relative;
+    border-radius: 6px;
+    outline: 2px solid gray;
+}
+
+.slider {
+    display: flex;
+    width: 300%;
+    height: 50vh;
+    margin-left: -100%;
+}
+
+.slider__section {
+    width: 100%;
+}
+
+.slider__img {
+    display: flex;
+    width: 100%;
+    height: 100%;
+    object-fit: fill;
+}
+
+.slider__btn {
+    font-family: 'Manrope', sans-serif;
+    position: absolute;
+    width: 26px;
+    height: 26px;
+    background: #f3f3f3;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 18px;
+    border-radius: 50%;
+    cursor: pointer;
+    color: rgb(0, 0, 0);
+    transition: all 0.3s ease;
+    border: 1px solid gray;
+}
+
+.slider__btn:hover {
+    background: #020202;
+    color: rgb(179, 177, 177);
+    font-size: larger;
+}
+
+.slider__btn--left {
+    left: 10px;
+}
+
+.slider__btn--right {
+    right: 10px;
+}
+/*Aqui termina el slider */
+
+/* Animación */
+@-webkit-keyframes animatetop {
+    from {
+        top: -300px;
+        opacity: 0
+    }
+
+    to {
+        top: 0;
+        opacity: 1
+    }
+}
+
+@keyframes animarsuperior {
+    from {
+        top: -300px;
+        opacity: 0
+    }
+
+    to {
+        top: 0;
+        opacity: 1
+    }
+}
+
+/* Botón cerrar */
+.close-modal {
+    color: black;
+    float: right;
+    font-size: 30px;
+    font-weight: bold;
+}
+
+    .close-modal:hover,
+    .close-modal:focus {
+        color: #000;
+        text-decoration: none;
+        cursor: pointer;
+    }

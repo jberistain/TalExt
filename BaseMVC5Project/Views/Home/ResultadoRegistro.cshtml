@@ -1,0 +1,65 @@
+﻿@model MigracionTalentoExtranjero.Models.Home.ResultadoRegistroModel
+@{
+
+}
+<div>
+    <img src="~/Assets/logo_ocesa.png" height="100px" />
+</div>
+<h1 style="text-align: left; font-size: 40px; margin-top: 0; margin-bottom: 20px;">@ViewBag.Title.</h1>
+<div class="">
+    <div class="panel panel-default">
+        <div class="panel-body">
+            <div class="well">
+                <p>@Model.NombreCompleto</p>
+                <div class="panel-body">
+                    <div class="col-md-6 col-lg-6 col-sm-12">
+                        <div class="well">
+                            <p>Your request has been registered</p>
+                            <p>
+                                If your request is valid, you will receive the invitation letter by mail within
+                                a period of no more than 3 days. Otherwise, In the following link :
+                                <a href="@Url.Content("~/Home/VisitorSearch")">Visitors Check Page</a>
+                                enter your secret code to check  your invitation status.
+                            </p>
+                            <p><b>Note:</b> Don't forget to save the secret code.</p>
+                        </div>
+                    </div>
+                    <div class="col-md-6 col-lg-6 col-sm-12">
+                        <div class="well">
+                            <p>Tu solicitud ha sido registrada</p>
+                            <p>
+                                Si tu solicitud es valida recibirás por correo la carta invitación en un periodo 
+                                no mayor a 3 días. En caso contrario ingresa al enlace: 
+                                <a href="@Url.Content("~/Home/VisitorSearch")">Consulta de registro</a> 
+                                con tu código secreto para verificar el estado de tu invitación.
+                            </p>
+                            <p><b>Nota:</b> No olvides guardar tu código secreto.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="panel panel-default">
+                    <table class="table">
+                        <tr>
+                            <td>Código / Code</td>
+                            <td>@Model.Codigo</td>
+                        </tr>
+                        <tr>
+                            <td>Consultar en / Search at:</td>
+                            <td><a href="@Url.Content("~/Home/VisitorSearch")">Consulta de Registro / Visitors Check Page</a></td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+
+    document.addEventListener("DOMContentLoaded", function () {
+        hideLoader();
+
+
+    });
+
+</script>
