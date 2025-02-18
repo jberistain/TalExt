@@ -52,6 +52,7 @@ namespace MigracionTalentoExtranjero.Models.Enum
         CATALOGO_PDFS = 21016,
         CATALOGO_FIRMAS_DOCUMENTOS = 21017,
         CATALOGO_PERFILES = 21018,
+        CATALOGO_CORREOS_PARA_COPIA = 21019,
 
         // CONSULTAS
         CONSULTA_REGISTRO_POR_PASAPORTE = 22013,
@@ -144,6 +145,8 @@ namespace MigracionTalentoExtranjero.Models.Enum
                     return "AvisoPrivacidad";
                 case WebAPIEndPointsEnum.CATALOGO_FIRMAS_DOCUMENTOS:
                     return "RegInvite/GetInfoSignsBlob";
+                case WebAPIEndPointsEnum.CATALOGO_CORREOS_PARA_COPIA:
+                    return "SendCopyEmails";
                 default:
                     return null;
             }

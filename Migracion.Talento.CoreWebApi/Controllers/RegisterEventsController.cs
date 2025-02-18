@@ -46,6 +46,14 @@ namespace Migracion.Talento.CoreWebApi.Controllers
         }
 
 
+        private List<string> ObtenerListaCorreosParaMandarCopia()
+        {
+            /* Consultar los emails que deben recibir copia */
+            return _appDbContext.CAT_SEND_COPY_EMAILS
+                .Where(m => m.ACTIVE == 1)
+                .Select(m => m.EMAIL)
+                .ToList();
+        }
 
         [HttpPost("ListaEventos")]
         public async Task<ActionResult<ResponseDto>> Get(FilterRegisterDto? filterRegister)
@@ -359,6 +367,7 @@ namespace Migracion.Talento.CoreWebApi.Controllers
 
                     if (antecedentesMexico)
                     {
+                       
 
                         WelcomeMailTemplate dataTemplate = new WelcomeMailTemplate()
                         {
@@ -369,7 +378,7 @@ namespace Migracion.Talento.CoreWebApi.Controllers
                             Subject = "OCESA",
                             UrlToConfirm = _configuration.UrlToConfirm + model.ID_REG.ToString(),
                             UrlToConfirm2 = _configuration.UrlToSearchCode,
-                            SecretCode = model.SECRET_CODE,
+                            SecretCode = model.SECRET_CODE
                         };
 
                         bool esLenguajeIngles = model.LANGUAGE != null ? model.LANGUAGE.Equals("EN") : false;
@@ -694,8 +703,8 @@ namespace Migracion.Talento.CoreWebApi.Controllers
                 {
                     To = welcomeMail.Email,
                     Subject = welcomeMail.Subject,
-                    Body = _emailSender.GetWelcomeTemplateEmail("Welcome", welcomeMail)
-                    
+                    Body = _emailSender.GetWelcomeTemplateEmail("Welcome", welcomeMail),
+                    ListaEmailsCC = ObtenerListaCorreosParaMandarCopia()
                 };
                 
                 await _emailSender.SendEmailAsync(mailData);
@@ -724,8 +733,8 @@ namespace Migracion.Talento.CoreWebApi.Controllers
                 {
                     To = welcomeMail.Email,
                     Subject = welcomeMail.Subject,
-                    Body = _emailSender.GetWelcomeTemplateEmail(nameTemplate, welcomeMail)
-
+                    Body = _emailSender.GetWelcomeTemplateEmail(nameTemplate, welcomeMail),
+                    ListaEmailsCC = ObtenerListaCorreosParaMandarCopia()
                 };
                 await _emailSender.SendEmailAsync(mailData);
                 return new ResponseDto(ResponseDtoEnum.Success);
@@ -989,7 +998,8 @@ namespace Migracion.Talento.CoreWebApi.Controllers
                     To = invitationMail.Email,
                     Subject = invitationMail.Subject,
                     Body = _emailSender.GetWelcomeTemplateEmail(templateType.ToString(), invitationMail),
-                    Attachments = invitationMail.attachments
+                    Attachments = invitationMail.attachments,
+                    ListaEmailsCC = ObtenerListaCorreosParaMandarCopia()
 
                 };
 

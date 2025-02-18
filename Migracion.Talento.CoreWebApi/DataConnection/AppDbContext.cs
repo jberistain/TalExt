@@ -31,6 +31,7 @@ namespace Migracion.Talento.WebAPI.DataConnection
         public DbSet<Documents> REG_DOCUMENTS { get; set; } 
         public DbSet<AvisoPrivacidad> CAT_AVISO_PRIVACIDAD { get; set; } 
         public DbSet<RoleProcess> ROL_PROCESS { get; set; }
+        public DbSet<SendCopyEmails> CAT_SEND_COPY_EMAILS { get; set; }
 
     }
 }

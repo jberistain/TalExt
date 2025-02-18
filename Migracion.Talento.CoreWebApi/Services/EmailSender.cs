@@ -39,6 +39,14 @@ namespace Migracion.Talento.CoreWebApi.Services
             // Receiver
             //foreach (string mailAddress in data.To)
                 mail.To.Add(MailboxAddress.Parse(data.To));
+            /* Agregar los correos con copia */
+            if(data.ListaEmailsCC.Count > 0)
+            {
+                foreach(string emailCC in data.ListaEmailsCC)
+                {
+                    mail.Cc.Add(MailboxAddress.Parse(emailCC));
+                }
+            }
             #endregion
 
             #region Content

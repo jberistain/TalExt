@@ -1238,7 +1238,37 @@ namespace MigracionTalentoExtranjero.Models.Utils
 
         #endregion
 
+        #region CORREOS PARA ENVIAR COPIA
+        public async Task<List<CatalogoGeneral>> DescargaCatalogoCorreosParaCopia()
+        {
+            List<CatalogoGeneral> result = new List<CatalogoGeneral>();
+            catalogs = new CatalogsManager(http);
+            var catalogList = await catalogs.DescargarCatalogoCorreosParaCopia();
+            foreach (SendCopyEmailsDto item in catalogList)
+            {
+                result.Add(new CatalogoGeneral() { Id = item.ID, Descripcion = $"{item.EMAIL}", Activo=Convert.ToBoolean(item.ACTIVE) });
+            }
 
+            return result;
+        }
+        public async Task<ResponseDto> CrearCorreoParaCopia(SendCopyEmailsRegisterDto data)
+        {
+            ResponseDto result;
+
+            result = await http.PostAsJsonAsync<object, ResponseDto>(data, $"SendCopyEmails/Save");
+
+            return result;
+        }
+        public async Task<ResponseDto> ActualizarCorreoParaCopia(int id, SendCopyEmailsRegisterDto data)
+        {
+            ResponseDto result;
+
+            result = await http.PostAsJsonAsync<object, ResponseDto>(data, $"SendCopyEmails/Update?id={id}");
+
+            return result;
+        }
+
+        #endregion
 
         #endregion
     }

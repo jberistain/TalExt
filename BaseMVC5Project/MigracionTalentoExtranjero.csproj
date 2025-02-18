@@ -272,6 +272,7 @@
     <Content Include="Views\Catalogs\AvisoPrivacidad.cshtml" />
     <Content Include="Views\Catalogs\Perfiles.cshtml" />
     <Content Include="Views\Administrator\RecuperarPassword.cshtml" />
+    <Content Include="Views\Catalogs\CorreosParaEnviarCopia.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

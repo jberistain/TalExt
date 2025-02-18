@@ -29,6 +29,7 @@ namespace Migracion.Talento.CoreWebApi.Utils
             CreateMap<UserRegisterDto, User>();
             CreateMap<EventTypesRegisterDto, EventTypes>();
             CreateMap<DocumentRegisterDto, Documents>();
+            CreateMap<SendCopyEmailsRegisterDto,SendCopyEmails>();
 
 
 
@@ -56,6 +57,7 @@ namespace Migracion.Talento.CoreWebApi.Utils
             CreateMap<ProcessRegisterDto, Process>();
             CreateMap<EventTypesDto, EventTypes>();
             CreateMap<Documents,DocumentDto>();
+            CreateMap<SendCopyEmails,SendCopyEmailsDto>();
 
         }
     }

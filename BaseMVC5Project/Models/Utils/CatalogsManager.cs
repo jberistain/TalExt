@@ -379,6 +379,25 @@ namespace MigracionTalentoExtranjero.Models.Utils
         }
 
 
+        public async Task<List<SendCopyEmailsDto>> DescargarCatalogoCorreosParaCopia()
+        {
+            List<SendCopyEmailsDto> result = new List<SendCopyEmailsDto>();
+
+            var responseHttp = await http.GetAsJsonAsync<ResponseDto>(WebAPIEndPointsEnum.CATALOGO_CORREOS_PARA_COPIA.GetString());
+            if (!responseHttp.error)
+            {
+                foreach (var currentValue in responseHttp.response)
+                {
+                    result.Add(new SendCopyEmailsDto()
+                    {
+                        ID= currentValue.id,
+                        EMAIL= currentValue.email,
+                        ACTIVE = currentValue.active
+                    });
+                }
+            }
+            return result;
+        }
 
     }
 

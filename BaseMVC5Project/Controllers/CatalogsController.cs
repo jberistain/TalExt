@@ -331,6 +331,22 @@ namespace MigracionTalentoExtranjero.Controllers
             return View();
         }
 
+        [PermisoPerfil]
+        public async Task<ActionResult> CorreosParaEnviarCopia()
+        {
+            ViewBag.Title = "CORREOS PARA ENVIAR CON COPIA";
+
+            crud = new CRUDManager(httpManager);
+
+            List<CatalogoGeneral> catalogoGeneralList;
+
+            catalogoGeneralList = await crud.DescargaCatalogoCorreosParaCopia();
+
+            ViewBag.CatalogList = catalogoGeneralList;
+
+            return View();
+        }
+
         public async Task<ActionResult> Perfiles()
         {
             ViewBag.Title = "Perfiles";
@@ -357,7 +373,7 @@ namespace MigracionTalentoExtranjero.Controllers
             if (!SessionManager.ExistUserInSession())
             {
                 responseObject.response = false;
-                responseObject.message = "No se una tiene sesión iniciada, por favor vuelva a iniciar sesión.";
+                responseObject.message = "No se tiene una sesión iniciada, por favor vuelva a iniciar sesión.";
                 return Json(responseObject);
             }
 
@@ -420,6 +436,10 @@ namespace MigracionTalentoExtranjero.Controllers
                         USERNAME= data.AtributoAdicionalStr2, PASSWORD_USER = data.AtributoAdicionalStr3, ACTIVE=true, CREATED_BY = idUser, ID_ROLE = Convert.ToInt32(data.AtributoAdicionalStr4),
                         EMAIL_USER = data.AtributoAdicionalStr5
                     });
+                    break;
+
+                case "CORREOSPARACOPIA":
+                    resultHttpRequest = await crud.CrearCorreoParaCopia(new SendCopyEmailsRegisterDto() { ID= data.Id, EMAIL = data.Descripcion, ACTIVE = Convert.ToInt32(data.Activo), CREATED_BY = idUser });
                     break;
 
 
@@ -532,6 +552,10 @@ namespace MigracionTalentoExtranjero.Controllers
                     });
                     break;
 
+                case "CORREOSPARACOPIA":
+                    resultHttpRequest = await crud.ActualizarCorreoParaCopia(data.Id, new SendCopyEmailsRegisterDto() { ID = data.Id, EMAIL = data.Descripcion, ACTIVE=Convert.ToInt32(data.Activo), MODIFY_BY = idUser });
+                    break;
+
 
                 case "PDF":
 
@@ -574,7 +598,7 @@ namespace MigracionTalentoExtranjero.Controllers
                 else
                 {
                     responseObject.response = true;
-                    responseObject.message = "Guardado exitoso";
+                    responseObject.message = "Actualización exitosa";
                 }
             }
 
