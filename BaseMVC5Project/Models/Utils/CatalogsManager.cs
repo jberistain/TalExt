@@ -137,6 +137,8 @@ namespace MigracionTalentoExtranjero.Models.Utils
                         DESC_EVENT_SP = currentValue.desC_EVENT_SP,
                         ID_COMPANY = currentValue.iD_COMPANY,
                         ID_EVENT_TYPE = currentValue.iD_EVENT_TYPE,
+                        EMAIL1 = currentValue.emaiL1,
+                        EMAIL2 = currentValue.emaiL2,
                     });
                 }
             }

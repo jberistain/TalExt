@@ -538,9 +538,11 @@ namespace MigracionTalentoExtranjero.Models.Utils
             List<CatalogoGeneral> result = new List<CatalogoGeneral>();
             catalogs = new CatalogsManager(http);
             var catalogList = await catalogs.DescargarCatalogoEventos();
+            string correoAdicional = ""; 
             foreach (EventsDto item in catalogList)
             {
-                result.Add(new CatalogoGeneral() { Id = item.ID_EVENT, Descripcion = item.DESC_EVENT_SP, AtributoAdicionalInt1= item.ID_EVENT_TYPE });
+                correoAdicional = $"{item.EMAIL1} - {item.EMAIL2}";
+                result.Add(new CatalogoGeneral() { Id = item.ID_EVENT, Descripcion = item.DESC_EVENT_SP, AtributoAdicionalInt1= item.ID_EVENT_TYPE, AtributoAdicionalStr2 =  correoAdicional});
             }
 
             return result;

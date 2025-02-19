@@ -375,6 +375,8 @@ namespace MigracionTalentoExtranjero.Controllers
                         DATE_INI=Convert.ToDateTime(data.AtributoAdicional1Dte), 
                         DATE_FIN=Convert.ToDateTime(data.AtributoAdicional2Dte),
                         ID_ESTATE = Convert.ToInt16(data.AtributoAdicionalStr2),
+                        EMAIL1 = data.AtributoAdicionalStr4,
+                        EMAIL2 = data.AtributoAdicionalStr5,
                         DESC_LOCATION = data.AtributoAdicionalStr3
                     });
                     break;
@@ -491,6 +493,8 @@ namespace MigracionTalentoExtranjero.Controllers
                         DATE_INI = Convert.ToDateTime(data.AtributoAdicional1Dte),
                         DATE_FIN = Convert.ToDateTime(data.AtributoAdicional2Dte),
                         ID_ESTATE = Convert.ToInt16(data.AtributoAdicionalStr2),
+                        EMAIL1 = data.AtributoAdicionalStr4,
+                        EMAIL2 = data.AtributoAdicionalStr5,
                         DESC_LOCATION = data.AtributoAdicionalStr3,
                         MODIFY_BY = idUser
                     }) ;
@@ -721,6 +725,14 @@ namespace MigracionTalentoExtranjero.Controllers
 
                             catalogResponse.AtributoAdicionalStr3 = resultHttpRequest.response.desC_LOCATION;
                             catalogResponse.AtributoAdicionalStr3 = string.IsNullOrEmpty(catalogResponse.AtributoAdicionalStr3) ? "" : catalogResponse.AtributoAdicionalStr3;
+
+
+                            catalogResponse.AtributoAdicionalStr4 = resultHttpRequest.response.emaiL1;
+                            catalogResponse.AtributoAdicionalStr4 = string.IsNullOrEmpty(catalogResponse.AtributoAdicionalStr4) ? "" : catalogResponse.AtributoAdicionalStr4;
+
+
+                            catalogResponse.AtributoAdicionalStr5 = resultHttpRequest.response.emaiL2;
+                            catalogResponse.AtributoAdicionalStr5 = string.IsNullOrEmpty(catalogResponse.AtributoAdicionalStr5) ? "" : catalogResponse.AtributoAdicionalStr5;
                         }
                         break;
 

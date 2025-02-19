@@ -12,5 +12,6 @@ namespace CommonTools.DTOs
         public string Body { get; set; }
 
         public List<AttachmentFileDto> Attachments { get; set; } = null;
+        public List<string> EmailsCC { get; set; }
     }
 }

@@ -102,6 +102,8 @@ namespace Migracion.Talento.CoreWebApi.Controllers
                 item.DESC_LOCATION = data.DESC_LOCATION;
                 item.DESC_EVENT_EN = data.DESC_EVENT_EN;
                 item.DESC_EVENT_SP = data.DESC_EVENT_SP;
+                item.EMAIL1 = data.EMAIL1;
+                item.EMAIL2 = data.EMAIL2;
                 // item.ID_COMPANY = data.ID_COMPANY;
                 item.DATE_INI = Convert.ToDateTime( data.DATE_INI);
                 item.DATE_FIN = Convert.ToDateTime( data.DATE_FIN);

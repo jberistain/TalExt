@@ -19,6 +19,8 @@ using Org.BouncyCastle.Crypto.IO;
 using SkiaSharp;
 using System.Runtime.Loader;
 using CommonTools.Implementation;
+using Microsoft.IdentityModel.Tokens;
+using System.util;
 
 namespace Migracion.Talento.CoreWebApi.Controllers
 {
@@ -32,6 +34,7 @@ namespace Migracion.Talento.CoreWebApi.Controllers
         private readonly IMapper _mapper;
         private readonly IDocumentsEvents _documentEvents;
 
+        private List<string> ListaEmailsCC = new List<string>();
         public RegisterEventsController(AppDbContext appDbContext
             , IEmailSender emailSender
             ,IOptions<ApplicationProperties> configuration
@@ -307,22 +310,23 @@ namespace Migracion.Talento.CoreWebApi.Controllers
                     if (newEvent.EXPELLED_MEX != null)
                         antecedentesMexico = (bool)newEvent.EXPELLED_MEX;
 
-                if(antecedentesMexico)
+                if (antecedentesMexico)
                 {
                     newEvent.ID_STATUS = 3;
                 }
 
                 string secredCode = RandomString(10);
                 newEvent.SECRET_CODE = secredCode;
-                var model= _mapper.Map<RegEvents>(newEvent);
+                var model = _mapper.Map<RegEvents>(newEvent);
                 model.CREATED_BY = 2;
-                model.CREATED_DATE= DateTime.Now;
+                model.CREATED_DATE = DateTime.Now;
                 _appDbContext.Add(model);
                 var rs = await _appDbContext.SaveChangesAsync();
 
 
                 //Guardar Los eventos que llegan
-                foreach(RegEvenStateDateDto currentEvent in newEvent.EVENTS)
+                ListaEmailsCC = new List<string>();
+                foreach (RegEvenStateDateDto currentEvent in newEvent.EVENTS)
                 {
                     //Si se crea un nuevo inmueble se tiene que actualizar el valor
                     if (!string.IsNullOrEmpty(currentEvent.NOMBRE_NUEVO_INMUEBLE))
@@ -342,8 +346,25 @@ namespace Migracion.Talento.CoreWebApi.Controllers
                     modelEvent.ID_REG = model.ID_REG;
                     _appDbContext.Add(modelEvent);
                     var rsEvent = await _appDbContext.SaveChangesAsync();
-                }
 
+
+                    /* Obtener los eventos que tiene asociado ese id registro */
+                    var eventoActual = await _appDbContext.CAT_EVENTS.Where(even => even.ID_EVENT == currentEvent.ID_EVENT).SingleOrDefaultAsync();
+                    if (eventoActual != null)
+                    {
+                        if (!string.IsNullOrEmpty(eventoActual.EMAIL1))
+                        {
+                            ListaEmailsCC.Add(eventoActual.EMAIL1);
+                        }
+                        if (!string.IsNullOrEmpty(eventoActual.EMAIL2))
+                        {
+                            ListaEmailsCC.Add(eventoActual.EMAIL2);
+                        }
+                    }
+                }
+                /* Quitar duplicados */
+                ListaEmailsCC = ListaEmailsCC.Distinct().ToList();
+            
 
                 if (rs == 1)
                 {
@@ -463,13 +484,13 @@ namespace Migracion.Talento.CoreWebApi.Controllers
                 foreach (RegEvenStateDateDto currentEvent in newEvent.EVENTS)
                 {
                     RegEvenStateDate itemEvent = null;
-                    if (currentEvent.ID_REG_EVEN_DATE != null && currentEvent.ID_REG_EVEN_DATE != 0)
+                    if (currentEvent.ID_REG_EVEN_DATE != 0)
                     {
                         id = currentEvent.ID_REG_EVEN_DATE;
                         var regDb = await _appDbContext.REG_EVENT_ESTATES_DATE.AnyAsync(g => g.ID_REG_EVEN_DATE == id);
 
                         itemEvent = await _appDbContext.REG_EVENT_ESTATES_DATE
-                             .Where((even) => even.ID_REG_EVEN_DATE == id).FirstOrDefaultAsync();
+                             .Where((even) => even.ID_REG_EVEN_DATE == id).FirstAsync();
                         itemEvent.ID_EVENT = currentEvent.ID_EVENT;
                         itemEvent.ID_ESTATE = currentEvent.ID_ESTATE;
                         itemEvent.DESC_LOCATION = currentEvent.DESC_LOCATION;
@@ -689,13 +710,14 @@ namespace Migracion.Talento.CoreWebApi.Controllers
         {
             try
             {
+                
                 // Create MailData object
                 MailDataDto mailData = new MailDataDto()
                 {
                     To = welcomeMail.Email,
                     Subject = welcomeMail.Subject,
-                    Body = _emailSender.GetWelcomeTemplateEmail("Welcome", welcomeMail)
-                    
+                    Body = _emailSender.GetWelcomeTemplateEmail("Welcome", welcomeMail),
+                    EmailsCC = ListaEmailsCC
                 };
                 
                 await _emailSender.SendEmailAsync(mailData);
@@ -724,8 +746,8 @@ namespace Migracion.Talento.CoreWebApi.Controllers
                 {
                     To = welcomeMail.Email,
                     Subject = welcomeMail.Subject,
-                    Body = _emailSender.GetWelcomeTemplateEmail(nameTemplate, welcomeMail)
-
+                    Body = _emailSender.GetWelcomeTemplateEmail(nameTemplate, welcomeMail),
+                    EmailsCC = ListaEmailsCC
                 };
                 await _emailSender.SendEmailAsync(mailData);
                 return new ResponseDto(ResponseDtoEnum.Success);
@@ -766,6 +788,36 @@ namespace Migracion.Talento.CoreWebApi.Controllers
                     var item = await _appDbContext.REG_EVENTS
                         .Include("CAT_NATIONALITIES")
                         .Where((even) => even.ID_REG == idEvent).FirstOrDefaultAsync();
+
+                    /* Obtener los correos a los que se mandara copia*/
+                    if (await _appDbContext.REG_EVENT_ESTATES_DATE.AnyAsync(even => even.ID_REG == idEvent))
+                    {
+                    /* Obtener los eventos que tiene asociado ese id registro */
+                        var listRegEventEstates = await _appDbContext.REG_EVENT_ESTATES_DATE
+                            .Where(even => even.ID_REG == idEvent).ToListAsync();
+                        ListaEmailsCC = new List<string>();
+                        if (listRegEventEstates.Count > 0)
+                        {
+                            foreach (var regEventState in listRegEventEstates)
+                            {
+                                var eventoActual = await _appDbContext.CAT_EVENTS.Where(even => even.ID_EVENT == regEventState.ID_EVENT).SingleOrDefaultAsync();
+                                if (eventoActual != null)
+                                {
+                                    if (!string.IsNullOrEmpty(eventoActual.EMAIL1))
+                                    {
+                                        ListaEmailsCC.Add(eventoActual.EMAIL1);
+                                    }
+                                    if (!string.IsNullOrEmpty(eventoActual.EMAIL2))
+                                    {
+                                        ListaEmailsCC.Add(eventoActual.EMAIL2);
+                                    }
+                                }
+                            }
+                            /* Quitar duplicados */
+                            ListaEmailsCC = ListaEmailsCC.Distinct().ToList();
+                        }
+                    }
+
 
                     try
                     {
@@ -989,8 +1041,8 @@ namespace Migracion.Talento.CoreWebApi.Controllers
                     To = invitationMail.Email,
                     Subject = invitationMail.Subject,
                     Body = _emailSender.GetWelcomeTemplateEmail(templateType.ToString(), invitationMail),
-                    Attachments = invitationMail.attachments
-
+                    Attachments = invitationMail.attachments,
+                    EmailsCC = ListaEmailsCC
                 };
 
                 await _emailSender.SendEmailAsync(mailData);

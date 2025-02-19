@@ -19,6 +19,7 @@
                 <th>IDENTIFICADOR</th>
                 <th>DESCRIPCIÓN</th>
                 <th>EMPRESA</th>
+                <th>CORREOS CC</th>
                 <th>Eliminar</th>
                 <th>EDICIÓN</th>
             </tr>
@@ -28,6 +29,7 @@
                     <td style="vertical-align:middle;">@registro.Id</td>
                     <td style="vertical-align:middle;">@registro.Descripcion</td>
                     <td style="vertical-align:middle;">@registro.AtributoAdicionalStr1</td>
+                    <td style="vertical-align:middle;">@registro.AtributoAdicionalStr2</td>
                     <td>
                         <button type="button" id="btn_elimina_@registro.Id" onclick="eliminar(this.id)" class="glyphicon glyphicon-remove-sign"></button>
                     </td>
@@ -102,6 +104,22 @@
                     <div class="input-group">
                         <span class="input-group-addon">Dirección:</span>
                         @Html.TextBoxFor(m => m.AtributoAdicionalStr3, new { @class = "form-control", required = "required", type = "text" })
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                    <div class="input-group">
+                        <span class="input-group-addon">Email para enviar copia 1:</span>
+                        @Html.TextBoxFor(m => m.AtributoAdicionalStr4, new { @class = "form-control", type = "text" })
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                    <div class="input-group">
+                        <span class="input-group-addon">Email para enviar copia 2:</span>
+                        @Html.TextBoxFor(m => m.AtributoAdicionalStr5, new { @class = "form-control", type = "text" })
                     </div>
                 </div>
             </div>
@@ -251,7 +269,9 @@
             let AtributoAdicional2Dte = document.getElementById("AtributoAdicional2Dte");
             let AtributoAdicionalStr2 = document.getElementById("AtributoAdicionalStr2");
             let AtributoAdicionalStr3 = document.getElementById("AtributoAdicionalStr3");
-
+            /** Se agregan para email 1 y 2 */
+            let AtributoAdicionalStr4 = document.getElementById("AtributoAdicionalStr4");
+            let AtributoAdicionalStr5 = document.getElementById("AtributoAdicionalStr5");
             // console.log(dataResponse);
 
             descripcion.value = dataResponse.result.Descripcion;
@@ -259,6 +279,9 @@
             AtributoAdicionalStr1.value = dataResponse.result.AtributoAdicionalStr1;
             AtributoAdicionalStr2.value = dataResponse.result.AtributoAdicionalStr2;
             AtributoAdicionalStr3.value = dataResponse.result.AtributoAdicionalStr3;
+            /** Se agregan para email 1 y 2 */
+            AtributoAdicionalStr4.value = dataResponse.result.AtributoAdicionalStr4;
+            AtributoAdicionalStr5.value = dataResponse.result.AtributoAdicionalStr5;
 
             let borrarFecha1 = true;
             if (dataResponse.result.AtributoAdicional1Dte !== undefined && dataResponse.result.AtributoAdicional1Dte !== null) {
@@ -342,6 +365,9 @@
         let AtributoAdicional2Dte = document.getElementById("AtributoAdicional2Dte");
         let AtributoAdicionalStr2 = document.getElementById("AtributoAdicionalStr2");
         let AtributoAdicionalStr3 = document.getElementById("AtributoAdicionalStr3");
+        /** Se agregan para email 1 y 2 */
+        let AtributoAdicionalStr4 = document.getElementById("AtributoAdicionalStr4");
+        let AtributoAdicionalStr5 = document.getElementById("AtributoAdicionalStr5");
 
         if (isANullOrEmptyString(AtributoAdicionalStr2.value) || AtributoAdicionalStr2.value === '0') {
             setErrorMessageForm("Debe seleccionar un Inmueble para continuar", 'modalAlertMessageResult');
@@ -368,6 +394,8 @@
             AtributoAdicional2Dte: AtributoAdicional2Dte.value,
             AtributoAdicionalStr2: AtributoAdicionalStr2.value,
             AtributoAdicionalStr3: AtributoAdicionalStr3.value,
+            AtributoAdicionalStr4: AtributoAdicionalStr4.value,
+            AtributoAdicionalStr5: AtributoAdicionalStr5.value,
         };
 
         const response = httpPost(
