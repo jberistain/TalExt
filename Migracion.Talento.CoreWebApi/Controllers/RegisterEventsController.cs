@@ -279,27 +279,27 @@ namespace Migracion.Talento.CoreWebApi.Controllers
                     newEvent.ID_COMPANY = idEmpresa;
                 }
 
-                if (!string.IsNullOrEmpty(newEvent.NOMBRE_NUEVO_AEROPUERTO))
-                {
-                    AirPortsController airportsController = new AirPortsController(this._appDbContext, this._mapper);
-                    AirPortRegisterDto reg = new AirPortRegisterDto();
-                    reg.DESC_AIRPORT_EN = newEvent.NOMBRE_NUEVO_AEROPUERTO;
-                    reg.DESC_AIRPORT_SP = newEvent.NOMBRE_NUEVO_AEROPUERTO;
-                    reg.CREATED_BY = 2;
-                    var resp = await airportsController.SaveIfNotExist(reg);
-                    idAeropuerto = resp.response.ID_AIRPORT;
-                    newEvent.ID_AIRPORT = idAeropuerto;
-                }
-                if (!string.IsNullOrEmpty(newEvent.NOMBRE_NUEVA_AEROLINEA))
-                {
-                    AirLinesController airLineController = new AirLinesController(this._appDbContext, this._mapper);
-                    AirLineRegisterDto reg = new AirLineRegisterDto();
-                    reg.DESC_AIR_LINE_EN = newEvent.NOMBRE_NUEVA_AEROLINEA;
-                    reg.DESC_AIR_LINE_SP = newEvent.NOMBRE_NUEVA_AEROLINEA;
-                    reg.CREATED_BY = 2;
-                    var resp = await airLineController.SaveIfNotExist(reg);
-                    newEvent.ID_AIR_LINE = resp.response.ID_AIR_LINE;
-                }
+                //if (!string.IsNullOrEmpty(newEvent.NOMBRE_NUEVO_AEROPUERTO))
+                //{
+                //    AirPortsController airportsController = new AirPortsController(this._appDbContext, this._mapper);
+                //    AirPortRegisterDto reg = new AirPortRegisterDto();
+                //    reg.DESC_AIRPORT_EN = newEvent.NOMBRE_NUEVO_AEROPUERTO;
+                //    reg.DESC_AIRPORT_SP = newEvent.NOMBRE_NUEVO_AEROPUERTO;
+                //    reg.CREATED_BY = 2;
+                //    var resp = await airportsController.SaveIfNotExist(reg);
+                //    idAeropuerto = resp.response.ID_AIRPORT;
+                //    newEvent.ID_AIRPORT = idAeropuerto;
+                //}
+                //if (!string.IsNullOrEmpty(newEvent.NOMBRE_NUEVA_AEROLINEA))
+                //{
+                //    AirLinesController airLineController = new AirLinesController(this._appDbContext, this._mapper);
+                //    AirLineRegisterDto reg = new AirLineRegisterDto();
+                //    reg.DESC_AIR_LINE_EN = newEvent.NOMBRE_NUEVA_AEROLINEA;
+                //    reg.DESC_AIR_LINE_SP = newEvent.NOMBRE_NUEVA_AEROLINEA;
+                //    reg.CREATED_BY = 2;
+                //    var resp = await airLineController.SaveIfNotExist(reg);
+                //    newEvent.ID_AIR_LINE = resp.response.ID_AIR_LINE;
+                //}
 
 
                 bool antecedentesMexico = false;

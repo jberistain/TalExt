@@ -12,7 +12,7 @@ namespace CommonTools.DTOs.Register
         public int ID_NATIONALITY { get; set; }
         public int? ID_ACTIVITY { get; set; }
         public int? ID_AIRPORT { get; set; }
-        public int ID_AIR_LINE { get; set; }
+        public int? ID_AIR_LINE { get; set; }
         public int? ID_PROCESS { get; set; }
         public int ID_STATUS { get; set; }
         public int? ID_COMPANY { get; set; }

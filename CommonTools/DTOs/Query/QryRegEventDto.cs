@@ -22,10 +22,10 @@ namespace CommonTools.DTOs.Query
         public int? ID_ACTIVITY { get; set; }
        
         public  Activitiesdto CAT_ACTIVITIES { get; set; }
-        public int ID_AIRPORT { get; set; }
+        public int? ID_AIRPORT { get; set; }
         
         public  AirPortsDto CAT_AIRPORTS { get; set; }
-        public int ID_AIR_LINE { get; set; }
+        public int? ID_AIR_LINE { get; set; }
        
         public  AirLinesDto CAT_AIR_LINES { get; set; }
         public int? ID_PROCESS { get; set; }

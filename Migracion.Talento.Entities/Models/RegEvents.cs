@@ -23,10 +23,10 @@ namespace Migracion.Talento.Models
         public int? ID_ACTIVITY { get; set; }
         [ForeignKey(nameof(ID_ACTIVITY))]
         public virtual Activities CAT_ACTIVITIES { get; set; }
-        public int ID_AIRPORT { get; set; }
+        public int? ID_AIRPORT { get; set; }
         [ForeignKey(nameof(ID_AIRPORT))]
         public virtual AirPorts CAT_AIRPORTS { get; set; }
-        public int ID_AIR_LINE { get; set; }
+        public int? ID_AIR_LINE { get; set; }
         [ForeignKey(nameof(ID_AIR_LINE))]
         public virtual AirLines CAT_AIR_LINES { get; set; }
         public int? ID_PROCESS { get; set; }
