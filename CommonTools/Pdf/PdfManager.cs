@@ -11,6 +11,7 @@ using CommonTools.DTOs.Register;
 using System.Runtime.InteropServices.ComTypes;
 using CommonTools.DTOs.Query;
 using SkiaSharp;
+using System.Globalization;
 
 namespace CommonTools.Pdf
 {
@@ -851,7 +852,7 @@ namespace CommonTools.Pdf
             foreach (IInfoEvento evento in infoEvento.InfoEventosList)
             {
                 eventosRecorridos++;
-                eventosConcatenados += $" “{evento.NombreEvento}” que se llevará acabo el día {evento.FechaEvento} en el “{evento.InmuebleEvento}” en la {evento.UbicacionInmueble}";
+                eventosConcatenados += $" “{evento.NombreEvento}” que se llevará acabo el(los) día(s) {RemplazaIntervaloDeFechasEventoPorTexto(evento.FechaInicioEvento, evento.FechaFinEvento, true)} en el “{evento.InmuebleEvento}” en la {evento.UbicacionInmueble}";
                 if (eventosRecorridos < numEventos)
                     eventosConcatenados += $",";
                 else
@@ -862,6 +863,50 @@ namespace CommonTools.Pdf
 
             return texto;
         }
+
+        private string RemplazaIntervaloDeFechasEventoPorTexto(string fechaInicioStr, string fechaFinStr, bool lenguajeES = true)
+        {
+            DateTime fechaInicio = DateTime.ParseExact(fechaInicioStr, "dd/MM/yyyy", CultureInfo.InvariantCulture);
+            DateTime fechaFin = DateTime.ParseExact(fechaFinStr, "dd/MM/yyyy", CultureInfo.InvariantCulture);
+
+            StringBuilder resultado = new StringBuilder();
+
+            DateTime fechaActual = fechaInicio;
+            int mesActual = fechaActual.Month;
+            bool primero = true;
+
+            while (fechaActual <= fechaFin)
+            {
+                if (fechaActual.Month != mesActual) // Cambio de mes detectado
+                {
+                    if (lenguajeES)
+                    {
+                        resultado.Append($"/{mesActual:00}/{fechaActual.Year} y ");
+                    }
+                    else
+                    {
+                        resultado.Append($"/{mesActual:00}/{fechaActual.Year} and ");
+                    }
+                    mesActual = fechaActual.Month;
+                    primero = true; // Reiniciar el primer día del nuevo mes
+                }
+
+                if (!primero)
+                {
+                    resultado.Append(", ");
+                }
+
+                resultado.Append($"{fechaActual.Day}");
+
+                fechaActual = fechaActual.AddDays(1);
+                primero = false;
+            }
+
+            resultado.Append($"/{mesActual:00}/{fechaFin.Year}");
+
+            return resultado.ToString();
+        }
+
         private string ReemplazaBanderasPorContenidoPrincipalCeldasENG(IReporteInfo infoEvento, string texto = "")
         {
             //[NOMBRE_INVITADO]
@@ -886,7 +931,7 @@ namespace CommonTools.Pdf
             foreach (IInfoEvento evento in infoEvento.InfoEventosList)
             {
                 eventosRecorridos++;
-                eventosConcatenados += $" “{evento.NombreEvento}” which will take place on {evento.FechaEvento} at the “{evento.InmuebleEvento}” located in  {evento.UbicacionInmueble}";
+                eventosConcatenados += $" “{evento.NombreEvento}” which will take place on {RemplazaIntervaloDeFechasEventoPorTexto(evento.FechaInicioEvento, evento.FechaFinEvento, false)} at the “{evento.InmuebleEvento}” located in  {evento.UbicacionInmueble}";
                 if (eventosRecorridos < numEventos)
                     eventosConcatenados += $",";
                 else

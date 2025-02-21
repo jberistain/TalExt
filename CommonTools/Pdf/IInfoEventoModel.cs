@@ -18,10 +18,14 @@ namespace CommonTools.Pdf
     public interface IInfoEvento
     {
         string NombreEvento { get; set; }
-        string FechaEvento { get; set; } 
+        string FechaInicioEvento { get; set; } 
         string DiaInicioEvento { get; set; }
         string MesInicioEvento { get; set; }
         string AnioInicioEvento { get; set; }
+        string FechaFinEvento { get; set; }
+        string DiaFinEvento { get; set; }
+        string MesFinEvento { get; set; }
+        string AnioFinEvento { get; set; }
         string InmuebleEvento { get; set; }
         string UbicacionInmueble { get; set; }
         string IdEvento { get; set; }

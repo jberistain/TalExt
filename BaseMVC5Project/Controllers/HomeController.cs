@@ -659,7 +659,9 @@ namespace MigracionTalentoExtranjero.Controllers
 
                     EventList.Add(new InfoEventoModel()
                     {
-                        FechaEvento = $"{eventoInfo.AnioInicioEvento}/{eventoInfo.MesInicioEvento}/{eventoInfo.DiaInicioEvento}",
+                        /* Las fechas ya llegan con el toShortDateString*/
+                        FechaInicioEvento = eventoInfo.FechaInicioEvento,
+                        FechaFinEvento = eventoInfo.FechaFinEvento,
                         InmuebleEvento = $"{catInmuebleActual.response.desC_ESTATE_SP}",
                         NombreEvento = $"{catEventoActual.response.desC_EVENT_SP}",
                         UbicacionInmueble = $"{eventoInfo.UbicacionInmueble}"

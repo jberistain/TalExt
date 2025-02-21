@@ -873,7 +873,7 @@ namespace Migracion.Talento.CoreWebApi.Controllers
                                     FechaSalidaAlPais = item.DATE_LEAVE.Value.ToShortDateString(),
                                     Nacionalidad = item.CAT_NATIONALITIES.DESC_NACIONALITY_SP,
                                     NumPasaporte = item.PASSPORT_NUM,
-                                    PuestoParteStaff = item.EVENT_JOB,
+                                    PuestoParteStaff = item.ACTUAL_JOB,
                                     TipoArchivoGenerado = tipoEventoStr
                                 };
 
@@ -891,7 +891,8 @@ namespace Migracion.Talento.CoreWebApi.Controllers
                                     {
                                         EventList.Add(new InfoEventoModel()
                                         {
-                                            FechaEvento = currentEventEstate.EVENT_DATE.ToShortDateString(),
+                                            FechaInicioEvento = currentEventEstate.EVENT_DATE.ToShortDateString(),
+                                            FechaFinEvento = currentEventEstate.EVENT_DATE_FIN.ToShortDateString(),
                                             InmuebleEvento = currentEventEstate.CAT_ESTATES.DESC_ESTATE_SP,
                                             NombreEvento = currentEventEstate.CAT_EVENTS.DESC_EVENT_SP,
                                             UbicacionInmueble = currentEventEstate.DESC_LOCATION

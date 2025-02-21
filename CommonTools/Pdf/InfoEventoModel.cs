@@ -23,13 +23,15 @@ namespace CommonTools.Pdf
     {
         public string Id { get; set; }
         public string NombreEvento { get; set; } = string.Empty;
-        public string FechaEvento { get; set; } = string.Empty;
+        public string FechaInicioEvento { get; set; } = string.Empty;
         public string DiaInicioEvento { get; set; } = string.Empty;
         public string MesInicioEvento { get; set; } = string.Empty;
         public string AnioInicioEvento { get; set; } = string.Empty;
+        public string FechaFinEvento { get; set; } = string.Empty;
         public string DiaFinEvento { get; set; } = string.Empty;
         public string MesFinEvento { get; set; } = string.Empty;
         public string AnioFinEvento { get; set; } = string.Empty;
+
 
         public string InmuebleEvento { get; set; } = string.Empty;
         public string NuevoInmuebleEvento { get; set; } = string.Empty;
