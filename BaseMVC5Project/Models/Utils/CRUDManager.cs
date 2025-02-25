@@ -140,8 +140,8 @@ namespace MigracionTalentoExtranjero.Models.Utils
                                 DiaFinEvento = FechaFin.ToString("dd"),
                                 MesFinEvento = FechaFin.ToString("MM"),
                                 AnioFinEvento = FechaFin.ToString("yyyy"),
-                                FechaInicioEvento=FechaInicio.ToShortDateString(),
-                                FechaFinEvento=FechaFin.ToShortDateString()
+                                FechaInicioEvento=FechaInicio.ToString("dd/MM/yyyy"),
+                                FechaFinEvento=FechaFin.ToString("dd/MM/yyyy")
                             });
                         }
                     }
