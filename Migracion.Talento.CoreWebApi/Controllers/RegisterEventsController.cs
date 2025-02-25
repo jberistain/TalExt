@@ -869,8 +869,8 @@ namespace Migracion.Talento.CoreWebApi.Controllers
                                 IReporteInfo reporteInfo = new ReportInformation()
                                 {
                                     NombreInvitado = $"{item.PASSPORT_NAME} {item.PASSPORT_LASTNAME}",
-                                    FechaEntradaAlPais = item.DATE_ARRIVE.Value.ToShortDateString(),
-                                    FechaSalidaAlPais = item.DATE_LEAVE.Value.ToShortDateString(),
+                                    FechaEntradaAlPais = item.DATE_ARRIVE.Value.ToString("dd/MM/yyyy"),
+                                    FechaSalidaAlPais = item.DATE_LEAVE.Value.ToString("dd/MM/yyyy"),
                                     Nacionalidad = item.CAT_NATIONALITIES.DESC_NACIONALITY_SP,
                                     NumPasaporte = item.PASSPORT_NUM,
                                     PuestoParteStaff = item.ACTUAL_JOB,
@@ -891,8 +891,8 @@ namespace Migracion.Talento.CoreWebApi.Controllers
                                     {
                                         EventList.Add(new InfoEventoModel()
                                         {
-                                            FechaInicioEvento = currentEventEstate.EVENT_DATE.ToShortDateString(),
-                                            FechaFinEvento = currentEventEstate.EVENT_DATE_FIN.ToShortDateString(),
+                                            FechaInicioEvento = currentEventEstate.EVENT_DATE.ToString("dd/MM/yyyy"),
+                                            FechaFinEvento = currentEventEstate.EVENT_DATE_FIN.ToString("dd/MM/yyyy"),
                                             InmuebleEvento = currentEventEstate.CAT_ESTATES.DESC_ESTATE_SP,
                                             NombreEvento = currentEventEstate.CAT_EVENTS.DESC_EVENT_SP,
                                             UbicacionInmueble = currentEventEstate.DESC_LOCATION
@@ -909,6 +909,10 @@ namespace Migracion.Talento.CoreWebApi.Controllers
                                 {
                                     PdfManager reporte = new PdfManager();
                                     var invitacion = reporte.GenerateDocument(docto, reporteInfo);
+                                    if (string.IsNullOrEmpty(invitacion.FileName))
+                                    {
+                                        invitacion.FileName = "Docto";
+                                    }
                                     attachments.Add(invitacion);
 
                                 });
@@ -917,6 +921,10 @@ namespace Migracion.Talento.CoreWebApi.Controllers
                                 {
                                     PdfManager reporte = new PdfManager();
                                     var invitacion = reporte.GenerateDocument(docto, reporteInfo);
+                                    if (string.IsNullOrEmpty(invitacion.FileName))
+                                    {
+                                        invitacion.FileName = "Docto";
+                                    }
                                     attachments.Add(invitacion);
                                 });
 
@@ -928,7 +936,7 @@ namespace Migracion.Talento.CoreWebApi.Controllers
                                         var attachment = new AttachmentFileDto
                                         {
                                             File = Convert.FromBase64String(pdf.FILE_BLOB),
-                                            FileName = pdf.DESC_SPANISH
+                                            FileName = string.IsNullOrEmpty(pdf.DESC_SPANISH) ? "Documento" : pdf.DESC_SPANISH
                                         };
                                         attachments.Add(attachment);
                                     });

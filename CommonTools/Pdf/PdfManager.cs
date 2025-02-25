@@ -562,12 +562,29 @@ namespace CommonTools.Pdf
             if (!string.IsNullOrEmpty(seccionFirma))
             {
                 //Agregar imagenes de firmas
-                byte[] bytesImage = Convert.FromBase64String(regInvite.SIGN_BLOB);
+                string firma = string.IsNullOrEmpty(regInvite.SIGN_BLOB) ? "" : regInvite.SIGN_BLOB;
+                byte[] bytesImage = Convert.FromBase64String(firma);
 
                 Image signImageEsp;
                 using (MemoryStream ms = new MemoryStream(bytesImage))
                 {
-                    signImageEsp = Image.GetInstance(ms);
+                    if (firma.Equals(""))
+                    {
+                        // Dimensiones de la imagen en blanco
+                        int width = (int)ANCHO_IMAGEN_FIRMA;  // Ancho de la imagen
+                        int height = (int)ALTO_IMAGEN_FIRMA; // Alto de la imagen
+                        byte[] whiteImageData = new byte[width * height * 3]; // Imagen RGB en blanco
+                        // Rellenar con blanco (255 en cada canal)
+                        for (int i = 0; i < whiteImageData.Length; i++)
+                        {
+                            whiteImageData[i] = 255;
+                        }
+                        signImageEsp = Image.GetInstance(width, height, 3, 8, whiteImageData);
+                    }
+                    else
+                    {
+                        signImageEsp = Image.GetInstance(ms);
+                    }
                     signImageEsp.ScaleAbsoluteHeight(ALTO_IMAGEN_FIRMA);
                     signImageEsp.ScaleAbsoluteWidth(ANCHO_IMAGEN_FIRMA);
 
@@ -583,7 +600,23 @@ namespace CommonTools.Pdf
                 Image signImageEng;
                 using (MemoryStream ms = new MemoryStream(bytesImage))
                 {
-                    signImageEng = Image.GetInstance(ms);
+                    if (firma.Equals(""))
+                    {
+                        // Dimensiones de la imagen en blanco
+                        int width = (int)ANCHO_IMAGEN_FIRMA;  // Ancho de la imagen
+                        int height = (int)ALTO_IMAGEN_FIRMA; // Alto de la imagen
+                        byte[] whiteImageData = new byte[width * height * 3]; // Imagen RGB en blanco
+                        // Rellenar con blanco (255 en cada canal)
+                        for (int i = 0; i < whiteImageData.Length; i++)
+                        {
+                            whiteImageData[i] = 255;
+                        }
+                        signImageEng = Image.GetInstance(width, height, 3, 8, whiteImageData);
+                    }
+                    else
+                    {
+                        signImageEng = Image.GetInstance(ms);
+                    }
                     signImageEng.ScaleAbsoluteHeight(ALTO_IMAGEN_FIRMA);
                     signImageEng.ScaleAbsoluteWidth(ANCHO_IMAGEN_FIRMA);
 

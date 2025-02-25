@@ -9,6 +9,7 @@ using Migracion.Talento.CoreWebApi.Interfaces;
 using Migracion.Talento.CoreWebApi.MiddleWares;
 using Migracion.Talento.CoreWebApi.Services;
 using Migracion.Talento.WebAPI.DataConnection;
+using System.Globalization;
 
 namespace Migracion.Talento.WebAPI
 {
@@ -52,6 +53,10 @@ namespace Migracion.Talento.WebAPI
         }
         public void Configure(IApplicationBuilder app,IWebHostEnvironment env, ILogger<Startup>? logger)
         {
+            var cultureInfo = new CultureInfo("es-ES");
+            CultureInfo.DefaultThreadCurrentCulture = cultureInfo;
+            CultureInfo.DefaultThreadCurrentUICulture = cultureInfo;
+
 
             app.UseLoggerResponse();
             //app.Run(async contexto =>
