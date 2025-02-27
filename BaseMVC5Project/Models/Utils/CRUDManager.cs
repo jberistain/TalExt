@@ -957,7 +957,10 @@ namespace MigracionTalentoExtranjero.Models.Utils
             var catalogList = await catalogs.DescargarCatalogoNacionalidades();
             foreach (NationalitiesDto item in catalogList)
             {
-                result.Add(new CatalogoGeneral() { Id = item.ID_NALCIONALITY, Descripcion = item.DESC_NACIONALITY_SP,
+                result.Add(new CatalogoGeneral() { 
+                    Id = item.ID_NALCIONALITY, 
+                    Descripcion = item.DESC_NACIONALITY_SP,
+                    AtributoAdicionalStr2 = item.DESC_NACIONALITY_EN,
                     AtributoAdicionalStr1 = item.RESTRICTION == true ? "SI" : "NO"
                 });
             }

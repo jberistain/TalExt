@@ -54,6 +54,7 @@ namespace MigracionTalentoExtranjero.Models.Utils
                     {
                         ID_NALCIONALITY = currentValue.iD_NATIONALITY,
                         DESC_NACIONALITY_SP = currentValue.desC_NACIONALITY_SP,
+                        DESC_NACIONALITY_EN = currentValue.desC_NACIONALITY_EN,
                         RESTRICTION = currentValue.restriction,
                     });
                 }

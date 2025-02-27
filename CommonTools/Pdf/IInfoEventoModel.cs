@@ -6,7 +6,8 @@ namespace CommonTools.Pdf
     public interface IReporteInfo
     {
         string NombreInvitado { get; set; }
-        string Nacionalidad { get; set; }
+        string NacionalidadEsp { get; set; }
+        string NacionalidadIng { get; set; }
         string NumPasaporte { get; set; }
         string PuestoParteStaff { get; set; }
         string FechaEntradaAlPais { get; set; }

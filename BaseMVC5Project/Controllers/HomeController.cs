@@ -646,7 +646,8 @@ namespace MigracionTalentoExtranjero.Controllers
                     NombreInvitado = $"{resultadoConsulta.Nombre} {resultadoConsulta.Apellidos}",
                     FechaEntradaAlPais = $"{resultadoConsulta.AnioEntrada}/{resultadoConsulta.MesEntrada}/{resultadoConsulta.DiaEntrada}",
                     FechaSalidaAlPais = $"{resultadoConsulta.AnioSalida}/{resultadoConsulta.MesSalida}/{resultadoConsulta.DiaSalida}",
-                    Nacionalidad = $"{catNacionalidad.response.desC_NACIONALITY_SP}",
+                    NacionalidadEsp = $"{catNacionalidad.response.desC_NACIONALITY_SP}",
+                    NacionalidadIng = $"{catNacionalidad.response.desC_NACIONALITY_EN}",
                     NumPasaporte = $"{resultadoConsulta.NumeroPasaporte}",
                     PuestoParteStaff = $"{resultadoConsulta.ActividadEnMexico}"
                 };

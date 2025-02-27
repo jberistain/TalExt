@@ -402,7 +402,7 @@ namespace MigracionTalentoExtranjero.Controllers
                     break;
 
                 case "NACIONALIDADES":
-                    resultHttpRequest = await crud.CrearNacionalidad(new NationalityRegisterDto() { DESC_NACIONALITY_SP = data.Descripcion, DESC_NACIONALITY_EN = data.Descripcion, CREATED_BY = idUser, RESTRICTION = data.AtributoAdicionalStr1.Equals("SI") ?true:false });
+                    resultHttpRequest = await crud.CrearNacionalidad(new NationalityRegisterDto() { DESC_NACIONALITY_SP = data.Descripcion, DESC_NACIONALITY_EN = data.AtributoAdicionalStr2, CREATED_BY = idUser, RESTRICTION = data.AtributoAdicionalStr1.Equals("SI") ?true:false });
                     break;
 
                 case "INMUEBLES":
@@ -517,7 +517,7 @@ namespace MigracionTalentoExtranjero.Controllers
                     resultHttpRequest = await crud.ActualizarAeropuerto(data.Id, new AirPortRegisterDto() { DESC_AIRPORT_SP = data.Descripcion, DESC_AIRPORT_EN = data.Descripcion, MODIFY_BY = idUser });
                     break; 
                 case "NACIONALIDADES":
-                    resultHttpRequest = await crud.ActualizarNacionalidad(data.Id, new NationalityRegisterDto() { DESC_NACIONALITY_SP = data.Descripcion, DESC_NACIONALITY_EN = data.Descripcion, RESTRICTION = data.AtributoAdicionalStr1.Equals("SI") ? true : false, MODIFY_BY = idUser });
+                    resultHttpRequest = await crud.ActualizarNacionalidad(data.Id, new NationalityRegisterDto() { DESC_NACIONALITY_SP = data.Descripcion, DESC_NACIONALITY_EN = data.AtributoAdicionalStr2, RESTRICTION = data.AtributoAdicionalStr1.Equals("SI") ? true : false, MODIFY_BY = idUser });
                     break;
                 case "INMUEBLES":
                     resultHttpRequest = await crud.ActualizarInmueble(data.Id, new EstateRegisterDto() { DESC_ESTATE_SP = data.Descripcion, DESC_ESTATE_EN = data.Descripcion, MODIFY_BY = idUser });
@@ -797,6 +797,7 @@ namespace MigracionTalentoExtranjero.Controllers
                             catalogResponse.Id = resultHttpRequest.response.iD_NATIONALITY;
                             // catalogResponse.AtributoAdicionalInt1 = resultHttpRequest.response.desC_AIR_LINE_SP;
                             catalogResponse.Descripcion = resultHttpRequest.response.desC_NACIONALITY_SP;
+                            catalogResponse.AtributoAdicionalStr2 = resultHttpRequest.response.desC_NACIONALITY_EN;
                             catalogResponse.AtributoAdicionalStr1 = resultHttpRequest.response.restriction == true ? "SI" : "NO";
                         }
                         break;

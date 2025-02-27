@@ -17,7 +17,8 @@
         <table class="table" id="registerFound">
             <tr>
                 <th>IDENTIFICADOR</th>
-                <th>DESCRIPCIÓN</th>
+                <th>DESCRIPCIÓN ESP</th>
+                <th>DESCRIPCIÓN ING</th>
                 <th>RESTRINGIDO</th>
                 <th>Eliminar</th>
                 <th>EDICIÓN</th>
@@ -27,6 +28,7 @@
                 <tr>
                     <td style="vertical-align:middle;">@registro.Id</td>
                     <td style="vertical-align:middle;">@registro.Descripcion</td>
+                    <td style="vertical-align:middle;">@registro.AtributoAdicionalStr2</td>
                     <td style="vertical-align:middle;">@registro.AtributoAdicionalStr1</td>
                     <td>
                         <button type="button" id="btn_elimina_@registro.Id" onclick="eliminar(this.id)" class="glyphicon glyphicon-remove-sign"></button>
@@ -57,10 +59,18 @@
             <hr>
             @Html.HiddenFor(m => m.Id)
             <div class="row">
-                <div class="col-xs-8 col-sm-12 col-md-12 col-lg-12">
+                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
                     <div class="input-group">
-                        <span class="input-group-addon">Descripción:</span>
+                        <span class="input-group-addon">Descripción Español:</span>
                         @Html.TextBoxFor(m => m.Descripcion, new { @class = "form-control" })
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                    <div class="input-group">
+                        <span class="input-group-addon">Descripción Ingles:</span>
+                        @Html.TextBoxFor(m => m.AtributoAdicionalStr2, new { @class = "form-control" })
                     </div>
                 </div>
             </div>
@@ -204,10 +214,13 @@
             let descripcion = document.getElementById("Descripcion");
             let id = document.getElementById("Id");
             let AtributoAdicionalStr1 = document.getElementById("AtributoAdicionalStr1");
+            let AtributoAdicionalStr2 = document.getElementById("AtributoAdicionalStr2");
 
             descripcion.value = dataResponse.result.Descripcion;
             id.value = dataResponse.result.Id;
             AtributoAdicionalStr1.value = dataResponse.result.AtributoAdicionalStr1;
+            console.log('dataResponse.result',dataResponse.result);
+            AtributoAdicionalStr2.value = dataResponse.result.AtributoAdicionalStr2;
 
             accionCRUD = "MODIFICAR";
 
@@ -260,6 +273,7 @@
         let idRegistro = document.getElementById("Id");
         let descripcion = document.getElementById("Descripcion");
         let AtributoAdicionalStr1 = document.getElementById("AtributoAdicionalStr1");
+        let AtributoAdicionalStr2 = document.getElementById("AtributoAdicionalStr2");
 
         let params =
         {
@@ -267,6 +281,7 @@
             NombreCatalogo: "NACIONALIDADES",
             Descripcion: descripcion.value,
             AtributoAdicionalStr1: AtributoAdicionalStr1.value,
+            AtributoAdicionalStr2: AtributoAdicionalStr2.value,
         };
 
         const response = httpPost(

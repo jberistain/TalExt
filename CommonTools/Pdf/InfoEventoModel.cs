@@ -8,7 +8,8 @@ namespace CommonTools.Pdf
     public class ReportInformation : IReporteInfo
     {
         public string NombreInvitado { get; set; }
-        public string Nacionalidad { get; set; }
+        public string NacionalidadEsp { get; set; }
+        public string NacionalidadIng { get; set; }
         public string NumPasaporte { get; set; }
         public string PuestoParteStaff { get; set; }
         public string FechaEntradaAlPais { get; set; }

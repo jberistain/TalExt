@@ -871,7 +871,8 @@ namespace Migracion.Talento.CoreWebApi.Controllers
                                     NombreInvitado = $"{item.PASSPORT_NAME} {item.PASSPORT_LASTNAME}",
                                     FechaEntradaAlPais = item.DATE_ARRIVE.Value.ToString("dd/MM/yyyy"),
                                     FechaSalidaAlPais = item.DATE_LEAVE.Value.ToString("dd/MM/yyyy"),
-                                    Nacionalidad = item.CAT_NATIONALITIES.DESC_NACIONALITY_SP,
+                                    NacionalidadEsp = item.CAT_NATIONALITIES.DESC_NACIONALITY_SP,
+                                    NacionalidadIng = item.CAT_NATIONALITIES.DESC_NACIONALITY_EN,
                                     NumPasaporte = item.PASSPORT_NUM,
                                     PuestoParteStaff = item.ACTUAL_JOB,
                                     TipoArchivoGenerado = tipoEventoStr

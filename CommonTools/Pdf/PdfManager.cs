@@ -872,7 +872,7 @@ namespace CommonTools.Pdf
             //[LISTA_DE_EVENTOS]
 
             texto = texto.Replace("[NOMBRE_INVITADO]", infoEvento.NombreInvitado);
-            texto = texto.Replace("[NACIONALIDAD]", infoEvento.Nacionalidad);
+            texto = texto.Replace("[NACIONALIDAD]", infoEvento.NacionalidadEsp);
             texto = texto.Replace("[NUMERO_PASAPORTE]", infoEvento.NumPasaporte);
             texto = texto.Replace("[PUESTO_STAFF]", infoEvento.PuestoParteStaff);
             texto = texto.Replace("[FECHA_INGRESO_AL_PAIS]", infoEvento.FechaEntradaAlPais);
@@ -951,7 +951,7 @@ namespace CommonTools.Pdf
             //[LISTA_DE_EVENTOS]
 
             texto = texto.Replace("[NOMBRE_INVITADO]", infoEvento.NombreInvitado);
-            texto = texto.Replace("[NACIONALIDAD]", infoEvento.Nacionalidad);
+            texto = texto.Replace("[NACIONALIDAD]", infoEvento.NacionalidadIng);
             texto = texto.Replace("[NUMERO_PASAPORTE]", infoEvento.NumPasaporte);
             texto = texto.Replace("[PUESTO_STAFF]", infoEvento.PuestoParteStaff);
             texto = texto.Replace("[FECHA_INGRESO_AL_PAIS]", infoEvento.FechaEntradaAlPais);
