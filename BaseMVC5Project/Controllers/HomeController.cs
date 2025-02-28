@@ -168,7 +168,7 @@ namespace MigracionTalentoExtranjero.Controllers
                 //var nacionalidadesList = await CB.GetSearchComboBox(CatalogosEnum.CAT_NACIONALIDADES.GetString(), 0, "");
                 CRUDManager crud = new CRUDManager(httpManager);
 
-                var ListaNacionalidades = await crud.DescargaCatalogosNacionalidad();
+                var ListaNacionalidades = await crud.DescargaCatalogosNacionalidad(language);
                 
                 string htmlNacionalidades = "<select class=\"form-control\" id=\"Nacionalidad\" name=\"Nacionalidad\" required=\"required\" style=\"position:initial\">" +
                     "<option value=\"\"></option>\r\n" 

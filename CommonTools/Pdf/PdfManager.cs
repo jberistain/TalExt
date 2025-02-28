@@ -808,7 +808,8 @@ namespace CommonTools.Pdf
             //string fechaSalidaAlPais = infoEventosList.FechaSalidaAlPais;// "2023/04/28";
 
             string[] dataDocumentInsert = { infoEventosList.NombreInvitado,
-                infoEventosList.Nacionalidad,
+                infoEventosList.NacionalidadEsp,
+                infoEventosList.NacionalidadIng,
                 infoEventosList.NumPasaporte,
                 infoEventosList.PuestoParteStaff,
                 infoEventosList.FechaEntradaAlPais,

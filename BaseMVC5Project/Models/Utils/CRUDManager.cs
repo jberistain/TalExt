@@ -950,7 +950,7 @@ namespace MigracionTalentoExtranjero.Models.Utils
         #endregion
 
         #region NACIONALIDAD
-        public async Task<List<CatalogoGeneral>> DescargaCatalogosNacionalidad()
+        public async Task<List<CatalogoGeneral>> DescargaCatalogosNacionalidad(string language = "ES")
         {
             List<CatalogoGeneral> result = new List<CatalogoGeneral>();
             catalogs = new CatalogsManager(http);
@@ -959,8 +959,8 @@ namespace MigracionTalentoExtranjero.Models.Utils
             {
                 result.Add(new CatalogoGeneral() { 
                     Id = item.ID_NALCIONALITY, 
-                    Descripcion = item.DESC_NACIONALITY_SP,
-                    AtributoAdicionalStr2 = item.DESC_NACIONALITY_EN,
+                    Descripcion = language.Equals("ES") ? item.DESC_NACIONALITY_SP : item.DESC_NACIONALITY_EN,
+                    AtributoAdicionalStr2 = language.Equals("ES") ? item.DESC_NACIONALITY_SP : item.DESC_NACIONALITY_EN,
                     AtributoAdicionalStr1 = item.RESTRICTION == true ? "SI" : "NO"
                 });
             }
