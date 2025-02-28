@@ -960,7 +960,7 @@ namespace MigracionTalentoExtranjero.Models.Utils
                 result.Add(new CatalogoGeneral() { 
                     Id = item.ID_NALCIONALITY, 
                     Descripcion = language.Equals("ES") ? item.DESC_NACIONALITY_SP : item.DESC_NACIONALITY_EN,
-                    AtributoAdicionalStr2 = language.Equals("ES") ? item.DESC_NACIONALITY_SP : item.DESC_NACIONALITY_EN,
+                    AtributoAdicionalStr2 = item.DESC_NACIONALITY_EN,
                     AtributoAdicionalStr1 = item.RESTRICTION == true ? "SI" : "NO"
                 });
             }
