@@ -331,7 +331,7 @@ namespace MigracionTalentoExtranjero.Models.Home
                 if (IdiomaActual.Equals("ES"))
                     return "Actividad a realizar en México";
                 else
-                    return "Activity you will to do in México";
+                    return "Activity you will do in México";
             }
             set { }
         }
