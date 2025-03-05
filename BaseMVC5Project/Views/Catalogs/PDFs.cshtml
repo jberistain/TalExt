@@ -88,6 +88,9 @@
                 <button type="submit" class="btn-block">Guardar Cambios</button>
             </div>
         }
+    <div>
+        <iframe id="visorPDF" width="100%" height="400px"></iframe>
+    </div>
     </div>
 </div>
 
@@ -179,15 +182,17 @@
     }
 
 
+    async function cargarPDF(accion, urlOrId) {
+        let parametros = `?accion=${accion}&urlOrId=${urlOrId}`;
+        let pdfUrl = '@Url.Action("ObtenerPdf", "Catalogs")' + parametros; 
+
+        document.getElementById("visorPDF").src = pdfUrl;
+    }
 
     async function mostrarModalVacio() {
-
         let popup = document.getElementById('container');
-
         accionCRUD = "CREAR";
         popup.classList.add('show');
-
-
     }
 
     async function mostrarModal(clicked_id) {
@@ -236,6 +241,9 @@
 
             accionCRUD = "MODIFICAR";
 
+
+            cargarPDF("MODIFICAR", id.value);
+
             let popup = document.getElementById('container');
             popup.classList.add('show');
         }
@@ -271,22 +279,21 @@
         let idRegistro = document.getElementById("Id");
         let AtributoAdicionalStr1 = document.getElementById("AtributoAdicionalStr1");
         let AtributoAdicionalStr2 = document.getElementById("AtributoAdicionalStr2");
-        const archivo = document.getElementById("ArchivoPDF").files[0];
 
         const formDataFile = new FormData();
-        formDataFile.append("ArchivoPDF", archivo, "ArchivoPDF.pdf");
+
+        let archivo;
+        if (document.getElementById("ArchivoPDF")
+            && document.getElementById("ArchivoPDF").files
+            && document.getElementById("ArchivoPDF").files[0]) {
+            archivo = document.getElementById("ArchivoPDF").files[0];
+            formDataFile.append("ArchivoPDF", archivo, "ArchivoPDF.pdf");
+        }
+
         formDataFile.append("Id", idRegistro.value);
         formDataFile.append("AtributoAdicionalStr1", AtributoAdicionalStr1.value);
         formDataFile.append("AtributoAdicionalStr2", AtributoAdicionalStr2.value);
         formDataFile.append("NombreCatalogo", "PDF");
-
-        //fetch(url, {
-        //    method: 'POST',
-        //    body: form
-        //})
-        //    .then(res => res.json())
-        //    .then(data => console.log(data))
-        //    .catch(err => console.log(err));
 
         const response = httpPostFile(
             url,

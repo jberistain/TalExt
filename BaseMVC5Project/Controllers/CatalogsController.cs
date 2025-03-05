@@ -426,17 +426,16 @@ namespace MigracionTalentoExtranjero.Controllers
 
 
                 case "PDF":
-
-                    var streamFile = ArchivoPDF.InputStream;
-                    byte[] fileBytes = streamFile.ReadAsBytes();
-                    var base64File = Convert.ToBase64String(fileBytes);
-
-                    //Byte[] bytes = File.ReadAllBytes(data.AtributoAdicionalStr3);
-                    //String file = Convert.ToBase64String(bytes);
+                    string base64File = null;
+                    if (ArchivoPDF != null)
+                    {
+                        var streamFile = ArchivoPDF.InputStream;
+                        byte[] fileBytes = streamFile.ReadAsBytes();
+                        base64File = Convert.ToBase64String(fileBytes);
+                    }
                     resultHttpRequest = await crud.CrearPDF(new DocumentRegisterDto() {FILE_BLOB=base64File, ID_EVENT_TYPE = Convert.ToInt32(data.AtributoAdicionalStr1), DESC_SPANISH = data.AtributoAdicionalStr2, DESC_ENGLISH= data.AtributoAdicionalStr2, CREATED_BY = idUser });
                     break;
 
-               
 
                 default:
                     resultHttpRequest = null;
@@ -538,11 +537,23 @@ namespace MigracionTalentoExtranjero.Controllers
 
 
                 case "PDF":
-
-                    var streamFile = ArchivoPDF.InputStream;
-                    byte[] fileBytes = streamFile.ReadAsBytes();
-                    var base64File = Convert.ToBase64String(fileBytes);
-
+                    string base64File = null;
+                    if (ArchivoPDF != null)
+                    {
+                        var streamFile = ArchivoPDF.InputStream;
+                        byte[] fileBytes = streamFile.ReadAsBytes();
+                        base64File = Convert.ToBase64String(fileBytes);
+                    }
+                    else
+                    {
+                        /* Si no se actualiza el archivo, entonces se manda el blob que ya existia previamente */
+                        crud = new CRUDManager(httpManager);
+                        ResponseDto pdfResponse = await crud.DescargaCatalogoPDFPorId(data.Id);
+                        if (pdfResponse != null && !pdfResponse.error)
+                        {
+                            base64File = pdfResponse.response.filE_BLOB;
+                        }
+                    }
 
                     resultHttpRequest = await crud.ActualizarPDF(data.Id, new DocumentRegisterDto() { FILE_BLOB = base64File, ID_EVENT_TYPE = Convert.ToInt32(data.AtributoAdicionalStr1), DESC_SPANISH = data.AtributoAdicionalStr2, DESC_ENGLISH = data.AtributoAdicionalStr2, CREATED_BY = 1, MODIFY_BY = idUser });
                     break;
@@ -1080,5 +1091,29 @@ namespace MigracionTalentoExtranjero.Controllers
 
             return Json(responseObject);
         }
+
+        public async Task<ActionResult> ObtenerPdf(string accion, string urlOrID="")
+        {
+            byte[] fileBytes;
+            int existeId;
+            
+            if (int.TryParse(urlOrID, out existeId))
+            {
+                /* Obtener la informacion de la BD*/
+                crud = new CRUDManager(httpManager);
+                ResponseDto resultHttpRequest = await crud.DescargaCatalogoPDFPorId(existeId);
+                if (resultHttpRequest != null && !resultHttpRequest.error)
+                {
+                    string blobBase64 = resultHttpRequest.response.filE_BLOB;
+                    if (!string.IsNullOrEmpty(blobBase64))
+                    {
+                        fileBytes = Convert.FromBase64String(blobBase64);
+                        return File(fileBytes, "application/pdf");
+                    }
+                }
+            }
+            return new EmptyResult();
+        }
+
     }
 }
