@@ -31,6 +31,12 @@ namespace Migracion.Talento.WebAPI.DataConnection
         public DbSet<Documents> REG_DOCUMENTS { get; set; } 
         public DbSet<AvisoPrivacidad> CAT_AVISO_PRIVACIDAD { get; set; } 
         public DbSet<RoleProcess> ROL_PROCESS { get; set; }
+        /* Agregados para la seccion de ingreso de invitados por administrador  */
+        public DbSet<AnotherAssistantsAdmon> ANOTHER_ASSISTANTS_ADMON { get; set; }
+        public DbSet<RegInviteAdmon> REG_INVITE_ADMON { get; set; }
+        public DbSet<RegEventsAdmon> REG_EVENTS_ADMON { get; set; }
+        public DbSet<RegEvenStateDateAdmon> REG_EVENT_ESTATES_DATE_ADMON { get; set; }
+
 
     }
 }

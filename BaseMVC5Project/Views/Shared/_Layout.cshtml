@@ -43,6 +43,28 @@
                     <ul class="nav navbar-nav navbar-right">
                         <li class="dropdown">
                             <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+                                Otros Asistentes <span class="caret"></span>
+                            </a>
+                            <ul class="dropdown-menu">
+                                @{
+                                    @*List<ModuloDto> listaModulos = ConsultaModulosPerfil.ObtenerModulosDeSesion();
+
+                                    foreach (var modulo in listaModulos)
+                                    {
+                                        if (!string.IsNullOrEmpty(modulo.DESC_PROCESS_SP) && !string.IsNullOrEmpty(modulo.URL_PROCESS))
+                                        {
+                                            <li><a href="@Url.Content(modulo.URL_PROCESS)">@modulo.DESC_PROCESS_SP</a></li>
+                                        }
+                                    }*@
+                                    <li><a href="@Url.Content("~/AnotherAssistantsAdmon/Index")">Ver Registros</a></li>
+                                    <li><a href="@Url.Content("~/AnotherAssistantsAdmon/NuevoRegistro")">Nuevo registro</a></li>
+                                }
+                            </ul>
+                        </li>
+
+
+                        <li class="dropdown">
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
                                 Catálogos <span class="caret"></span>
                             </a>
                             <ul class="dropdown-menu">
@@ -57,19 +79,19 @@
                                         }
                                     }
                                     @*<li><a href="@Url.Content("~/Catalogs/Eventos")">Eventos</a></li>
-                                        <li><a href="@Url.Content("~/Catalogs/Empresas")">Empresas</a></li>
-                                        <li><a href="@Url.Content("~/Catalogs/Paises")">Paises</a></li>
-                                        <li><a href="@Url.Content("~/Catalogs/Aerolineas")">Aerolineas</a></li>
-                                        <li><a href="@Url.Content("~/Catalogs/Aeropuertos")">Aeropuertos</a></li>
-                                        <li><a href="@Url.Content("~/Catalogs/Inmuebles")">Inmuebles</a></li>
-                                        <li><a href="@Url.Content("~/Catalogs/Nacionalidades")">Nacionalidades</a></li>
-                                        <li><a href="@Url.Content("~/Catalogs/Sexos")">Sexos</a></li>
-                                        <li><a href="@Url.Content("~/Catalogs/Usuarios")">Usuarios</a></li>
-                                        <li><a href="@Url.Content("~/Catalogs/Documentos")">Documentos</a></li>
-                                        <li><a href="@Url.Content("~/Catalogs/PDFs")">PDFs</a></li>
-                                        <li><a href="@Url.Content("~/Catalogs/TipoEventos")">Tipos de evento</a></li>
-                                        <li><a href="@Url.Content("~/Catalogs/AvisoPrivacidad")">Aviso de Privacidad</a></li>
-                                        <li><a href="@Url.Content("~/Catalogs/Perfiles")">Perfiles</a></li>*@
+                    <li><a href="@Url.Content("~/Catalogs/Empresas")">Empresas</a></li>
+                    <li><a href="@Url.Content("~/Catalogs/Paises")">Paises</a></li>
+                    <li><a href="@Url.Content("~/Catalogs/Aerolineas")">Aerolineas</a></li>
+                    <li><a href="@Url.Content("~/Catalogs/Aeropuertos")">Aeropuertos</a></li>
+                    <li><a href="@Url.Content("~/Catalogs/Inmuebles")">Inmuebles</a></li>
+                    <li><a href="@Url.Content("~/Catalogs/Nacionalidades")">Nacionalidades</a></li>
+                    <li><a href="@Url.Content("~/Catalogs/Sexos")">Sexos</a></li>
+                    <li><a href="@Url.Content("~/Catalogs/Usuarios")">Usuarios</a></li>
+                    <li><a href="@Url.Content("~/Catalogs/Documentos")">Documentos</a></li>
+                    <li><a href="@Url.Content("~/Catalogs/PDFs")">PDFs</a></li>
+                    <li><a href="@Url.Content("~/Catalogs/TipoEventos")">Tipos de evento</a></li>
+                    <li><a href="@Url.Content("~/Catalogs/AvisoPrivacidad")">Aviso de Privacidad</a></li>
+                    <li><a href="@Url.Content("~/Catalogs/Perfiles")">Perfiles</a></li>*@
                                 }
                             </ul>
                         </li>

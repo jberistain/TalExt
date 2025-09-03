@@ -166,6 +166,7 @@
     <Compile Include="App_Start\BundleConfig.cs" />
     <Compile Include="App_Start\FilterConfig.cs" />
     <Compile Include="App_Start\RouteConfig.cs" />
+    <Compile Include="Controllers\AnotherAssistantsAdmonController.cs" />
     <Compile Include="Controllers\CatalogsController.cs" />
     <Compile Include="Controllers\AdministratorController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
@@ -272,6 +273,11 @@
     <Content Include="Views\Catalogs\AvisoPrivacidad.cshtml" />
     <Content Include="Views\Catalogs\Perfiles.cshtml" />
     <Content Include="Views\Administrator\RecuperarPassword.cshtml" />
+    <Content Include="Views\AnotherAssistantsAdmon\CambiarPassword.cshtml" />
+    <Content Include="Views\AnotherAssistantsAdmon\EditarRegistro.cshtml" />
+    <Content Include="Views\AnotherAssistantsAdmon\Index.cshtml" />
+    <Content Include="Views\AnotherAssistantsAdmon\Login.cshtml" />
+    <Content Include="Views\AnotherAssistantsAdmon\RecuperarPassword.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
