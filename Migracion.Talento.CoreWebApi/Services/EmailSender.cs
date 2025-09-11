@@ -17,13 +17,21 @@ namespace Migracion.Talento.CoreWebApi.Services
 
         public EmailSender(IOptions<EmailSenderOptions> options)
         {
-            _options = options.Value;
-             _client = new SmtpClient();
-            Task Connect=Task.Run(()=> _client.ConnectAsync(_options.Host, _options.Port, MailKit.Security.SecureSocketOptions.StartTls));
-            Connect.Wait();
+            try
+            {
+                _options = options.Value;
+                 _client = new SmtpClient();
+                Task Connect=Task.Run(()=> _client.ConnectAsync(_options.Host, _options.Port, MailKit.Security.SecureSocketOptions.StartTls));
+                Connect.Wait();
            
-           Task Autheticate= Task.Run( ()=> _client.AuthenticateAsync(_options.Email, _options.Password));
-            Autheticate.Wait();
+               Task Autheticate= Task.Run( ()=> _client.AuthenticateAsync(_options.Email, _options.Password));
+                Autheticate.Wait();
+            }
+            catch (Exception)
+            {
+                /*  Implementar un aviso para administraicon */
+
+            }
         }
 
         public async Task SendEmailAsync (MailDataDto data)

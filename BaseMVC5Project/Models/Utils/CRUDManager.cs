@@ -56,6 +56,40 @@ namespace MigracionTalentoExtranjero.Models.Utils
             return result;
         }
 
+        public async Task<List<Registro>> DescargarRegistrosAnotherAssistants(FilterRegisterDto filter)
+        {
+            List<Registro> result = new List<Registro>();
+
+            ResponseDto responseHttp = await http.PostAsJsonAsync<FilterRegisterDto, ResponseDto>(filter, WebAPIEndPointsEnum.CONSULTA_REGISTROS_ENCONTRADOS_ANOTHER_ASSISTANTS.GetString());
+            if (!responseHttp.error)
+            {
+                foreach (var currentValue in responseHttp.response)
+                {
+                    string marcarEspecial = "";
+                    if (currentValue.checK_VERIFY == true)
+                        marcarEspecial = "**";
+                    result.Add(new Registro()
+                    {
+                        Id = currentValue.iD_REG,
+                        //Empresa = currentValue.iD_AIR_LINE,
+                        Empresa = currentValue.eventos,
+
+                        CorreoElectronico = currentValue.email,
+                        Estatus = currentValue.iD_STATUS,
+                        EstatusDesc = currentValue.caT_STATUS.desC_STATUS_SP,
+                        FolioYFechaRegistro = $"{currentValue.secreT_CODE}\n{Convert.ToDateTime(currentValue.createD_DATE).ToString("dd/MM/yyyy")}",
+                        Nacionalidad = currentValue.caT_NATIONALITIES.desC_NACIONALITY_SP,
+                        Nombre = $"{marcarEspecial} {currentValue.passporT_NAME} {currentValue.passporT_LASTNAME}",
+                        Pasaporte = currentValue.passporT_NUM,
+                        Actividad = currentValue.activitY_MEXICO,
+                        ClaveSecreta = currentValue.secreT_CODE,
+
+                    });
+                }
+            }
+            return result;
+        }
+
         public async Task<RegistroInvitadoModel> DescargarRegistroPorId(int id)
         {
             RegistroInvitadoModel result = new RegistroInvitadoModel();
@@ -63,7 +97,7 @@ namespace MigracionTalentoExtranjero.Models.Utils
             Dictionary<string, string> requestParams = new Dictionary<string, string>();
             requestParams.Add("id", id.ToString());
 
-            ResponseDto responseHttp = await http.GetAsJsonAsync<ResponseDto>(WebAPIEndPointsEnum.CONSULTA_REGISTRO_POR_ID_REGISTRO.GetString(), requestParams);
+            ResponseDto responseHttp = await http.GetAsJsonAsync<ResponseDto>(WebAPIEndPointsEnum.CONSULTA_REGISTRO_POR_ID_REGISTRO_ANOTHER_ASSISTANTS.GetString(), requestParams);
             if (!responseHttp.error)
             {
                     DateTime FechaInicioVigencia = Convert.ToDateTime( responseHttp.response.datE_VIG_INI);
@@ -142,6 +176,105 @@ namespace MigracionTalentoExtranjero.Models.Utils
                                 AnioFinEvento = FechaFin.ToString("yyyy"),
                                 FechaInicioEvento=FechaInicio.ToString("dd/MM/yyyy"),
                                 FechaFinEvento=FechaFin.ToString("dd/MM/yyyy")
+                            });
+                        }
+                    }
+                }
+                if (Eventos.Count == 0)
+                    result.Eventos = new List<InfoEventoModel>() { new InfoEventoModel() };
+                else
+                    result.Eventos = Eventos;
+            }
+            return result;
+        }
+
+
+        public async Task<RegistroInvitadoOtrosAsisModel> DescargarRegistroOtroAsisPorId(int id)
+        {
+            RegistroInvitadoOtrosAsisModel result = new RegistroInvitadoOtrosAsisModel();
+
+            Dictionary<string, string> requestParams = new Dictionary<string, string>();
+            requestParams.Add("id", id.ToString());
+
+            ResponseDto responseHttp = await http.GetAsJsonAsync<ResponseDto>(WebAPIEndPointsEnum.CONSULTA_REGISTRO_POR_ID_REGISTRO_ANOTHER_ASSISTANTS.GetString(), requestParams);
+            if (!responseHttp.error)
+            {
+                DateTime FechaInicioVigencia = Convert.ToDateTime(responseHttp.response.datE_VIG_INI);
+                DateTime FechaFinVigencia = Convert.ToDateTime(responseHttp.response.datE_EVENT_FIN);
+
+                DateTime FechaLlegada = Convert.ToDateTime(responseHttp.response.datE_ARRIVE);
+                DateTime FechaSalida = Convert.ToDateTime(responseHttp.response.datE_LEAVE);
+
+                string expulsadoDeMexicoStr = responseHttp.response.expelleD_MEX == true ? "SI" : "NO";
+                string antecedentesPenalesMexico = responseHttp.response.criminaL_RECORD_MEX == true ? "SI" : "NO";
+
+                result = new RegistroInvitadoOtrosAsisModel()
+                {
+                    Id = responseHttp.response.iD_REG,
+                    Sexo = responseHttp.response.iD_GENDER,
+                    PaisNacimiento = responseHttp.response.iD_COUNTRY,
+                    Nacionalidad = responseHttp.response.iD_NATIONALITY,
+
+                    AeropuertoLlegada = responseHttp.response.iD_AIRPORT,
+                    Aerolinea = responseHttp.response.iD_AIR_LINE,
+                    NumeroPasaporte = responseHttp.response.passporT_NUM,
+                    DiaExpPas = FechaInicioVigencia.ToString("dd"),
+                    MesExpPas = FechaInicioVigencia.ToString("MM"),
+                    AnioExpPas = FechaInicioVigencia.ToString("yyyy"),
+                    DiaVenPas = FechaFinVigencia.ToString("dd"),
+                    MesVenPas = FechaFinVigencia.ToString("MM"),
+                    AnioVenPas = FechaFinVigencia.ToString("yyyy"),
+                    Nombre = responseHttp.response.passporT_NAME,
+                    Apellidos = responseHttp.response.passporT_LASTNAME,
+                    Correo = responseHttp.response.email,
+                    ActividadPaisResidencia = responseHttp.response.activitY_COUNTRY,
+                    FueExpulsadoDeMexico = expulsadoDeMexicoStr,
+                    AntecedentesPenalesEnMexico = antecedentesPenalesMexico,
+                    ActividadEnMexico = responseHttp.response.activitY_MEXICO,
+                    NumeroVuelo = responseHttp.response.flighT_NUMBER,
+                    CodigoSecreto = responseHttp.response.secreT_CODE,
+                    DiaEntrada = FechaLlegada.ToString("dd"),
+                    MesEntrada = FechaLlegada.ToString("MM"),
+                    AnioEntrada = FechaLlegada.ToString("yyyy"),
+                    DiaSalida = FechaSalida.ToString("dd"),
+                    MesSalida = FechaSalida.ToString("MM"),
+                    AnioSalida = FechaSalida.ToString("yyyy"),
+                    Empresa = responseHttp.response.iD_COMPANY,
+                    ConfirmacionCorreo = responseHttp.response.email,
+                    ExplicacionAntecedentesExpulsion = responseHttp.response.expelleD_MEX_DESC,
+                    CHECK_VERIFY = responseHttp.response.checK_VERIFY,
+
+                    //Eventos = responseHttp.response.events
+                };
+                List<InfoEventoModel> Eventos = new List<InfoEventoModel>();
+                if (responseHttp.response.events != null)
+                {
+                    foreach (var currentValue in responseHttp.response.events)
+                    {
+                        DateTime FechaInicio;
+                        string auxiliarFechaStr = currentValue.evenT_DATE.ToString();
+                        bool esFechaInicioValida = DateTime.TryParse(auxiliarFechaStr, out FechaInicio);
+                        DateTime FechaFin;
+                        auxiliarFechaStr = currentValue.evenT_DATE_FIN.ToString();
+                        bool esFechaFinValida = DateTime.TryParse(auxiliarFechaStr, out FechaFin);
+                        if (esFechaInicioValida && esFechaFinValida)
+                        {
+                            Eventos.Add(new CommonTools.Pdf.InfoEventoModel()
+                            {
+                                Id = currentValue.iD_REG_EVEN_DATE,
+                                IdEvento = currentValue.iD_EVENT,
+                                IdInmuebleEvento = currentValue.iD_ESTATE,
+                                NombreEvento = currentValue.iD_EVENT,
+                                InmuebleEvento = currentValue.iD_ESTATE,
+                                UbicacionInmueble = currentValue.desC_LOCATION,
+                                DiaInicioEvento = FechaInicio.ToString("dd"),
+                                MesInicioEvento = FechaInicio.ToString("MM"),
+                                AnioInicioEvento = FechaInicio.ToString("yyyy"),
+                                DiaFinEvento = FechaFin.ToString("dd"),
+                                MesFinEvento = FechaFin.ToString("MM"),
+                                AnioFinEvento = FechaFin.ToString("yyyy"),
+                                FechaInicioEvento = FechaInicio.ToString("dd/MM/yyyy"),
+                                FechaFinEvento = FechaFin.ToString("dd/MM/yyyy")
                             });
                         }
                     }

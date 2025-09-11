@@ -86,7 +86,7 @@
         if (ViewBag.muestraRegistros)
         {
         <!-- Default panel contents -->
-        <div class="panel-heading">Visitantes en Eventos</div>
+        <div class="panel-heading">ADMINISTRAR VISITANTES</div>
         <div class="panel-body">
             @using (Html.BeginForm("", "", FormMethod.Post, new { id = "frm-filtros" }))
             {
@@ -498,7 +498,7 @@
 
     function editarRegistro(clicked_id) {
         let idRegistro = obtenerIdDelFinal(clicked_id);
-        let url = `@Url.Content("~/Administrator/EditarRegistro")?id=${idRegistro}`;
+        let url = `@Url.Content("~/AnotherAssistantsAdmon/EditarRegistro")?id=${idRegistro}`;
 
         window.location.href = url;
 
@@ -508,7 +508,7 @@
 
         let idRegistro = obtenerIdDelFinal(clicked_id);
 
-        let url = "@Url.Content("~/Administrator/ObtenerInformacionRegistroEvento")";
+        let url = "@Url.Content("~/AnotherAssistantsAdmon/ObtenerInformacionRegistroEvento")";
 
         let params =
             {
@@ -578,7 +578,7 @@
     }
 
     async function enviarInvitaciones() {
-        let url = "@Url.Content("~/Administrator/EnviarInvitaciones")";
+        let url = "@Url.Content("~/AnotherAssistantsAdmon/EnviarInvitaciones")";
         let dataJson = arregloMarcados;
 
         showLoader();
@@ -646,7 +646,7 @@
             let busqueda = document.getElementById("TextoBusqueda").value;
             let EstatusBuscado = document.getElementById("EstatusBuscado").value;
 
-            let urlResultado = '@Url.Content("~/Administrator")';
+            let urlResultado = '@Url.Content("~/AnotherAssistantsAdmon")';
 
 
             let params = {
@@ -667,7 +667,7 @@
         let form = document.getElementById('frm-filtros');
         console.log(form);
             let formJson = serializeForm(form);
-            let url = "@Url.Content("~/Administrator/FiltrarRegistros")";
+            let url = "@Url.Content("~/AnotherAssistantsAdmon/FiltrarRegistros")";
 
             const response = httpPost(
                 url,

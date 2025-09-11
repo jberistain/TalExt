@@ -10,11 +10,12 @@ namespace Migracion.Talento.Entities.Models
     {
         public int ID_REG_EVEN_DATE { get; set; }
 
-        public int ID_EVENT { get; set; }
-
-        public virtual Events CAT_EVENTS { get; set; }
-        public int ID_ESTATE { get; set; }
-        public virtual Estates CAT_ESTATES { get; set; }
+        public int? ID_EVENT { get; set; }
+        [ForeignKey(nameof(ID_EVENT))]
+        public virtual Events? CAT_EVENTS { get; set; }
+        public int? ID_ESTATE { get; set; }
+        [ForeignKey(nameof(ID_ESTATE))]
+        public virtual Estates? CAT_ESTATES { get; set; }
 
 
         public int ID_REG { get; set; }

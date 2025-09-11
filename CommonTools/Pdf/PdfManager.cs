@@ -417,6 +417,43 @@ namespace CommonTools.Pdf
         #endregion
 
 
+        /* Se agrega nueva version para administrador */
+        public AttachmentFileDto GenerateOtherAssistantsDocument(InviteDto regInvite, IReporteInfo reporteInfo)
+        {
+            AttachmentFileDto result = new AttachmentFileDto();
+            result.FileName = $"{regInvite.FILE_NAME}";
+            //string attachment = $"attachment; filename={nombreArchivo}\"{DateTime.Now.ToString()}.pdf";
+
+
+
+            //Creacion del documento
+            doc = new Document();
+            //Configuraciones de estructura del documento
+            doc.SetPageSize(PageSize.Letter);
+            //28.34f son los puntos que equivalen a un cm
+            doc.SetMargins(MARGEN_IZQUIERDO_OCESA_PRESENTA, MARGEN_DERECHO_OCESA_PRESENTA, MARGEN_SUPERIOR_OCESA_PRESENTA, MARGEN_IZQUIERDO_OCESA_PRESENTA);
+
+
+            // Indicamos donde vamos a guardar el documento
+            bufferDoc = new MemoryStream();
+            writer = PdfWriter.GetInstance(doc, bufferDoc);
+            // Le colocamos el título y el autor
+            // **Nota: Esto no será visible en el documento
+            doc.AddTitle("OCESA");
+            doc.AddCreator("OCESA");
+            doc.AddAuthor("OCESA");
+
+            doc.Open();
+            plantillaOCESAOtrosAsistentes(regInvite, reporteInfo);
+
+            doc.Close();
+
+            result.File = bufferDoc.ToArray();
+            return result;
+
+        }
+
+
         #region Carta Invitacion
         public AttachmentFileDto GenerateDocument(InviteDto regInvite,IReporteInfo reporteInfo)
         {
@@ -478,6 +515,253 @@ namespace CommonTools.Pdf
             }
             return result;
         }
+
+        private void plantillaOCESAOtrosAsistentes(InviteDto regInvite, IReporteInfo reporteInfo)
+        {
+            FontFactory.RegisterDirectories();
+
+            string imagen = ObtenerNombreImagenLogoDerecho(reporteInfo.TipoArchivoGenerado);
+
+            Image logo = Image.GetInstance(GetImage($"logo_ocesa.png"));
+            logo.ScaleAbsoluteHeight(ALTO_IMAGEN_OCESA);
+            logo.ScaleAbsoluteWidth(ANCHO_IMAGEN_OCESA);
+
+            Image logoOcesaPresenta = Image.GetInstance(GetImage(imagen));
+            logoOcesaPresenta.ScaleAbsoluteHeight(ALTO_IMAGEN_OCESA);
+            logoOcesaPresenta.ScaleAbsoluteWidth(ANCHO_IMAGEN_OCESA);
+
+            // ENCABEZADO
+            //var encabezado = new Paragraph() { Alignment = Element.ALIGN_CENTER, Font = FuenteArial11Negrita };
+            //encabezado.Add(new Chunk(logo, -100, -35));
+            ////encabezado.Add(new Chunk("CARTA INVITACIÓN/INVITATION LETTER"));
+            //encabezado.Add(new Chunk(regInvite.DES_TITLE));
+            //encabezado.Add(new Chunk(logoOcesaPresenta, 100, -35));
+
+            var TableHeader = new PdfPTable(new float[] { 15f, 70f, 15f });
+            TableHeader.WidthPercentage = 100;
+
+            var cellLogoOCESA = new PdfPCell(logo);
+            cellLogoOCESA.HorizontalAlignment = Element.ALIGN_CENTER;
+            cellLogoOCESA.VerticalAlignment = Element.ALIGN_MIDDLE;
+            cellLogoOCESA.Border = Rectangle.NO_BORDER;
+
+
+            var phraseTituloDocumento = new Phrase(regInvite.DES_TITLE, FuenteArial11Negrita);
+            var cellTitulo = new PdfPCell(phraseTituloDocumento);
+            cellTitulo.HorizontalAlignment = Element.ALIGN_CENTER;
+            cellTitulo.VerticalAlignment = Element.ALIGN_MIDDLE;
+            cellTitulo.Border = Rectangle.NO_BORDER;
+
+            var cellLogoTipoEvento = new PdfPCell(logoOcesaPresenta);
+            cellLogoTipoEvento.HorizontalAlignment = Element.ALIGN_CENTER;
+            cellLogoTipoEvento.VerticalAlignment = Element.ALIGN_MIDDLE;
+            cellLogoTipoEvento.Border = Rectangle.NO_BORDER;
+
+
+            TableHeader.AddCell(cellLogoOCESA);
+            TableHeader.AddCell(cellTitulo);
+            TableHeader.AddCell(cellLogoTipoEvento);
+
+
+
+            //Se asigna las columnas
+            var generalTable = new PdfPTable(new float[] { 100f });
+            generalTable.WidthPercentage = 100;
+            generalTable.SplitLate = false;
+
+
+            StringBuilder celdaEspanol = GeneraContenidoCeldaEspanOCESA(regInvite, reporteInfo);
+            StringBuilder celdaIngles = GeneraContenidoCeldaEngOCESA(regInvite, reporteInfo);
+
+            string celdaEspanolStr = celdaEspanol.ToString();
+            Phrase phraseEsp = GeneraParrafoCeldaConEstilos(celdaEspanolStr);
+            //columns.AddElement(celdaEspanText);
+            //var phraseEsp = new Phrase(celdaEspanol.ToString(), FuenteArial8);
+            var cellEsp = new PdfPCell(phraseEsp);
+            cellEsp.HorizontalAlignment = Element.ALIGN_JUSTIFIED;
+            cellEsp.Padding = 10;
+            cellEsp.BorderColorBottom = BaseColor.White;
+
+            string celdaInglesStr = celdaIngles.ToString();
+            Phrase phraseIng = GeneraParrafoCeldaConEstilos(celdaInglesStr);
+            //var cellIng = new PdfPCell(phraseIng);
+            //cellIng.HorizontalAlignment = Element.ALIGN_JUSTIFIED;
+            //cellIng.Padding = 10;
+            //cellIng.BorderColorBottom = BaseColor.White;
+
+            //Agregar celdas de los cuerpos principales
+            generalTable.AddCell(cellEsp);
+            //generalTable.AddCell(cellIng);
+
+
+            //Agregar firmas 
+            string seccionFirma = regInvite.SIGN_1;
+            if (!string.IsNullOrEmpty(seccionFirma))
+            {
+                //Agregar imagenes de firmas
+                string firma = string.IsNullOrEmpty(regInvite.SIGN_BLOB) ? "" : regInvite.SIGN_BLOB;
+                byte[] bytesImage = Convert.FromBase64String(firma);
+
+                Image signImageEsp;
+                using (MemoryStream ms = new MemoryStream(bytesImage))
+                {
+                    if (firma.Equals(""))
+                    {
+                        // Dimensiones de la imagen en blanco
+                        int width = (int)ANCHO_IMAGEN_FIRMA;  // Ancho de la imagen
+                        int height = (int)ALTO_IMAGEN_FIRMA; // Alto de la imagen
+                        byte[] whiteImageData = new byte[width * height * 3]; // Imagen RGB en blanco
+                        // Rellenar con blanco (255 en cada canal)
+                        for (int i = 0; i < whiteImageData.Length; i++)
+                        {
+                            whiteImageData[i] = 255;
+                        }
+                        signImageEsp = Image.GetInstance(width, height, 3, 8, whiteImageData);
+                    }
+                    else
+                    {
+                        signImageEsp = Image.GetInstance(ms);
+                    }
+                    signImageEsp.ScaleAbsoluteHeight(ALTO_IMAGEN_FIRMA);
+                    signImageEsp.ScaleAbsoluteWidth(ANCHO_IMAGEN_FIRMA);
+
+                    var cellFirmaImagenEsp = new PdfPCell(signImageEsp);
+                    cellFirmaImagenEsp.HorizontalAlignment = Element.ALIGN_CENTER;
+                    cellFirmaImagenEsp.VerticalAlignment = Element.ALIGN_MIDDLE;
+                    //cellFirmaImagenEsp.Border = Rectangle.NO_BORDER;
+                    cellFirmaImagenEsp.PaddingTop = 10;
+                    cellFirmaImagenEsp.PaddingBottom = 10;
+                    generalTable.AddCell(cellFirmaImagenEsp);
+                }
+
+                //Image signImageEng;
+                //using (MemoryStream ms = new MemoryStream(bytesImage))
+                //{
+                //    if (firma.Equals(""))
+                //    {
+                //        // Dimensiones de la imagen en blanco
+                //        int width = (int)ANCHO_IMAGEN_FIRMA;  // Ancho de la imagen
+                //        int height = (int)ALTO_IMAGEN_FIRMA; // Alto de la imagen
+                //        byte[] whiteImageData = new byte[width * height * 3]; // Imagen RGB en blanco
+                //        // Rellenar con blanco (255 en cada canal)
+                //        for (int i = 0; i < whiteImageData.Length; i++)
+                //        {
+                //            whiteImageData[i] = 255;
+                //        }
+                //        signImageEng = Image.GetInstance(width, height, 3, 8, whiteImageData);
+                //    }
+                //    else
+                //    {
+                //        signImageEng = Image.GetInstance(ms);
+                //    }
+                //    signImageEng.ScaleAbsoluteHeight(ALTO_IMAGEN_FIRMA);
+                //    signImageEng.ScaleAbsoluteWidth(ANCHO_IMAGEN_FIRMA);
+
+                //    var cellFirmaImagenIng = new PdfPCell(signImageEng);
+                //    cellFirmaImagenIng.HorizontalAlignment = Element.ALIGN_CENTER;
+                //    cellFirmaImagenIng.VerticalAlignment = Element.ALIGN_MIDDLE;
+                //    //cellFirmaImagenIng.Border = Rectangle.NO_BORDER;
+                //    cellFirmaImagenIng.PaddingTop = 10;
+                //    cellFirmaImagenIng.PaddingBottom = 10;
+
+                //    generalTable.AddCell(cellFirmaImagenIng);
+                //}
+
+
+                var phraseFirmaEsp = new Phrase(seccionFirma, FuenteArial11);
+                var cellFirmaEsp = new PdfPCell(phraseFirmaEsp);
+                cellFirmaEsp.PaddingTop = 0f;
+                cellFirmaEsp.BorderColorTop = BaseColor.White;
+                cellFirmaEsp.HorizontalAlignment = Element.ALIGN_CENTER;
+                generalTable.AddCell(cellFirmaEsp);
+
+                //var phraseFirmaIng = new Phrase(seccionFirma, FuenteArial11);
+                //var cellFirmaIng = new PdfPCell(phraseFirmaIng);
+                //cellFirmaIng.BorderColorTop = BaseColor.White;
+                //cellFirmaIng.HorizontalAlignment = Element.ALIGN_CENTER;
+                //generalTable.AddCell(cellFirmaIng);
+            }
+
+
+
+            var footerList = new List<Paragraph>();
+            if (!string.IsNullOrEmpty(regInvite.FOOT_PAGE))
+            {
+                footerList = GeneraParrafoFooterConEstilos(regInvite.FOOT_PAGE);
+            }
+
+
+
+            doc.Add(TableHeader);
+            //doc.Add(new Paragraph("\n"));
+            //doc.Add(columns);
+            doc.Add(generalTable);
+
+            /* Agregar extra de la lista */
+            // 2) Fuentes
+            var fontHeader = FontFactory.GetFont(FontFactory.HELVETICA, 10, Font.BOLD);
+            var fontCell = FontFactory.GetFont(FontFactory.HELVETICA, 10, Font.NORMAL);
+
+            // 3) Tabla de 5 columnas
+            var table = new PdfPTable(5)
+            {
+                WidthPercentage = 100f,
+                SpacingBefore = 5f,
+                SpacingAfter = 5f
+            };
+            // (Opcional) Proporciones de columnas
+            table.SetWidths(new float[] { 2, 2, 2, 2, 2 });
+
+            // Bordes por defecto visibles
+            table.DefaultCell.Border = Rectangle.BOX;
+            table.DefaultCell.BorderWidth = 1f;
+            table.DefaultCell.Padding = 5f;
+
+            // 4) Encabezados (primera fila)
+            string[] headers = { "Col 1", "Col 2", "Col 3", "Col 4", "Col 5" };
+            foreach (var h in headers)
+            {
+                var th = new PdfPCell(new Phrase(h, fontHeader))
+                {
+                    HorizontalAlignment = Element.ALIGN_CENTER,
+                    VerticalAlignment = Element.ALIGN_MIDDLE,
+                    BackgroundColor = BaseColor.LightGray,
+                    Border = Rectangle.BOX,
+                    BorderWidth = 1f,
+                    Padding = 6f
+                };
+                table.AddCell(th);
+            }
+            // Indicar que la primera fila es encabezado
+            table.HeaderRows = 1;
+            int nFilas = 8;
+            // 5) Filas de datos (N filas)
+            for (int i = 0; i < nFilas; i++)
+            {
+                for (int c = 0; c < 5; c++)
+                {
+                    var cell = new PdfPCell(new Phrase($"Fila {i + 1} - Col {c + 1}", fontCell))
+                    {
+                        Border = Rectangle.BOX,
+                        BorderWidth = 1f,
+                        Padding = 5f,
+                        HorizontalAlignment = Element.ALIGN_LEFT,
+                        VerticalAlignment = Element.ALIGN_MIDDLE
+                    };
+                    table.AddCell(cell);
+                }
+            }
+
+            // 6) Agregar la tabla al documento
+            doc.Add(table);
+
+            foreach (var footer in footerList)
+            {
+                doc.Add(footer);
+            }
+
+        }
+
 
         private void plantillaOCESA(InviteDto regInvite, IReporteInfo reporteInfo)
         {

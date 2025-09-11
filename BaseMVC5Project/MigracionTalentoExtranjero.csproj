@@ -182,6 +182,7 @@
     <Compile Include="Models\Constants.cs" />
     <Compile Include="Models\Enum\HttpEnums.cs" />
     <Compile Include="Models\Enum\HomeEnums.cs" />
+    <Compile Include="Models\Home\RegistroInvitadoOtrosAsisModel.cs" />
     <Compile Include="Models\Home\RegistroInvitadoModel.cs" />
     <Compile Include="Models\Home\ResultadoRegistroModel.cs" />
     <Compile Include="Models\Home\VisitorSearchModel.cs" />
@@ -273,11 +274,9 @@
     <Content Include="Views\Catalogs\AvisoPrivacidad.cshtml" />
     <Content Include="Views\Catalogs\Perfiles.cshtml" />
     <Content Include="Views\Administrator\RecuperarPassword.cshtml" />
-    <Content Include="Views\AnotherAssistantsAdmon\CambiarPassword.cshtml" />
     <Content Include="Views\AnotherAssistantsAdmon\EditarRegistro.cshtml" />
     <Content Include="Views\AnotherAssistantsAdmon\Index.cshtml" />
-    <Content Include="Views\AnotherAssistantsAdmon\Login.cshtml" />
-    <Content Include="Views\AnotherAssistantsAdmon\RecuperarPassword.cshtml" />
+    <Content Include="Views\AnotherAssistantsAdmon\NuevoRegistro.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

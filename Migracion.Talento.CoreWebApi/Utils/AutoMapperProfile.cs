@@ -29,6 +29,10 @@ namespace Migracion.Talento.CoreWebApi.Utils
             CreateMap<UserRegisterDto, User>();
             CreateMap<EventTypesRegisterDto, EventTypes>();
             CreateMap<DocumentRegisterDto, Documents>();
+            /* Nuevo modulo para administrar invitaciones de administrador */
+            CreateMap<RegEventAnotherAssistantDto, RegEventsAdmon>();
+            CreateMap<RegEvenStateDateDto, RegEvenStateDateAdmon>();
+            CreateMap<AnotherAssistantDto, AnotherAssistantsAdmon>();
 
 
 
@@ -56,6 +60,10 @@ namespace Migracion.Talento.CoreWebApi.Utils
             CreateMap<ProcessRegisterDto, Process>();
             CreateMap<EventTypesDto, EventTypes>();
             CreateMap<Documents,DocumentDto>();
+            /* Nuevo modulo para administrar invitaciones de administrador */
+            CreateMap<RegEventsAdmon, QryRegEventAdmonDto>();
+            CreateMap<RegEvenStateDateAdmon, RegEvenStateDateAdmonDto>();
+            CreateMap<RegInviteAdmon, InviteDto>();
 
         }
     }

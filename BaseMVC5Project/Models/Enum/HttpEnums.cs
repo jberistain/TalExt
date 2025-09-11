@@ -69,6 +69,14 @@ namespace MigracionTalentoExtranjero.Models.Enum
 
         // ELIMINACIONES
         ELIMINAR_REGISTRO_POR_ID = 24001,
+
+
+
+        //ALTAS Y CAMBIOS NUEVO MODULO ADMON
+        CREATE_NEW_REGISTER_ANOTHER_ASSISTANTS = 25001,
+        UPDATE_REGISTER_ANOTHER_ASSISTANTS = 25002,
+        CONSULTA_REGISTROS_ENCONTRADOS_ANOTHER_ASSISTANTS = 25003,
+        CONSULTA_REGISTRO_POR_ID_REGISTRO_ANOTHER_ASSISTANTS = 25004,
     }
     public static class WebAPIEndPointsEnumExtension
     {
@@ -144,6 +152,16 @@ namespace MigracionTalentoExtranjero.Models.Enum
                     return "AvisoPrivacidad";
                 case WebAPIEndPointsEnum.CATALOGO_FIRMAS_DOCUMENTOS:
                     return "RegInvite/GetInfoSignsBlob";
+                    
+                /* Se agregan opciones para nuevos endpoints de admon */
+                case WebAPIEndPointsEnum.CREATE_NEW_REGISTER_ANOTHER_ASSISTANTS:
+                    return "AnotherAssistants/CreateNewInvitation";
+                case WebAPIEndPointsEnum.UPDATE_REGISTER_ANOTHER_ASSISTANTS:
+                    return "AnotherAssistants/UpdateInvitation";
+                case WebAPIEndPointsEnum.CONSULTA_REGISTROS_ENCONTRADOS_ANOTHER_ASSISTANTS:
+                    return "AnotherAssistants/ListaEventos";
+                case WebAPIEndPointsEnum.CONSULTA_REGISTRO_POR_ID_REGISTRO_ANOTHER_ASSISTANTS:
+                    return "AnotherAssistants/findById";
                 default:
                     return null;
             }

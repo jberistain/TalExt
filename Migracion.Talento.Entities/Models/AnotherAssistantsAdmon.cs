@@ -9,6 +9,7 @@ namespace Migracion.Talento.Models
     public class AnotherAssistantsAdmon
     {
         public int ID { get; set; }
+        public int ID_REG { get; set; }
         public string PASSPORT_LASTNAME { get; set; }
         public string PASSPORT_NAME { get; set; }
         public string? ACTIVITY_MEXICO { get; set; }

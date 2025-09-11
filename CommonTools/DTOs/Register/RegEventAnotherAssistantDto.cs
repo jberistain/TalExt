@@ -1,42 +1,21 @@
-﻿using CommonTools.DTOs.Register;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Text;
 
-namespace CommonTools.DTOs.Query
+namespace CommonTools.DTOs.Register
 {
-    public class QryRegEventAdmonDto
+    public class RegEventAnotherAssistantDto
     {
-        public int ID_REG { get; set; }
         public int? ID_REG_EVEN_DATE { get; set; }
         public int ID_GENDER { get; set; }
-
-        public GendersDto CAT_GENDERS { get; set; }
         public int ID_COUNTRY { get; set; }
-
-        public  CountriesDto CAT_COUNTRIES { get; set; }
         public int ID_NATIONALITY { get; set; }
-
-        public NationalitiesDto CAT_NATIONALITIES { get; set; }
         public int? ID_ACTIVITY { get; set; }
-       
-        public  Activitiesdto CAT_ACTIVITIES { get; set; }
         public int? ID_AIRPORT { get; set; }
-        
-        public  AirPortsDto CAT_AIRPORTS { get; set; }
         public int? ID_AIR_LINE { get; set; }
-       
-        public  AirLinesDto CAT_AIR_LINES { get; set; }
         public int? ID_PROCESS { get; set; }
-        
-        public  ProcessDto CAT_PROCESS { get; set; }
         public int ID_STATUS { get; set; }
-       
-        public  StatusDto CAT_STATUS { get; set; }
-
-        public int ID_COMPANY { get; set; }
-        public virtual CompaniesDto CAT_COMPANIES { get; set; }
+        public int? ID_COMPANY { get; set; }
         public string PASSPORT_NUM { get; set; }
         public DateTime DATE_VIG_INI { get; set; }
         public DateTime DATE_VIG_FIN { get; set; }
@@ -55,17 +34,15 @@ namespace CommonTools.DTOs.Query
         public string SECRET_CODE { get; set; }
         public string ACTIVITY_COUNTRY { get; set; }
         public string ACTIVITY_MEXICO { get; set; }
-        public string LANGUAGE { get; set; }
-        public bool CHECK_VERIFY { get; set; }
-        public bool ACTIVE { get; set; }
         public DateTime? DATE_ARRIVE { get; set; }
         public DateTime? DATE_LEAVE { get; set; }
-        public DateTime? MODIFY_DATE { get; set; }
-        public DateTime CREATED_DATE { get; set; }
-        public int MODIFY_BY { get; set; }
-        public List<RegEvenStateDateAdmonDto> EVENTS { get; set; }
-        public List<AnotherAssistantDto> ANOTHER_ASSISTANTS_ADMON_LIST { get; set; }
-        public string EVENTOS { get; set; }
-
+        public string LANGUAGE { get; set; }
+        public bool CHECK_VERIFY { get; set; } = false;
+        public bool ACTIVE { get; set; } = true;
+        public string NOMBRE_NUEVA_EMPRESA { get; set; }
+        public string NOMBRE_NUEVO_AEROPUERTO { get; set; }
+        public string NOMBRE_NUEVA_AEROLINEA { get; set; }
+        public List<RegEvenStateDateDto> EVENTS { get; set; }
+        public List<AnotherAssistantDto> ANOTHER_ASSISTANTS { get; set; }
     }
 }

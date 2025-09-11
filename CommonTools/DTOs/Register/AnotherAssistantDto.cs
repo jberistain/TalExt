@@ -4,7 +4,7 @@ using System.Text;
 
 namespace CommonTools.DTOs.Register
 {
-    public class RegEvenAnotherAssistantsAdmontDto
+    public class AnotherAssistantDto
     {
         public int ID { get; set; }
         public string PASSPORT_LASTNAME { get; set; }

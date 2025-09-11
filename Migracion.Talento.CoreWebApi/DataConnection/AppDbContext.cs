@@ -1,7 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Migracion.Talento.Entities.Models;
 using Migracion.Talento.Models;
-using Org.BouncyCastle.Asn1.Esf;
 
 namespace Migracion.Talento.WebAPI.DataConnection
 {

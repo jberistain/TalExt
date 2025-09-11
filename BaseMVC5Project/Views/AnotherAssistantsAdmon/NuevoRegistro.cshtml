@@ -1,27 +1,18 @@
-﻿@model MigracionTalentoExtranjero.Models.Home.RegistroInvitadoOtrosAsisModel
+﻿@model MigracionTalentoExtranjero.Models.Home.RegistroInvitadoModel
 @{
 
 }
-
+<script src="https://www.google.com/recaptcha/api.js?hl=@Model.IdiomaActual" async defer></script>
 <div id="registro">
-    <h1 class="page-header text-center">@ViewBag.Title.</h1>
+    <h1 class="page-header text-center">@Model.LabelTituloRegistro</h1>
     <div class="row">
         @using (Html.BeginForm("", "", FormMethod.Post, new { id = "frm-registro-invitado" }))
         {
             @Html.HiddenFor(m => m.IdiomaActual)
-            @Html.HiddenFor(m => m.Id)
             <!-- PASAPORTE-->
             <div class="col-xs-12 col-sm-12 col-md-12">
-                <div class="form-group">
-                    <div style="text-align:center;">
-                        <button type="button" id="btnFormSubmit" class="btn btn-success"><span class="glyphicon glyphicon-modal-window"></span> Vista Previa</button>
-                    </div>
-                </div>
-            </div>
-
-            <div class="col-xs-12 col-sm-12 col-md-12">
                 <div class="panel panel-default">
-                    <div class="panel-heading">PASAPORTE</div>
+                    <div class="panel-heading">@Model.LabelSeccionPasaporte</div>
                     <div id="responseMessage"></div>
                     <div class="panel-body">
                         <div class="container">
@@ -116,97 +107,11 @@
             </div>
             <!-- FIN PASAPORTE-->
 
-            <!-- OTROS ASISTENTES -->
-                <div class="col-xs-12 col-sm-12 col-md-12">
-                    <div class="panel panel-default">
-                        <div class="panel-heading">Invitados adicionales</div>
-                        <div id="responseMessage"></div>
-                        <div class="panel-body">
-                            <div class="container">
-                                <div id="seccionOtrosInvitados">
-                                    @for (int index = 0; index < Model.OtrosAsistentes.Count; index++)
-                                    {
-                                        <div class="panel panel-info" id="panel_otroinvitado_@index" style="margin-right: 60px;">
-                                            <div class="row">
-                                                <div class="col-xs-12 col-sm-12 col-md-12">
-                                                    <div class="">
-                                                        <div class="form-group">
-                                                            <label>* @Model.LabelNombre</label>
-                                                            @Html.TextBoxFor(m => m.OtrosAsistentes[index].Nombre, new { @class = "form-control", required = "required" })
-                                                            @Html.ValidationMessageFor(m => m.OtrosAsistentes[index].Nombre, null, new { @class = "label label-danger" })
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="row">
-                                                <div class="col-xs-12 col-sm-12 col-md-12">
-                                                    <div class="">
-                                                        <div class="form-group">
-                                                            <label>* @Model.LabelApellidos</label>
-                                                            @Html.TextBoxFor(m => m.OtrosAsistentes[index].Apellidos, new { @class = "form-control", required = "required" })
-                                                            @Html.ValidationMessageFor(m => m.OtrosAsistentes[index].Apellidos, null, new { @class = "label label-danger" })
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="row">
-                                                <div class="col-xs-12 col-sm-12 col-md-12">
-                                                    <div class="">
-                                                        <div class="form-group">
-                                                            <label>* @Model.LabelActividadEnMexico</label>
-                                                            @Html.TextBoxFor(m => m.OtrosAsistentes[index].ActvidadEnMexico, new { @class = "form-control", required = "required" })
-                                                            @Html.ValidationMessageFor(m => m.OtrosAsistentes[index].ActvidadEnMexico, null, new { @class = "label label-danger" })
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="row">
-                                                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
-                                                    <div class="">
-                                                        <div class="form-group">
-                                                            <label>* @Model.LabelNacionalidad</label>
-                                                            @*@Html.DropDownListFor(m => m.Nacionalidad, (List<SelectListItem>)ViewBag.NacionalidadesList, new { @class = "form-control", style = "position:initial", required = "required" })*@
-                                                            @Html.Raw(ViewBag.HTMLNacionalidades)
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="row">
-                                                <div class="col-xs-12 col-sm-12 col-md-12">
-                                                    <div class="">
-                                                        <div class="form-group">
-                                                            <label>* @Model.LabelNumPasaporte</label>
-                                                            @Html.TextBoxFor(m => m.OtrosAsistentes[index].NumPasaporte, new { @class = "form-control", required = "required" })
-                                                            @Html.ValidationMessageFor(m => m.OtrosAsistentes[index].NumPasaporte, null, new { @class = "label label-danger" })
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-
-                                        </div>
-                                        }
-                                    </div>
-                                </div>
-                            <div class="row">
-                                <div class="col-xs-12 col-sm-12 col-md-3">
-                                    <button type="button" class="btn btn-default" onclick="AgregaNuevoInvitado()">Agregar invitado</button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-
-            
-
-            <!-- FIN OTROS ASISTENTES -->
-
-
 
             <!-- DATOS DEL EXTRANJERO VISITANTE-->
             <div class="col-xs-12 col-sm-12 col-md-12">
                 <div class="panel panel-default">
-                    <div class="panel-heading">DATOS DEL EXTRANJERO VISITANTE</div>
+                    <div class="panel-heading">@Model.LabelSeccionDatosExtranjeroVisitante</div>
                     <div id="responseMessage"></div>
                     <div class="panel-body">
                         <div class="container">
@@ -283,7 +188,7 @@
             <!-- PAIS DE NACIMIENTO-->
             <div class="col-xs-12 col-sm-12 col-md-12">
                 <div class="panel panel-default">
-                    <div class="panel-heading">PAÍS DE NACIMIENTO</div>
+                    <div class="panel-heading">@Model.LabelSeccionPaisNacimiento</div>
                     <div id="responseMessage"></div>
                     <div class="panel-body">
                         <div class="container">
@@ -304,7 +209,7 @@
             <!-- INFORMACIÓN ADICIONAL DEL EXTRANJERO QUE NOS VISITA-->
             <div class="col-xs-12 col-sm-12 col-md-12">
                 <div class="panel panel-default">
-                    <div class="panel-heading">INFORMACIÓN ADICIONAL DEL EXTRANJERO QUE NOS VISITA</div>
+                    <div class="panel-heading">@Model.LabelSeccionInformacionAdicional</div>
                     <div id="responseMessage"></div>
                     <div class="panel-body">
                         <div class="container">
@@ -333,28 +238,33 @@
                                 @for (int index = 0; index < Model.Eventos.Count; index++)
                                 {
                                     <div class="panel panel-info" id="panel_evento_@index" style="margin-right: 60px;">
-                                        @Html.HiddenFor(m => m.Eventos[index].Id)
                                         <div class="row">
                                             <div class="col-xs-12 col-sm-12 col-md-12">
                                                 <div class="form-group">
-                                                    <label>* Nombre del Evento</label>
-                                                    @Html.DropDownListFor(m => m.Eventos[index].NombreEvento, Model.SelectListEvents[index], new { @class = "form-control", style = "position:initial", required = "required" })
+                                                    <label>* @Model.LabelNombreEvento</label>
+                                                    @Html.DropDownListFor(m => m.Eventos[index].NombreEvento, (List<SelectListItem>)ViewBag.EventosList, new { @class = "form-control", style = "position:initial", required = "required", onchange = "loadDateEvent(id)" })
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-xs-12 col-sm-6 col-md-6">
+                                                <div class="form-group">
+                                                    <label>* @Model.LabelInmueble</label>
+                                                    @Html.DropDownListFor(m => m.Eventos[index].InmuebleEvento, (List<SelectListItem>)ViewBag.InmueblesList, new { @class = "form-control", style = "position:initial", required = "required", onchange = "newEstate(id)" })
+                                                </div>
+                                            </div>
+                                            <div class="col-xs-12 col-sm-6 col-md-5" id="seccionNuevoInmueble_@index" hidden>
+                                                <div class="form-group">
+                                                    <label>@Model.LabelInmueble</label>
+                                                    @Html.TextBoxFor(m => m.Eventos[index].NuevoInmuebleEvento, new { @class = "form-control", style = "position:initial", @onchange = "validarInmuebleSeleccionado()" })
                                                 </div>
                                             </div>
                                         </div>
                                         <div class="row">
                                             <div class="col-xs-12 col-sm-12 col-md-12">
                                                 <div class="form-group">
-                                                    <label>* Inmueble del Evento</label>
-                                                    @Html.DropDownListFor(m => m.Eventos[index].InmuebleEvento, Model.SelectListInmuebles[index], new { @class = "form-control", style = "position:initial" })
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="row">
-                                            <div class="col-xs-12 col-sm-12 col-md-12">
-                                                <div class="form-group">
-                                                    <label>* Ubicacion del Inmueble</label>
-                                                    @Html.TextBoxFor(m => m.Eventos[index].UbicacionInmueble, new { @class = "form-control" })
+                                                    <label>* @Model.LabelLocation</label>
+                                                    @Html.TextBoxFor(m => m.Eventos[index].UbicacionInmueble, new { @class = "form-control", required = "required" })
                                                     @Html.ValidationMessageFor(m => m.Eventos[index].UbicacionInmueble, null, new { @class = "label label-danger" })
                                                 </div>
                                             </div>
@@ -362,30 +272,30 @@
                                         <div class="row">
                                             <div class="col-xs-12 col-sm-12 col-md-3">
                                                 <div class="form-group">
-                                                    <label>Fecha de Inicio del Evento</label>
+                                                    <label>@Model.LabelFechaInicioEvento</label>
                                                 </div>
                                             </div>
                                             <div class="col-xs-12 col-sm-3 col-md-3">
                                                 <div class="form-group">
                                                     <div class="input-group">
-                                                        <span class="input-group-addon">Día</span>
-                                                        @Html.DropDownListFor(m => m.Eventos[index].DiaInicioEvento, Model.SelectListDiaInicioEvento[index], new { @class = "form-control", style = "position:initial", required = "required" })
+                                                        <span class="input-group-addon" id="basic-addon1">@Model.LabelFechaDia</span>
+                                                        @Html.DropDownListFor(m => m.Eventos[index].DiaInicioEvento, (List<SelectListItem>)ViewBag.DiasList, new { @class = "form-control", style = "position:initial", required = "required" })
                                                     </div>
                                                 </div>
                                             </div>
                                             <div class="col-xs-12 col-sm-3 col-md-3">
                                                 <div class="form-group">
                                                     <div class="input-group">
-                                                        <span class="input-group-addon">Mes</span>
-                                                        @Html.DropDownListFor(m => m.Eventos[index].MesInicioEvento, Model.SelectListMesInicioEvento[index], new { @class = "form-control", style = "position:initial", required = "required" })
+                                                        <span class="input-group-addon" id="basic-addon1">@Model.LabelFechaMes</span>
+                                                        @Html.DropDownListFor(m => m.Eventos[index].MesInicioEvento, (List<SelectListItem>)ViewBag.MesList, new { @class = "form-control", style = "position:initial", required = "required" })
                                                     </div>
                                                 </div>
                                             </div>
                                             <div class="col-xs-12 col-sm-3 col-md-3">
                                                 <div class="form-group">
                                                     <div class="input-group">
-                                                        <span class="input-group-addon">Año</span>
-                                                        @Html.DropDownListFor(m => m.Eventos[index].AnioInicioEvento, Model.SelectListAnioInicioEvento[index], new { @class = "form-control", style = "position:initial", required = "required" })
+                                                        <span class="input-group-addon" id="basic-addon1">@Model.LabelFechaAnio</span>
+                                                        @Html.DropDownListFor(m => m.Eventos[index].AnioInicioEvento, (List<SelectListItem>)ViewBag.AniosList, new { @class = "form-control", style = "position:initial", required = "required" })
                                                     </div>
                                                 </div>
                                             </div>
@@ -393,30 +303,30 @@
                                         <div class="row">
                                             <div class="col-xs-12 col-sm-12 col-md-3">
                                                 <div class="form-group">
-                                                    <label>Fecha de Fin del Evento</label>
+                                                    <label>@Model.LabelFechaFinEvento</label>
                                                 </div>
                                             </div>
                                             <div class="col-xs-12 col-sm-3 col-md-3">
                                                 <div class="form-group">
                                                     <div class="input-group">
-                                                        <span class="input-group-addon">Día</span>
-                                                        @Html.DropDownListFor(m => m.Eventos[index].DiaFinEvento, Model.SelectListDiaFinEvento[index], new { @class = "form-control", style = "position:initial", required = "required" })
+                                                        <span class="input-group-addon" id="basic-addon1">@Model.LabelFechaDia</span>
+                                                        @Html.DropDownListFor(m => m.Eventos[index].DiaFinEvento, (List<SelectListItem>)ViewBag.DiasList, new { @class = "form-control", style = "position:initial", required = "required" })
                                                     </div>
                                                 </div>
                                             </div>
                                             <div class="col-xs-12 col-sm-3 col-md-3">
                                                 <div class="form-group">
                                                     <div class="input-group">
-                                                        <span class="input-group-addon">Mes</span>
-                                                        @Html.DropDownListFor(m => m.Eventos[index].MesFinEvento, Model.SelectListMesFinEvento[index], new { @class = "form-control", style = "position:initial", required = "required" })
+                                                        <span class="input-group-addon" id="basic-addon1">@Model.LabelFechaMes</span>
+                                                        @Html.DropDownListFor(m => m.Eventos[index].MesFinEvento, (List<SelectListItem>)ViewBag.MesList, new { @class = "form-control", style = "position:initial", required = "required" })
                                                     </div>
                                                 </div>
                                             </div>
                                             <div class="col-xs-12 col-sm-3 col-md-3">
                                                 <div class="form-group">
                                                     <div class="input-group">
-                                                        <span class="input-group-addon">Año</span>
-                                                        @Html.DropDownListFor(m => m.Eventos[index].AnioFinEvento, Model.SelectListAnioFinEvento[index], new { @class = "form-control", style = "position:initial", required = "required" })
+                                                        <span class="input-group-addon" id="basic-addon1">@Model.LabelFechaAnio</span>
+                                                        @Html.DropDownListFor(m => m.Eventos[index].AnioFinEvento, (List<SelectListItem>)ViewBag.AniosFuturoList, new { @class = "form-control", style = "position:initial", required = "required" })
                                                     </div>
                                                 </div>
                                             </div>
@@ -441,21 +351,21 @@
             <!-- INFORMACIÓN DE INGRESO AL PAÍS-->
             <div class="col-xs-12 col-sm-12 col-md-12">
                 <div class="panel panel-default">
-                    <div class="panel-heading">INFORMACIÓN DE INGRESO AL PAÍS (opcional)</div>
+                    <div class="panel-heading">@Model.LabelSeccionInformacionIngresoAlPais</div>
                     <div id="responseMessage"></div>
                     <div class="panel-body">
                         <div class="container">
                             <div class="row">
                                 <div class="col-xs-12 col-sm-12 col-md-3">
                                     <div class="form-group">
-                                        <label>@Model.LabelFechaLlegada</label>
+                                        <label>* @Model.LabelFechaLlegada</label>
                                     </div>
                                 </div>
                                 <div class="col-xs-12 col-sm-3 col-md-3">
                                     <div class="form-group">
                                         <div class="input-group">
                                             <span class="input-group-addon" id="basic-addon1">@Model.LabelFechaDia</span>
-                                            @Html.DropDownListFor(m => m.DiaEntrada, (List<SelectListItem>)ViewBag.DiasList, new { @class = "form-control", style = "position:initial" })
+                                            @Html.DropDownListFor(m => m.DiaEntrada, (List<SelectListItem>)ViewBag.DiasList, new { @class = "form-control", style = "position:initial", required = "required" })
                                         </div>
                                     </div>
                                 </div>
@@ -463,7 +373,7 @@
                                     <div class="form-group">
                                         <div class="input-group">
                                             <span class="input-group-addon" id="basic-addon1">@Model.LabelFechaMes</span>
-                                            @Html.DropDownListFor(m => m.MesEntrada, (List<SelectListItem>)ViewBag.MesList, new { @class = "form-control", style = "position:initial" })
+                                            @Html.DropDownListFor(m => m.MesEntrada, (List<SelectListItem>)ViewBag.MesList, new { @class = "form-control", style = "position:initial", required = "required" })
                                         </div>
                                     </div>
                                 </div>
@@ -471,7 +381,7 @@
                                     <div class="form-group">
                                         <div class="input-group">
                                             <span class="input-group-addon" id="basic-addon1">@Model.LabelFechaAnio</span>
-                                            @Html.DropDownListFor(m => m.AnioEntrada, (List<SelectListItem>)ViewBag.AniosFuturoList, new { @class = "form-control", style = "position:initial" })
+                                            @Html.DropDownListFor(m => m.AnioEntrada, (List<SelectListItem>)ViewBag.AniosFuturoList, new { @class = "form-control", style = "position:initial", required = "required" })
                                         </div>
                                     </div>
                                 </div>
@@ -479,14 +389,14 @@
                             <div class="row">
                                 <div class="col-xs-12 col-sm-12 col-md-3">
                                     <div class="form-group">
-                                        <label>@Model.LabelFechaSalida</label>
+                                        <label>* @Model.LabelFechaSalida</label>
                                     </div>
                                 </div>
                                 <div class="col-xs-12 col-sm-3 col-md-3">
                                     <div class="form-group">
                                         <div class="input-group">
                                             <span class="input-group-addon" id="basic-addon1">@Model.LabelFechaDia</span>
-                                            @Html.DropDownListFor(m => m.DiaSalida, (List<SelectListItem>)ViewBag.DiasList, new { @class = "form-control", style = "position:initial" })
+                                            @Html.DropDownListFor(m => m.DiaSalida, (List<SelectListItem>)ViewBag.DiasList, new { @class = "form-control", style = "position:initial", required = "required" })
                                         </div>
                                     </div>
                                 </div>
@@ -494,7 +404,7 @@
                                     <div class="form-group">
                                         <div class="input-group">
                                             <span class="input-group-addon" id="basic-addon1">@Model.LabelFechaMes</span>
-                                            @Html.DropDownListFor(m => m.MesSalida, (List<SelectListItem>)ViewBag.MesList, new { @class = "form-control", style = "position:initial" })
+                                            @Html.DropDownListFor(m => m.MesSalida, (List<SelectListItem>)ViewBag.MesList, new { @class = "form-control", style = "position:initial", required = "required" })
                                         </div>
                                     </div>
                                 </div>
@@ -502,55 +412,55 @@
                                     <div class="form-group">
                                         <div class="input-group">
                                             <span class="input-group-addon" id="basic-addon1">@Model.LabelFechaAnio</span>
-                                            @Html.DropDownListFor(m => m.AnioSalida, (List<SelectListItem>)ViewBag.AniosFuturoList, new { @class = "form-control", style = "position:initial" })
+                                            @Html.DropDownListFor(m => m.AnioSalida, (List<SelectListItem>)ViewBag.AniosFuturoList, new { @class = "form-control", style = "position:initial", required = "required" })
                                         </div>
                                     </div>
                                 </div>
                             </div>
                             @*<label>@Model.LabelMensajeVuelo</label>
-                            <div class="row">
-                                <div class="col-xs-12 col-sm-6 col-md-6">
-                                    <div class="form-group">
-                                        <label>@Model.LabelAeropuertoLlegada</label>
-                                        @Html.DropDownListFor(m => m.AeropuertoLlegada, (List<SelectListItem>)ViewBag.AeropuertosList, new { @class = "form-control", @onchange = "validarAeropuertoSeleccionada()" })
+                                <div class="row">
+                                    <div class="col-xs-12 col-sm-6 col-md-6">
+                                        <div class="form-group">
+                                            <label>@Model.LabelAeropuertoLlegada</label>
+                                            @Html.DropDownListFor(m => m.AeropuertoLlegada, (List<SelectListItem>)ViewBag.AeropuertosList, new { @class = "form-control", @onchange = "validarAeropuertoSeleccionada()" })
+                                        </div>
+                                    </div>
+                                    <div class="col-xs-12 col-sm-6 col-md-6" id="seccionNuevoAeropuerto" hidden>
+                                        <div class="form-group">
+                                            <label>@Model.LabelAeropuertoLlegada</label>
+                                            @Html.TextBoxFor(m => m.NuevoAeropuerto, new { @class = "form-control", style = "position:initial" })
+                                        </div>
                                     </div>
                                 </div>
-                                <div class="col-xs-12 col-sm-6 col-md-6" id="seccionNuevoAeropuerto" hidden>
-                                    <div class="form-group">
-                                        <label>@Model.LabelAeropuertoLlegada</label>
-                                        @Html.TextBoxFor(m => m.NuevoAeropuerto, new { @class = "form-control", style = "position:initial" })
+                                <div class="row">
+                                    <div class="col-xs-12 col-sm-12 col-md-2">
+                                        <div class="form-group">
+                                            <label>@Model.LabelVuelo</label>
+                                        </div>
                                     </div>
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="col-xs-12 col-sm-12 col-md-2">
-                                    <div class="form-group">
-                                        <label>@Model.LabelVuelo</label>
+                                    <div class="col-xs-12 col-sm-6 col-md-5">
+                                        <div class="form-group">
+                                            <label>@Model.LabelAerolinea</label>
+                                            @Html.DropDownListFor(m => m.Aerolinea, (List<SelectListItem>)ViewBag.AerolineasList, new { @class = "form-control", style = "position:initial", @onchange = "validarAerolineaSeleccionada()" })
+                                        </div>
                                     </div>
-                                </div>
-                                <div class="col-xs-12 col-sm-6 col-md-5">
-                                    <div class="form-group">
-                                        <label>@Model.LabelAerolinea</label>
-                                        @Html.DropDownListFor(m => m.Aerolinea, (List<SelectListItem>)ViewBag.AerolineasList, new { @class = "form-control", style = "position:initial", @onchange = "validarAerolineaSeleccionada()" })
+                                    <div class="col-xs-12 col-sm-6 col-md-5" id="seccionNuevaAerolinea" hidden>
+                                        <div class="form-group">
+                                            <label>@Model.LabelAerolinea</label>
+                                            @Html.TextBoxFor(m => m.NuevaAerolinea, new { @class = "form-control", style = "position:initial" })
+                                        </div>
                                     </div>
-                                </div>
-                                <div class="col-xs-12 col-sm-6 col-md-5" id="seccionNuevaAerolinea" hidden>
-                                    <div class="form-group">
-                                        <label>@Model.LabelAerolinea</label>
-                                        @Html.TextBoxFor(m => m.NuevaAerolinea, new { @class = "form-control", style = "position:initial" })
+                                    <div class="col-xs-12 col-sm-12 col-md-12 col-md-offset-2">
+                                        <div class="form-group">
+                                            <label>@Model.LabelNumeroVuelo</label>
+                                            @Html.TextBoxFor(m => m.NumeroVuelo, new { @class = "form-control", style = "position:initial" })
+                                        </div>
                                     </div>
-                                </div>
-                                <div class="col-xs-12 col-sm-12 col-md-12 col-md-offset-2">
-                                    <div class="form-group">
-                                        <label>@Model.LabelNumeroVuelo</label>
-                                        @Html.TextBoxFor(m => m.NumeroVuelo, new { @class = "form-control", style = "position:initial" })
-                                    </div>
-                                </div>
-                            </div>*@
+                                </div>*@
                             <div class="col-xs-12 col-sm-12 col-md-12">
                                 <div class="form-group">
                                     <div style="text-align:center;">
-                                        <button type="submit" id="btnFormSubmit" class="btn btn-success"><span class="glyphicon glyphicon-modal-window"></span> Guardar</button>
+                                        <button type="submit" id="btnFormSubmit" class="btn btn-success"><span class="glyphicon glyphicon-modal-window"></span> @Model.LabelEnviarBtn</button>
                                     </div>
                                 </div>
                             </div>
@@ -569,17 +479,16 @@
                 <div class="contenido-modal">
                     <span class="close-modal" onclick="closeModal()">&times;</span>
                     <div class="page-header">
-                        <h2>Importante</h2>
+                        <h2>@Model.LabelTituloAvisoPrivacidad</h2>
                     </div>
-                    <div class="well">
-                        <p>
-                            Operadora de Centros de Espectáculos, S.A. de C.V. (en adelante OCESA) y/o sus empresas filiares y subsidiarias con domicilio fiscal en Avenida Rio Churubusco y Añil S/N, Colonia Granjas México, Alcaldía Iztacalco, C.P. 08400, Ciudad de México, es responsable del tratamiento de los datos personales recabados en este formato tales como nombre completo, domicilio, teléfono, correo electrónico e información contenida en la identificación oficial presentada, dicha información única y exclusivamente será utilizada por OCESA y/o sus empresas filiales y subsidiarias, para la aceptación de los términos y condiciones establecidas en este párrafo, así como para identificarlo como participante acreditado, la información se conservara por un periodo indeterminado, lo que resulte de los siguientes periodos (i) el tiempo que sea necesario para la actividad (ii) cualquier periodo de retención requerido por la ley, (iii) el final del periodo en el cual pueden surgir litigios o investigaciones con respecto a los servicios. El texto completo del aviso de privacidad integral se pondrá a su disposición cuando así se requiera por escrito el cual debe presentarse en el domicilio indicado en el presente párrafo o enviado al correo electrónico talentoextranjero@ocesa.mx
-                        </p>
+                    <div class="well" style="max-width: 100%; width: 100%; min-height: 40vh; height: 40vh; text-align: center;">
+                        @*<textarea style="border-radius: 1%; max-width: 560px; width: 100%; max-height: 410px; height: 100%; border: ridge; resize: none;" readonly>@ViewBag.AvisoPrivacidadActual</textarea>*@
+                        <div id="avisoPrivacidadContenido" style="border-radius: 1%; max-width: 560px; width: 100%; max-height: 410px; height: 100%; border: ridge; resize: none; text-align: justify; overflow: auto; display: inline-block; padding: 10px; " readonly>@ViewBag.AvisoPrivacidadActual</div>
                     </div>
                     <div class="row">
                         <div class="col-xs-6 col-sm-6 col-md-4 col-lg-4">
                             <input type="checkbox" id="aceptaAvisoPrivacidad" onclick="avisoPrivacidadCheckEvent()" />
-                            <span class="label label-info"><label for="aceptaAvisoPrivacidad">Acepto la política de privacidad</label></span>
+                            <span class="label label-info"><label for="aceptaAvisoPrivacidad">@Model.LabelCheckAvisoPrivacidad</label></span>
                         </div>
                         <div class="col-xs-6 col-sm-6 col-md-8 col-lg-8">
                             <div id="alertaPoliticaPrivacidad"></div>
@@ -588,13 +497,15 @@
                     </div>
                     <div class="row">
                         <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6" style="text-align:center;">
-                            <button type="button" class="btn btn-danger" onclick="closeModal()">Cancelar</button>
+                            <button type="button" class="btn btn-danger" onclick="closeModal()">@Model.LabelBotonCancelaAvisoPrivacidad</button>
                         </div>
                         <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6" style="text-align:center;">
-                            <button type="button" onclick="" class="btn btn-success" id="btnEnviarAvisoPrivacidad" disabled>Aceptar</button>
+                            <button type="button" onclick="enviarFormulario()" class="btn btn-success" id="btnEnviarAvisoPrivacidad" disabled>@Model.LabelBotonAceptaAvisoPrivacidad</button>
                         </div>
                         <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6" style="text-align:center;">
-                            <div id="g-captcha" data-type="image"></div>
+                            <div id="g-captcha" data-type="image">
+                            </div>
+                            <input type="hidden" id="foo" name="foo" />
 
                         </div>
 
@@ -616,9 +527,11 @@
 
 <script type="text/javascript">
 
+    let formSubmitTried = false;
+
     var onloadCallback = function () {
         grecaptcha.render('g-captcha', {
-            'sitekey': '6Lct-wolAAAAAMHFDiQg-AJ_VjiVxDs0igxNVK5w',
+            'sitekey': '6LfuWfclAAAAAJCfMxdvBAptMDrQtSRItDvsWB_X',
             'callback': reCaptchaCallback,
             theme: 'light', //light or dark
             type: 'image',// image or audio
@@ -633,6 +546,7 @@
 
     var reCaptchaCallback = function (response) {
         if (response !== '') {
+            document.getElementById("foo").value=response;
             console.log(response);
              req = response;
             btn.disabled = false;
@@ -641,6 +555,18 @@
 
 
     document.addEventListener("DOMContentLoaded", function () {
+
+        const generarLDeAP = () =>
+        {
+            const ap = document.getElementById("avisoPrivacidadContenido");
+            const texto = ap.innerText;
+            var textoReemplazado = (texto.replaceAll(/\[(.*?)\]\((.*?)\)/g, '<a href="$2" target="_blank">$1</a>')).replaceAll('\n','<br>');
+
+            ap.innerHTML = textoReemplazado;
+        }
+
+        generarLDeAP();
+
         document.getElementById("btnFormSubmit").addEventListener("click", function (event) {
 
             console.log("Se entro a la funcion de validando ")
@@ -649,26 +575,53 @@
                 console.log("El formulario es validoooo");
                 formularioValido = true;
             } else {
-                let message = 'Debe llenar los campos requeridos: ' + camposRequeridosVacios;
+                const lenguajeAct = document.getElementById("IdiomaActual").value;
+                let message = lenguajeAct === "ES" ? 'Debe llenar los campos requeridos: ' : 'You must fill in the required fields: ';
+                message += camposRequeridosVacios;
                 setErrorMessageForm(message, 'mensajeError');
+                formSubmitTried = true;
             }
         });
+
+
+        var form = document.getElementById("frm-registro-invitado");
+        form.addEventListener("input", function () {
+            console.log("Form has changed!");
+            if (formSubmitTried) {
+                let camposRequeridosVacios = validaCamposRequeridos();
+                if (isANullOrEmptyString(camposRequeridosVacios)) {
+                    cleanElementHTML('mensajeError');
+                } else {
+                    const lenguajeAct = document.getElementById("IdiomaActual").value;
+                    let message = lenguajeAct === "ES" ? 'Debe llenar los campos requeridos: ' : 'You must fill in the required fields: ';
+                    message += camposRequeridosVacios;
+                    setErrorMessageForm(message, 'mensajeError');
+                }
+            }
+        });
+
+
     });
 
     let idiomaActualValue = document.getElementById("IdiomaActual").value;
     let mensaje0 = idiomaActualValue === "ES" ? "La fecha de expiración del pasaporte no debe ser mayor o igual a la fecha de expedición" : "The expiration date of the passport must not be greater than or equal to the date of issue";
     let mensaje1 = idiomaActualValue === "ES" ? "La fecha de inicio del evento no debe ser mayor a la fecha término del evento" : "The start date of the event must not be greater than the end date of the event";
     let mensaje2 = idiomaActualValue === "ES" ? "La fecha de llegada no debe ser mayor a la fecha de salida" : "The arrival date must not be later than the departure date";
+    let mensaje3 = idiomaActualValue === "ES" ? "La fecha de llegada no debe ser menor a la fecha actual" : "The arrival date must not be earlier than the current date";
     let banderaFecha0 = false;
     let banderaFecha1 = false;
     let banderaFechaOpcional = false;
     let dia;
     let mes;
+    const auxiliarFechaActual = new Date();
+    const fechaActual = new Date(auxiliarFechaActual.getFullYear(), auxiliarFechaActual.getMonth(), auxiliarFechaActual.getDate());//.toLocaleDateString('en-GB');;
+    //console.log(fechaActual)
 
     document.addEventListener("DOMContentLoaded", function () {
         hideLoader();
 
-        document.getElementById("AnioVenPas").addEventListener("blur", function (event) {
+        // validando fechas al momento de ingresar la ultima de la seccion
+        document.getElementById("AnioVenPas").addEventListener("blur", function () {
             banderaFecha0 = validaFechasCongruencia("ExpPas", "VenPas", mensaje0);
         });
 
@@ -676,8 +629,13 @@
             banderaFecha1 = validaFechasCongruencia("InicioEvento", "FinEvento", mensaje1, 1);
         });
 
-        document.getElementById("AnioSalida").addEventListener("blur", function (event) {
+        document.getElementById("AnioSalida").addEventListener("blur", function () {
             banderaFechaOpcional = validaFechasCongruencia("Entrada", "Salida", mensaje2);
+        });
+
+        // validando que la fecha de ingreso al pais sea mayor/igual a la actual en la primer seccion
+        document.getElementById("AnioEntrada").addEventListener("blur", function () {
+            banderaFechaOpcional = validaFechasCongruencia("Entrada", "Salida", mensaje3,2);
         });
 
         // Llenado dinamico de fechas
@@ -713,77 +671,160 @@
 
 
         //llenando las segundas fechas
-        document.getElementById("frm-registro-invitado").addEventListener("submit", async function (event) {
+        document.getElementById("frm-registro-invitado").addEventListener("submit", function (event) {
             event.preventDefault();
+            banderaFecha0 = validaFechasCongruencia("ExpPas", "VenPas", mensaje0);
+            banderaFecha1 = validaFechasCongruencia("InicioEvento", "FinEvento", mensaje1, 1);
+            banderaFechaOpcional = validaFechasCongruencia("Entrada", "Salida", mensaje2);
+            banderaFechaActual = validaFechasCongruencia("Entrada", "Salida", mensaje3, 2);
 
-            let banderaFechaPasaporte = false;
-            console.log("Valor de banderaFechaPasaporte : ", banderaFechaPasaporte);
-            banderaFechaPasaporte = validaFechasCongruencia("ExpPas", "VenPas", mensaje0);
-            console.log("Valor de banderaFechaPasaporte : ", banderaFechaPasaporte);
-            let banderaFechaEvento =  validaFechasCongruencia("InicioEvento", "FinEvento", mensaje1, 1);
-            let _banderaFechaOpcional =  validaFechasCongruencia("Entrada", "Salida", mensaje2);
-
-            console.log("Banderas : " + banderaFechaPasaporte + "---" + banderaFechaEvento + "---" + _banderaFechaOpcional);
+            console.log("Banderas : " + banderaFecha0 + "---" + banderaFecha1);
             /* formularioValido = true;*/
             //Si el formulario esta bien se muestra el formulario
-                if (formularioValido === true && banderaFechaPasaporte === true ) {
-                    console.log("Entre  a las 3 banderas");
-                    await enviarFormulario();
-                }
-
+            if (formularioValido && banderaFecha0 && banderaFecha1 && banderaFechaOpcional && banderaFechaActual) {
+                console.log("ENTRE AL MODAL");
+                enviarFormulario();/* Se quita modal porque aqui no se usa */
+            }
             hideLoader();
         });
+    });
+
+    async function loadDateEvent(id) {
+
+        try {
+            const item = document.getElementById(id);
+            const option = item.options[item.selectedIndex].value;
+            const actualPosicion = id.replace(/[^0-9]+/g, "");
+
+            let url = "@Url.Content("~/Home/ObtenerInfoEventoPorId")";
+
+            let params =
+            {
+                idEvento: parseInt(option)
+            };
+
+            const response = httpPost(
+                url,
+                params
+            );
+
+            const dataResponse = await response
+                .then(data => {
+                    return data;
+                })
+                .catch(error => {
+                    console.log(error);
+                });
+
+            // console.log(dataResponse);
+
+            const fechaInicio = dataResponse.result.DATE_INI;
+            const fechaFin = dataResponse.result.DATE_FIN;
 
 
 
-        function validaFechasCongruencia(seccionInicio, seccionFin, mensaje, flujo = 0) {
-            //Ejemplo parametro:
-            // seccionInicio = Dia(ExpPas), Mes(ExPas), Anio(ExPas)
+            const destructurarFechaIni = fechaInicio.split('/');
+            const destructurarFechaFin = fechaFin.split('/');
 
-            console.log("VALIDAR FECHAS");
-            let diaInicio, mesInicio, anioInicio;
-            let diaFin, mesFin, anioFin;
+            // console.log(destructurarFechaIni, destructurarFechaFin)
 
-            if (flujo == 0) {
-                diaInicio = document.getElementById(`Dia${seccionInicio}`);
-                mesInicio = document.getElementById(`Mes${seccionInicio}`);
-                anioInicio = document.getElementById(`Anio${seccionInicio}`);
+            // Evento
+            document.getElementById(`Eventos_${actualPosicion}__InmuebleEvento`).value = dataResponse.result.ID_ESTATE;
+            document.getElementById(`Eventos_${actualPosicion}__UbicacionInmueble`).value = dataResponse.result.DESC_LOCATION;
 
-                diaFin = document.getElementById(`Dia${seccionFin}`);
-                mesFin = document.getElementById(`Mes${seccionFin}`);
-                anioFin = document.getElementById(`Anio${seccionFin}`);
+            // llenado de inicio
+            document.getElementById(`Eventos_${actualPosicion}__DiaInicioEvento`).value = destructurarFechaIni[1];
+            document.getElementById(`Eventos_${actualPosicion}__MesInicioEvento`).value = destructurarFechaIni[0];
+
+            const anioInicio = destructurarFechaIni[2].split(' ');
+            document.getElementById(`Eventos_${actualPosicion}__AnioInicioEvento`).value = anioInicio[0];
+
+            // llenado final
+            document.getElementById(`Eventos_${actualPosicion}__DiaFinEvento`).value = destructurarFechaFin[1];
+            document.getElementById(`Eventos_${actualPosicion}__MesFinEvento`).value = destructurarFechaFin[0];
+
+            const anioFin = destructurarFechaFin[2].split(' ');
+            document.getElementById(`Eventos_${actualPosicion}__AnioFinEvento`).value = anioFin[0];
+        }
+        catch(error)
+        {
+            console.log(error)
+        }
+    }
+
+    function newEstate(id) {
+        const item = document.getElementById(id);
+        const option = item.options[item.selectedIndex].text;
+        const actualPosicion = id.replace(/[^0-9]+/g, "");
+        console.log(option);
+        console.log("Actual posicion: " + actualPosicion);
+
+        if (option == "OTRA") {
+            console.log("entreee")
+            const node = document.getElementById(`seccionNuevoInmueble_${actualPosicion}`).removeAttribute("hidden");
+            console.log(node);
+        }
+    }
+
+    function validaFechasCongruencia(seccionInicio, seccionFin, mensaje, flujo = 0) {
+        //Ejemplo parametro:
+        // seccionInicio = Dia(ExpPas), Mes(ExPas), Anio(ExPas)
+
+        console.log("VALIDAR FECHAS");
+        let diaInicio, mesInicio, anioInicio;
+        let diaFin, mesFin, anioFin;
+
+        if (flujo == 0 || flujo == 2) {
+            diaInicio = document.getElementById(`Dia${seccionInicio}`);
+            mesInicio = document.getElementById(`Mes${seccionInicio}`);
+            anioInicio = document.getElementById(`Anio${seccionInicio}`);
+
+            diaFin = document.getElementById(`Dia${seccionFin}`);
+            mesFin = document.getElementById(`Mes${seccionFin}`);
+            anioFin = document.getElementById(`Anio${seccionFin}`);
+        } else {
+            diaInicio = document.getElementById(`Eventos_0__Dia${seccionInicio}`);
+            mesInicio = document.getElementById(`Eventos_0__Mes${seccionInicio}`);
+            anioInicio = document.getElementById(`Eventos_0__Anio${seccionInicio}`);
+            console.log(diaInicio);
+
+            diaFin = document.getElementById(`Eventos_0__Dia${seccionFin}`);
+            mesFin = document.getElementById(`Eventos_0__Mes${seccionFin}`);
+            anioFin = document.getElementById(`Eventos_0__Anio${seccionFin}`);
+        }
+
+        const selectedInDiaPass = diaInicio.options[diaInicio.selectedIndex].text;
+        const selectedInMesPass = mesInicio.options[mesInicio.selectedIndex].text;
+        const selectedInAnioPass = anioInicio.options[anioInicio.selectedIndex].text;
+
+        const selectedFinDia = diaFin.options[diaFin.selectedIndex].text;
+        const selectedFinMes = mesFin.options[mesFin.selectedIndex].text;
+        const selectedFinAnio = anioFin.options[anioFin.selectedIndex].text;
+
+        const fechaInicialFormat = new Date(parseInt(selectedInAnioPass), parseInt(selectedInMesPass) - 1, parseInt(selectedInDiaPass));//.toLocaleDateString('en-GB');;
+
+        const fechaFinalFormat = new Date(parseInt(selectedFinAnio), parseInt(selectedFinMes) - 1, parseInt(selectedFinDia));//.toLocaleDateString('en-GB');;
+
+        if (flujo == 2) {
+            console.log("ENTRE A LA NUEVA VALIDACION.........")
+            console.log(fechaInicialFormat + "FECHA INGRESADA");
+            console.log(fechaActual + "FECHA ACTUAL");
+            if (fechaInicialFormat < fechaActual) {
+                Swal.fire({
+                    icon: "error",
+                    title: "Oops...",
+                    text: `${mensaje}`,
+                    imageWidth: "40px",
+                });
+                return false;
             } else {
-                console.log("Entre a flujo alterno");
-                diaInicio = document.getElementById(`Eventos_0__Dia${seccionInicio}`);
-                mesInicio = document.getElementById(`Eventos_0__Mes${seccionInicio}`);
-                anioInicio = document.getElementById(`Eventos_0__Anio${seccionInicio}`);
-                console.log(diaInicio);
-
-                diaFin = document.getElementById(`Eventos_0__Dia${seccionFin}`);
-                mesFin = document.getElementById(`Eventos_0__Mes${seccionFin}`);
-                anioFin = document.getElementById(`Eventos_0__Anio${seccionFin}`);
+                console.log("TODO OK");
+                return true;
             }
-
-            const selectedInDiaPass = diaInicio.options[diaInicio.selectedIndex].text;
-            const selectedInMesPass = mesInicio.options[mesInicio.selectedIndex].text;
-            const selectedInAnioPass = anioInicio.options[anioInicio.selectedIndex].text;
-
-            const selectedFinDia = diaFin.options[diaFin.selectedIndex].text;
-            const selectedFinMes = mesFin.options[mesFin.selectedIndex].text;
-            const selectedFinAnio = anioFin.options[anioFin.selectedIndex].text;
-
-            console.log("primer fecha recuperada");
-            const fechaInicial =
-                selectedInAnioPass + "-" + selectedInMesPass + "-" + selectedInDiaPass;
-            const fechaInicialFormat = new Date(fechaInicial);
-            console.log(fechaInicialFormat);
-
-            console.log("Segunda fecha recuperada");
-            const fechaFinal =
-                selectedFinAnio + "-" + selectedFinMes + "-" + selectedFinDia;
-            const fechaFinalFormat = new Date(fechaFinal);
-            console.log(fechaFinalFormat);
-
+        } else {
+            console.log("ENTRE A LA VALIDACION SENCILLA.........")
+            console.log(fechaInicialFormat + "FECHA INGRESADA");
+            console.log(fechaFinalFormat + "FECHA INGRESADA 2");
             if (fechaInicialFormat > fechaFinalFormat) {
                 Swal.fire({
                     icon: "error",
@@ -791,18 +832,14 @@
                     text: `${mensaje}`,
                     imageWidth: "40px",
                 });
-                console.log("Entro al false");
                 return false;
             } else {
                 console.log("TODO OK");
                 return true;
             }
-
         }
 
-
-
-    });
+    }
 
 
 
@@ -823,51 +860,56 @@
     }
 
     async function enviarFormulario() {
-
-        //const btnEnviarAvisoPrivacidad = document.getElementById("btnEnviarAvisoPrivacidad");
-        //btnEnviarAvisoPrivacidad.disabled = true;
         showLoader();
-        let formularioCompleto = true;
+        try {
+            let formularioCompleto = true;
 
-        if (formularioCompleto) {
-            let form = document.getElementById('frm-registro-invitado');
-            let formJson = serializeForm(form);
-            let url = "@Url.Content("~/Administrator/ActualizarRegistroInvidato")";
-            console.log(url);
-            const response = httpPost(
-                url,
-                formJson
-            );
-            const dataResponse = await response
-                .then(data => {
-                    return data;
-                })
-                .catch(error => {
-                    console.log(error);
+            if (formularioCompleto) {
+                let form = document.getElementById('frm-registro-invitado');
+                let formJson = serializeForm(form);
+                let url = "@Url.Content("~/AnotherAssistantsAdmon/GuardaRegistroInvidato")";
+
+                const response = httpPost(
+                    url,
+                    formJson
+                );
+
+                const dataResponse = await response
+                    .then(data => {
+                        return data;
+                    })
+                    .catch(error => {
+                        console.log(error);
+                        btnEnviarAvisoPrivacidad.disabled = false;
+                    });
+
+                if (dataResponse.response === false) {
+                    let messageError = dataResponse.message;
+                    setErrorMessageForm(messageError, 'messageErrorModal');
                     btnEnviarAvisoPrivacidad.disabled = false;
-                    hideLoader();
-                });
-
-            if (dataResponse.response === false) {
-                let messageError = dataResponse.message;
-                setErrorMessageForm(messageError, 'messageErrorModal');
-                btnEnviarAvisoPrivacidad.disabled = false;
-                hideLoader();
+                }
+                else {
+                    //Escenario correccto, redireccionar
+                    let urlResultado = dataResponse.result.Url;
+                    let params = {
+                        NombreCompleto: dataResponse.result.NombreCompleto,
+                        Codigo: dataResponse.result.Codigo
+                    };
+                    let methodNewView = 'POST';
+                    postForm(urlResultado, params, methodNewView);
+                }
             }
             else {
-                //Escenario correccto, redireccionar
-                let urlResultado = dataResponse.href;
-                let params = {
-                };
-                let methodNewView = 'POST';
-                postForm(urlResultado, params, methodNewView);
+                btnEnviarAvisoPrivacidad.disabled = false;
             }
         }
-        else {
-            btnEnviarAvisoPrivacidad.disabled = false;
+        catch (error) {
+
+        }
+        finally {
+            hideLoader();
         }
 
-        hideLoader();
 
     }
 
@@ -897,8 +939,9 @@
         let Correo = document.getElementById("Correo").value;
         let ConfirmacionCorreo = document.getElementById("ConfirmacionCorreo").value;
 
+        const lenguajeAct = document.getElementById("IdiomaActual").value;
         if (Correo !== ConfirmacionCorreo)
-            result += "<br>El correo debe ser igual a la confirmación del correo, ";
+            result += lenguajeAct === "ES" ? "<br>El correo debe ser igual a la confirmación del correo, " : "<br>The email must be the same as the confirmation email, ";
 
         let PaisNacimiento = document.getElementById("PaisNacimiento").value;
 
@@ -911,67 +954,107 @@
         let MesInicioEvento = document.getElementById("Eventos_0__MesInicioEvento").value;
         let AnioInicioEvento = document.getElementById("Eventos_0__AnioInicioEvento").value;
 
+        let InmuebleEvento = document.getElementById("Eventos_0__InmuebleEvento").value;
+        let UbicacionInmueble = document.getElementById("Eventos_0__UbicacionInmueble").value;
+
+
         //let AeropuertoLlegada = document.getElementById("AeropuertoLlegada").value;
         //let Aerolinea = document.getElementById("Aerolinea").value;
         //let NumeroVuelo = document.getElementById("NumeroVuelo").value;
 
+        let DiaEntrada = document.getElementById("DiaEntrada").value;
+        let MesEntrada = document.getElementById("MesEntrada").value;
+        let AnioEntrada = document.getElementById("AnioEntrada").value;
+        let DiaSalida = document.getElementById("DiaSalida").value;
+        let MesSalida = document.getElementById("MesSalida").value;
+        let AnioSalida = document.getElementById("AnioSalida").value;
+
+
+
         if (isANullOrEmptyString(NumeroPasaporte)) {
-            result += "<br>Número de Pasaporte, ";
+            result += lenguajeAct === "ES" ? "<br>Número de Pasaporte, " : "<br>Passport Number, ";
         }
         if (isANullOrEmptyString(DiaExpPas)) {
-            result += "<br>Fecha de Expedición de Pasaporte (Día), ";
+            result += lenguajeAct === "ES" ? "<br>Fecha de Expedición de Pasaporte (Día), " :"<br>Passport Issuance Date (Day), ";
         }
         if (isANullOrEmptyString(MesExpPas)) {
-            result += "<br>Fecha de Expedición de Pasaporte (Mes), ";
+            result += lenguajeAct === "ES" ? "<br>Fecha de Expedición de Pasaporte (Mes), " :"<br>Passport Issuance Date (Month), ";
         }
         if (isANullOrEmptyString(AnioExpPas)) {
-            result += "<br>Fecha de Expedición de Pasaporte (Año), ";
+            result += lenguajeAct === "ES" ? "<br>Fecha de Expedición de Pasaporte (Año), " :"<br>Passport Issuance Date (Year), ";
         }
         if (isANullOrEmptyString(DiaVenPas)) {
-            result += "<br>Fecha de Vencimiento de Pasaporte (Día), ";
+            result += lenguajeAct === "ES" ? "<br>Fecha de Vencimiento de Pasaporte (Día), " :"<br>Passport Due Date (Day), ";
         }
         if (isANullOrEmptyString(MesVenPas)) {
-            result += "<br>Fecha de Vencimiento de Pasaporte (Mes), ";
+            result += lenguajeAct === "ES" ? "<br>Fecha de Vencimiento de Pasaporte (Mes), " :"<br>Passport Due Date (Month), ";
         }
         if (isANullOrEmptyString(AnioVenPas)) {
-            result += "<br>Fecha de Vencimiento de Pasaporte (Año), ";
+            result += lenguajeAct === "ES" ? "<br>Fecha de Vencimiento de Pasaporte (Año), " :"<br>Passport Due Date (Year), ";
         }
         if (isANullOrEmptyString(Nacionalidad)) {
-            result += "<br>Nacionalidad (En Pasaporte), ";
+            result += lenguajeAct === "ES" ? "<br>Nacionalidad (En Pasaporte), " :"<br>Nationality (In Passport), ";
         }
         if (isANullOrEmptyString(Empresa)) {
-            result += "<br>Empresa, ";
+            result += lenguajeAct === "ES" ? "<br>Empresa, " :"<br>Company, ";
         }
         if (isANullOrEmptyString(Nombre)) {
-            result += "<br>Nombre, ";
+            result += lenguajeAct === "ES" ? "<br>Nombre, ":"<br>Name, ";
         }
         if (isANullOrEmptyString(Apellidos)) {
-            result += "<br>Apellidos, ";
+            result += lenguajeAct === "ES" ? "<br>Apellidos, ":"<br>Lastname, ";
         }
         if (isANullOrEmptyString(Correo)) {
-            result += "<br>Correo, ";
+            result += lenguajeAct === "ES" ? "<br>Correo, ":"<br>Email, ";
         }
         if (isANullOrEmptyString(ConfirmacionCorreo)) {
-            result += "<br>Confirmación de Correo, ";
+            result += lenguajeAct === "ES" ? "<br>Confirmación de Correo, " :"<br>Confirm Email, ";
         }
         if (isANullOrEmptyString(PaisNacimiento)) {
-            result += "<br>País de Nacimiento, ";
+            result += lenguajeAct === "ES" ? "<br>País de Nacimiento, " :"<br>Country of Birth, ";
         }
 
         if (isANullOrEmptyString(ActividadEnMexico)) {
-            result += "<br>Actividad en el GP de México, ";
+            result += lenguajeAct === "ES" ? "<br>Actividad en México, " :"<br>Activity you will to do in México, ";
         }
         if (isANullOrEmptyString(NombreEvento)) {
-            result += "<br>Nombre del Evento, ";
+            result += lenguajeAct === "ES" ? "<br>Nombre del Evento, " :"<br>Name of the Event, ";
         }
         if (isANullOrEmptyString(DiaInicioEvento)) {
-            result += "<br>Fecha de Inicio del Evento (Día), ";
+            result += lenguajeAct === "ES" ? "<br>Fecha de Inicio del Evento (Día), " :"<br>Event Start Date (Day), ";
         }
         if (isANullOrEmptyString(MesInicioEvento)) {
-            result += "<br>Fecha de Inicio del Evento (Mes), ";
+            result += lenguajeAct === "ES" ? "<br>Fecha de Inicio del Evento (Mes), " :"<br>Event Start Date (Month), ";
         }
         if (isANullOrEmptyString(AnioInicioEvento)) {
-            result += "<br>Fecha de Inicio del Evento (Año), ";
+            result += lenguajeAct === "ES" ? "<br>Fecha de Inicio del Evento (Año), " :"<br>Event Start Date (Year), ";
+        }
+        if (isANullOrEmptyString(InmuebleEvento)) {
+            result += lenguajeAct === "ES" ? "<br>Inmueble del Evento, " :"<br>Event Property, ";
+        }
+        if (isANullOrEmptyString(UbicacionInmueble)) {
+            result += lenguajeAct === "ES" ? "<br>Ubicacion del Inmueble, " :"<br>Event Venue, ";
+        }
+
+
+
+        if (isANullOrEmptyString(DiaEntrada)) {
+            result += lenguajeAct === "ES" ? "<br>Fecha de Llegada (Día), " :"<br>Arrive Date (Day), ";
+        }
+        if (isANullOrEmptyString(MesEntrada)) {
+            result += lenguajeAct === "ES" ? "<br>Fecha de Llegada (Mes), " :"<br>Arrive Date (Month), ";
+        }
+        if (isANullOrEmptyString(AnioEntrada)) {
+            result += lenguajeAct === "ES" ? "<br>Fecha de Llegada (Año), " :"<br>Arrive Date (Year), ";
+        }
+        if (isANullOrEmptyString(DiaSalida)) {
+            result += lenguajeAct === "ES" ? "<br>Fecha de Salida (Día), " :"<br>Departure Date (Day), ";
+        }
+        if (isANullOrEmptyString(MesSalida)) {
+            result += lenguajeAct === "ES" ? "<br>Fecha de Salida (Mes), " :"<br>Departure Date (Month), ";
+        }
+        if (isANullOrEmptyString(AnioSalida)) {
+            result += lenguajeAct === "ES" ? "<br>Fecha de Salida (Año), " :"<br>Departure Date (Year), ";
         }
 
         return result;
@@ -1002,14 +1085,11 @@
         // console.log(valorEmpresaSeleccionada);
         if (valorAeropuertoLlegada === 'OTRA') {
             seccionNuevoAeropuerto.style.display = 'block';
-
         }
         else {
             let NuevoAeropuerto = document.getElementById("NuevoAeropuerto");
             NuevoAeropuerto.value = '';
-
             seccionNuevoAeropuerto.style.display = 'none';
-
         }
     }
 
@@ -1024,13 +1104,9 @@
         else {
             let NuevoElemento = document.getElementById("NuevaAerolinea");
             NuevoElemento.value = '';
-
             seccion.style.display = 'none';
-
         }
     }
-
-
 
 
     function validarInmuebleSeleccionado(indice) {
@@ -1046,9 +1122,7 @@
         else {
             let NuevoElemento = document.getElementById(`Eventos_${indice}__NuevoInmuebleEvento`);
             NuevoElemento.value = '';
-
             seccion.style.display = 'none';
-
         }
     }
 
@@ -1058,7 +1132,7 @@
 
         let seccionAntecedentesExpulsion = document.getElementById("seccionAntecedentesExpulsion");
         // console.log(valorEmpresaSeleccionada);
-        if (FueExpulsadoDeMexico === 'SI' || AntecedentesPenalesEnMexico === 'SI') {
+        if (FueExpulsadoDeMexico === 'SI' || AntecedentesPenalesEnMexico === 'SI' || FueExpulsadoDeMexico === 'YES' || AntecedentesPenalesEnMexico === 'YES') {
             seccionAntecedentesExpulsion.style.display = 'block';
 
         }
@@ -1072,7 +1146,16 @@
     }
 
     function AgregaNuevoEvento() {
-
+        const lenguajeAct = document.getElementById("IdiomaActual").value;
+        const nombreBotonQuitarEvento = lenguajeAct == "ES" ? "Quitar Evento" : "Remove Event";
+        const nombreEventoActual = lenguajeAct == "ES" ? "Nombre del Evento" : "Name of the Event";
+        const inmuebleEvento = lenguajeAct == "ES" ? "Inmueble del Evento" : "Event Property";
+        const ubicacionInmueble = lenguajeAct == "ES" ? "Ubicacion del Inmueble" : "Event Venue";
+        const fechaInicioEventoLbl = lenguajeAct == "ES" ? "Fecha de Inicio del Evento" : "Event Start Date";
+        const fechaFinEventoLbl = lenguajeAct == "ES" ? "Fecha de Fin del Evento" : "Event End Date";
+        const dialbl = lenguajeAct == "ES" ? "Día" : "Day";
+        const meslbl = lenguajeAct == "ES" ? "Mes" : "Month";
+        const aniolbl = lenguajeAct == "ES" ? "Año" : "Year";
         // console.log("Entro a agregar nuevo evento");
         //Obtener los paneles actuales
         let currentEventsArr = document.querySelectorAll('[id^="panel_evento_"]');
@@ -1083,8 +1166,8 @@
                                         <div class="row">
                                             <div class="col-xs-12 col-sm-12 col-md-12">
                                                 <div class="form-group">
-                                                    <label>* Nombre del Evento</label>
-													<select class="form-control" id="Eventos_${nextEventId}__NombreEvento" name="Eventos[${nextEventId}].NombreEvento" required="required" style="position:initial" wtx-context="E79F8156-4935-4A60-862A-0E72462AED8E">
+                                                    <label>* ${nombreEventoActual}</label>
+													<select class="form-control" id="Eventos_${nextEventId}__NombreEvento" name="Eventos[${nextEventId}].NombreEvento" required="required" style="position:initial" wtx-context="E79F8156-4935-4A60-862A-0E72462AED8E" onchange="loadDateEvent(id)">
 														@Html.Raw(ViewBag.EventosOptionsHTML)
 													</select>
                                                 </div>
@@ -1093,17 +1176,24 @@
                                         <div class="row">
                                             <div class="col-xs-12 col-sm-12 col-md-12">
                                                 <div class="form-group">
-                                                    <label>* Inmueble del Evento</label>
-													<select class="form-control" id="Eventos_${nextEventId}__InmuebleEvento" name="Eventos[${nextEventId}].InmuebleEvento" style="position:initial" wtx-context="00C8D930-EF5F-4FA9-A88D-E4CECCC7C974">
+                                                    <label>* ${inmuebleEvento}</label>
+													<select class="form-control" id="Eventos_${nextEventId}__InmuebleEvento" name="Eventos[${nextEventId}].InmuebleEvento" style="position:initial" wtx-context="00C8D930-EF5F-4FA9-A88D-E4CECCC7C974" onchange = "newEstate(id)">
 														@Html.Raw(ViewBag.InmueblesOptionsHTML)
 													</select>
 												</div>
+
+                                                 <div class="col-xs-12 col-sm-6 col-md-5" id="seccionNuevoInmueble_${nextEventId}" hidden>
+                                                <div class="form-group">
+                                                    <label>@Model.LabelInmueble</label>
+                                                    <input type=text>
+                                                </div>
+                                            </div>
                                             </div>
                                         </div>
                                         <div class="row">
                                             <div class="col-xs-12 col-sm-12 col-md-12">
                                                 <div class="form-group">
-                                                    <label>* Ubicacion del Inmueble</label>
+                                                    <label>* ${ubicacionInmueble}</label>
                                                     <input class="form-control" id="Eventos_${nextEventId}__UbicacionInmueble" name="Eventos[${nextEventId}].UbicacionInmueble" type="text" value="" wtx-context="CC91F8CA-7582-4F2D-98CF-5510ADB2CF13">
                                                 </div>
                                             </div>
@@ -1111,13 +1201,13 @@
                                         <div class="row">
                                             <div class="col-xs-12 col-sm-12 col-md-3">
                                                 <div class="form-group">
-                                                    <label>Fecha de Inicio del Evento</label>
+                                                    <label>${fechaInicioEventoLbl}</label>
                                                 </div>
                                             </div>
                                             <div class="col-xs-12 col-sm-3 col-md-3">
                                                 <div class="form-group">
                                                     <div class="input-group">
-                                                        <span class="input-group-addon" id="basic-addon1">Día</span>
+                                                        <span class="input-group-addon" id="basic-addon1">${dialbl}</span>
                                                         <select class="form-control" id="Eventos_${nextEventId}__DiaInicioEvento" name="Eventos[${nextEventId}].DiaInicioEvento" required="required" style="position:initial" wtx-context="CE141112-0B68-4E4E-AC68-DC0E5D43B658">
 															@Html.Raw(ViewBag.DiasOptionsHTML)
 														</select>
@@ -1127,7 +1217,7 @@
                                             <div class="col-xs-12 col-sm-3 col-md-3">
                                                 <div class="form-group">
                                                     <div class="input-group">
-                                                        <span class="input-group-addon" id="basic-addon1">Mes</span>
+                                                        <span class="input-group-addon" id="basic-addon1">${meslbl}</span>
 														<select class="form-control" id="Eventos_${nextEventId}__MesInicioEvento" name="Eventos[${nextEventId}].MesInicioEvento" required="required" style="position:initial" wtx-context="24160B61-E83C-4115-89AD-542FC6827459">
 															@Html.Raw(ViewBag.MesOptionsHTML)
 														</select>
@@ -1137,7 +1227,7 @@
                                             <div class="col-xs-12 col-sm-3 col-md-3">
                                                 <div class="form-group">
                                                     <div class="input-group">
-                                                        <span class="input-group-addon" id="basic-addon1">Año</span>
+                                                        <span class="input-group-addon" id="basic-addon1">${aniolbl}</span>
 														<select class="form-control" id="Eventos_${nextEventId}__AnioInicioEvento" name="Eventos[${nextEventId}].AnioInicioEvento" required="required" style="position:initial" wtx-context="0F1AE14B-4C43-4ADE-8E13-710E5E18A317">
 															@Html.Raw(ViewBag.AniosOptionsHTML)
 														</select>
@@ -1148,13 +1238,13 @@
                                          <div class="row">
                                             <div class="col-xs-12 col-sm-12 col-md-3">
                                                 <div class="form-group">
-                                                    <label>Fecha de Fin del Evento</label>
+                                                    <label>${fechaFinEventoLbl}</label>
                                                 </div>
                                             </div>
                                             <div class="col-xs-12 col-sm-3 col-md-3">
                                                 <div class="form-group">
                                                     <div class="input-group">
-                                                        <span class="input-group-addon" id="basic-addon1">Día</span>
+                                                        <span class="input-group-addon" id="basic-addon1">${dialbl}</span>
                                                         <select class="form-control" id="Eventos_${nextEventId}__DiaFinEvento" name="Eventos[${nextEventId}].DiaFinEvento" required="required" style="position:initial" wtx-context="CE141112-0B68-4E4E-AC68-DC0E5D43B658">
 															@Html.Raw(ViewBag.DiasOptionsHTML)
 														</select>
@@ -1164,7 +1254,7 @@
                                             <div class="col-xs-12 col-sm-3 col-md-3">
                                                 <div class="form-group">
                                                     <div class="input-group">
-                                                        <span class="input-group-addon" id="basic-addon1">Mes</span>
+                                                        <span class="input-group-addon" id="basic-addon1">${meslbl}</span>
 														<select class="form-control" id="Eventos_${nextEventId}__MesFinEvento" name="Eventos[${nextEventId}].MesFinEvento" required="required" style="position:initial" wtx-context="24160B61-E83C-4115-89AD-542FC6827459">
 															@Html.Raw(ViewBag.MesOptionsHTML)
 														</select>
@@ -1174,11 +1264,16 @@
                                             <div class="col-xs-12 col-sm-3 col-md-3">
                                                 <div class="form-group">
                                                     <div class="input-group">
-                                                        <span class="input-group-addon" id="basic-addon1">Año</span>
+                                                        <span class="input-group-addon" id="basic-addon1">${aniolbl}</span>
 														<select class="form-control" id="Eventos_${nextEventId}__AnioFinEvento" name="Eventos[${nextEventId}].AnioFinEvento" required="required" style="position:initial" wtx-context="0F1AE14B-4C43-4ADE-8E13-710E5E18A317">
 															@Html.Raw(ViewBag.AniosOptionsHTML)
 														</select>
                                                     </div>
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col-xs-12 col-sm-12 col-md-12">
+                                                    <button type="button" onclick="quitarEvento(this.id)" class="btn btn-success" id="btnQuitarEvento_${nextEventId}">${nombreBotonQuitarEvento}</button>
                                                 </div>
                                             </div>
                                         </div>`;
@@ -1193,76 +1288,10 @@
         contenedor.appendChild(newNode);
     }
 
-
-    function AgregaNuevoInvitado() {
-
-        // console.log("Entro a agregar nuevo evento");
-        //Obtener los paneles actuales
-        let currentEventsArr = document.querySelectorAll('[id^="panel_otroinvitado_"]');
-        let currentEventsLength = currentEventsArr.length;
-        let nextEventId = currentEventsLength;
-
-        let newTagElement = `
-            <div class="row">
-        <div class="col-xs-12 col-sm-12 col-md-12">
-            <div class="">
-                <div class="form-group">
-                    <label>* Nombre</label>
-                    <input class="form-control" id="OtrosAsistentes_${nextEventId}__Nombre" name="OtrosAsistentes[${nextEventId}].Nombre" type="text" value="" wtx-context="CC91F8CA-7582-4F2D-98CF-5510ADB2CF13">
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="row">
-        <div class="col-xs-12 col-sm-12 col-md-12">
-            <div class="">
-                <div class="form-group">
-                    <label>* Apellidos</label>
-                    <input class="form-control" id="OtrosAsistentes_${nextEventId}__Apellidos" name="OtrosAsistentes[${nextEventId}].Apellidos" type="text" value="" wtx-context="CC91F8CA-7582-4F2D-98CF-5510ADB2CF13">
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="row">
-        <div class="col-xs-12 col-sm-12 col-md-12">
-            <div class="">
-                <div class="form-group">
-                    <label>* Actividad</label>
-                    <input class="form-control" id="OtrosAsistentes_${nextEventId}__ActvidadEnMexico" name="OtrosAsistentes[${nextEventId}].ActvidadEnMexico" type="text" value="" wtx-context="CC91F8CA-7582-4F2D-98CF-5510ADB2CF13">
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="row">
-        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
-            <div class="">
-                <div class="form-group">
-                    <label>* Nacionalidad</label>
-                    @Html.Raw(ViewBag.HTMLNacionalidades)
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="row">
-        <div class="col-xs-12 col-sm-12 col-md-12">
-            <div class="">
-                <div class="form-group">
-                    <label>* Num pasaporte</label>
-                    <input class="form-control" id="OtrosAsistentes_${nextEventId}__NumPasaporte" name="OtrosAsistentes[${nextEventId}].NumPasaporte" type="text" value="" wtx-context="CC91F8CA-7582-4F2D-98CF-5510ADB2CF13">
-                </div>
-            </div>
-        </div>
-    </div>
-                                        `;
-
-        let newNode = document.createElement('div');
-        newNode.id = `panel_otroinvitado_${nextEventId}`;
-        newNode.className = 'panel panel-info';
-        newNode.style = 'style="margin-right: 60px;';
-        newNode.innerHTML = newTagElement;
-
-        let contenedor = document.getElementById('seccionOtrosInvitados');
-        contenedor.appendChild(newNode);
+    function quitarEvento(id) {
+        const actualPosicion = id.replace(/[^0-9]+/g, "");
+        const seccionEvento = document.getElementById(`panel_evento_${actualPosicion}`);
+        seccionEvento.remove();
     }
 
 
@@ -1280,8 +1309,4 @@
         }
     }
 
-</script>
-
-<script src="https://www.google.com/recaptcha/api.js?onload=onloadCallback&render=explicit"
-        async defer>
 </script>

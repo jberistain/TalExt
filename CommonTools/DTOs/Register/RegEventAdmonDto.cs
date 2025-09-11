@@ -43,6 +43,6 @@ namespace CommonTools.DTOs.Register
         public string NOMBRE_NUEVO_AEROPUERTO { get; set; }
         public string NOMBRE_NUEVA_AEROLINEA { get; set; }
         public List<RegEvenStateDateDto> EVENTS { get; set; }
-        public List<RegEvenAnotherAssistantsAdmontDto> ANOTHER_ASSISTANTS_ADMON { get; set; }
+        public List<AnotherAssistantDto> ANOTHER_ASSISTANTS_ADMON { get; set; }
     }
 }

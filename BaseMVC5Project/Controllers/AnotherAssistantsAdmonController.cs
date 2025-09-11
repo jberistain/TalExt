@@ -32,11 +32,11 @@ namespace MigracionTalentoExtranjero.Controllers
         private HttpManager httpManager = new HttpManager(Constants.WebAPIUrl);
         private CRUDManager crud;
 
-        [PermisoPerfil]
+        // [PermisoPerfil]
         [Autenticado]
         public async Task<ActionResult> Index(FilterRegisterDto filterParam = null)
         {
-            ViewBag.Title = "Home Page";
+            
             //Se solicito cambiar empresas por evnto para filtrar por eventos
             ViewBag.CompaniasList = await CB.GetSearchComboBox(CatalogosEnum.CAT_EVENTOS.GetString(), 0, "");
 
@@ -100,282 +100,358 @@ namespace MigracionTalentoExtranjero.Controllers
                 }
             }
 
+            // REGRESAR CUANDO SE CONFIGUREN PERFILES
+            buscarRegistros = true;
             ViewBag.muestraRegistros = buscarRegistros;
             if(buscarRegistros)
-                registrosEncontradosList = await crud.DescargarRegistros(filter);
+                registrosEncontradosList = await crud.DescargarRegistrosAnotherAssistants(filter);
 
             model.Registros = registrosEncontradosList;
             return View("Index",model);
         }
 
 
-
-        public async Task<ActionResult> CambiarPassword(Login login)
+        /// <summary>
+        /// Se utiliza para registras nuevos invitados pero para la seccion de administracion donde tendra un formato unico
+        /// </summary>
+        /// <param name="language"></param>
+        /// <param name="modelFound"></param>
+        /// <returns></returns>
+        public async Task<ActionResult> NuevoRegistro(string language, RegistroInvitadoModel modelFound)
         {
-            ViewBag.Title = "CambiarPassword";
+            try
+            {
+                if (modelFound == null)
+                    registroInvitado = new RegistroInvitadoModel();
+                else
+                {
+                    registroInvitado = modelFound;
+                    if (registroInvitado.Eventos == null)
+                        registroInvitado.Eventos = new List<InfoEventoModel>();
+
+                    if (registroInvitado.Eventos.Count == 0)
+                        registroInvitado.Eventos.Add(new InfoEventoModel());
+                }
+                ViewBag.Title = "Formulario de Registro";
+                if (!string.IsNullOrEmpty(language))
+                {
+                    ViewBag.Lenguaje = registroInvitado.ValidateLanguage(language);
+                    registroInvitado.IdiomaActual = language;
+                }
+                else
+                {
+                    ViewBag.Lenguaje = "ES";
+                    registroInvitado.IdiomaActual = "ES";
+                    language = "ES";
+                }
+
+                var DiaList = await CB.GetSearchComboBox(CatalogosEnum.DIA.GetString(), 0, "");
+                ViewBag.DiasList = DiaList;
+                var MesList = await CB.GetSearchComboBox(CatalogosEnum.MES.GetString(), 0, "");
+                ViewBag.MesList = MesList;
+                var AniosList = await CB.GetSearchComboBox(CatalogosEnum.ANIO.GetString(), 0, "");
+                ViewBag.AniosList = AniosList;
+                var AniosFuturoList = await CB.GetSearchComboBox(CatalogosEnum.CAT_10ANIO_FUTURO.GetString(), 0, "");
+                ViewBag.AniosFuturoList = AniosFuturoList;
+                var AniosPasadoList = await CB.GetSearchComboBox(CatalogosEnum.CAT_10ANIO_PASADO.GetString(), 0, "");
+                ViewBag.AniosPasadoList = AniosPasadoList;
+
+                var aerolineasList = await CB.GetSearchComboBox(CatalogosEnum.CAT_AEROLINEAS.GetString(), 0, "");
+                aerolineasList.Add(new SelectListItem() { Text = "OTRA", Value = "OTRA" });
+                ViewBag.AerolineasList = aerolineasList;
+                if (language.Equals("ES"))
+                {
+                    ViewBag.GenerosList = await CB.GetSearchComboBox(CatalogosEnum.CAT_GENEROS.GetString(), 0, "");
+                }
+                else
+                {
+                    ViewBag.GenerosList = await CB.GetSearchComboBox(CatalogosEnum.CAT_GENEROS_EN.GetString(), 0, "");
+                }
+                var InmueblesList = await CB.GetSearchComboBox(CatalogosEnum.CAT_INMUEBLES.GetString(), 0, "");
+                InmueblesList.Add(new SelectListItem() { Text = "OTRA", Value = "OTRA" });
+                ViewBag.InmueblesList = InmueblesList;
+                var EventosList = await CB.GetSearchComboBox(CatalogosEnum.CAT_EVENTOS.GetString(), 0, "");
+                ViewBag.EventosList = EventosList;
+
+
+                var ListaAeropuertos = await CB.GetSearchComboBox(CatalogosEnum.CAT_AEROPUERTOS.GetString(), 0, "");
+                ListaAeropuertos.Add(new SelectListItem() { Text = "OTRA", Value = "OTRA" });
+                ViewBag.AeropuertosList = ListaAeropuertos;
+                //ViewBag.NacionalidadesList = await CB.GetSearchComboBox(CatalogosEnum.CAT_NACIONALIDADES.GetString(), 0, "");
+
+                //var nacionalidadesList = await CB.GetSearchComboBox(CatalogosEnum.CAT_NACIONALIDADES.GetString(), 0, "");
+                CRUDManager crud = new CRUDManager(httpManager);
+
+                var ListaNacionalidades = await crud.DescargaCatalogosNacionalidad(language);
+
+                string htmlNacionalidades = "<select class=\"form-control\" id=\"Nacionalidad\" name=\"Nacionalidad\" required=\"required\" style=\"position:initial\">" +
+                    "<option value=\"\"></option>\r\n"
+                    ;
+                string nacionalidadExistente = "";
+                if (!string.IsNullOrEmpty(modelFound.Nacionalidad))
+                {
+                    nacionalidadExistente = modelFound.Nacionalidad;
+                }
+                for (int i = 0; i < ListaNacionalidades.Count; i++)
+                {
+                    string opcionSeleccionada = "";
+                    if (!string.IsNullOrEmpty(nacionalidadExistente))
+                        if (ListaNacionalidades[i].Id.ToString().Equals(nacionalidadExistente))
+                            opcionSeleccionada = "selected=\"selected\"";
+                    if (ListaNacionalidades[i].AtributoAdicionalStr1.Equals("SI"))
+                    {
+                        htmlNacionalidades += $"<option {opcionSeleccionada} style=\"color:red;\" value=\"{ListaNacionalidades[i].Id}\">{ListaNacionalidades[i].Descripcion}</option>";
+                    }
+                    else
+                    {
+                        htmlNacionalidades += $"<option {opcionSeleccionada} style value=\"{ListaNacionalidades[i].Id}\">{ListaNacionalidades[i].Descripcion}</option>";
+                    }
+                }
+
+                htmlNacionalidades += "</select>";
+                ViewBag.HTMLNacionalidades = htmlNacionalidades;
+
+
+                var listaCompanias = await CB.GetSearchComboBox(CatalogosEnum.CAT_COMPANIAS.GetString(), 0, "");
+                listaCompanias.Add(new SelectListItem() { Text = "OTRA", Value = "OTRA" });
+                ViewBag.CompaniasList = listaCompanias;
+                ViewBag.PaisesList = await CB.GetSearchComboBox(CatalogosEnum.CAT_PAISES.GetString(), 0, "");
+
+
+                List<SelectListItem> ExpulsadoSiNoList;
+                List<SelectListItem> AntecedentesSiNoList;
+
+                if (registroInvitado.IdiomaActual.Equals("ES"))
+                {
+                    ExpulsadoSiNoList = await CB.GetSearchComboBox(CatalogosEnum.CAT_SI_NO.GetString(), 0, "");
+                    AntecedentesSiNoList = await CB.GetSearchComboBox(CatalogosEnum.CAT_SI_NO.GetString(), 0, "");
+                }
+                else
+                {
+                    ExpulsadoSiNoList = await CB.GetSearchComboBox(CatalogosEnum.CAT_YES_NO.GetString(), 0, "");
+                    AntecedentesSiNoList = await CB.GetSearchComboBox(CatalogosEnum.CAT_YES_NO.GetString(), 0, "");
+                }
+
+                ViewBag.ExpulsadoSiNoList = ExpulsadoSiNoList;
+                ViewBag.AntecedentesSiNoList = AntecedentesSiNoList;
 
 
 
-            return View("CambiarPassword", login);
+                string opcionesDeComboEventosString = "";
+                string opcionActual = "";
+                //Generar catalogos con "options"
+                foreach (SelectListItem item in EventosList)
+                {
+                    opcionActual = $"<option value=\"{item.Value}\">{item.Text}</option>";
+                    opcionesDeComboEventosString += opcionActual;
+                }
+                ViewBag.EventosOptionsHTML = opcionesDeComboEventosString;
+
+                string opcionesdeComboInmueblesString = "";
+                foreach (SelectListItem item in InmueblesList)
+                {
+                    opcionActual = $"<option value=\"{item.Value}\">{item.Text}</option>";
+                    opcionesdeComboInmueblesString += opcionActual;
+                }
+                ViewBag.InmueblesOptionsHTML = opcionesdeComboInmueblesString;
+
+                string opcionesdeComboDiaString = "";
+                foreach (SelectListItem item in DiaList)
+                {
+                    opcionActual = $"<option value=\"{item.Value}\">{item.Text}</option>";
+                    opcionesdeComboDiaString += opcionActual;
+                }
+                ViewBag.DiasOptionsHTML = opcionesdeComboDiaString;
+
+                string opcionesdeComboMesesString = "";
+                foreach (SelectListItem item in MesList)
+                {
+                    opcionActual = $"<option value=\"{item.Value}\">{item.Text}</option>";
+                    opcionesdeComboMesesString += opcionActual;
+                }
+                ViewBag.MesOptionsHTML = opcionesdeComboMesesString;
+
+                string opcionesdeComboAniosString = "";
+                foreach (SelectListItem item in AniosList)
+                {
+                    opcionActual = $"<option value=\"{item.Value}\">{item.Text}</option>";
+                    opcionesdeComboAniosString += opcionActual;
+                }
+                ViewBag.AniosOptionsHTML = opcionesdeComboAniosString;
+
+
+                //Se agrega seccion para descargar el aviso de privacidad a mostrar
+                string avisoActual = "";
+                var response = await httpManager.GetAsJsonAsync<CommonTools.DTOs.Query.ResponseDto>(WebAPIEndPointsEnum.CONSULTA_AVISO_PRIVACIDAD.GetString());
+                if (response.code == 200)
+                {
+                    if (registroInvitado.IdiomaActual.Equals("ES"))
+                    {
+                        avisoActual = response.response.avisO_ESP;
+                    }
+                    else
+                    {
+                        avisoActual = response.response.avisO_ENG;
+                    }
+                }
+
+                ViewBag.AvisoPrivacidadActual = avisoActual;
+
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.ToString());
+            }
+            return View(registroInvitado);
+
         }
 
 
-        [NoLogin]
-        public async Task<ActionResult> GuardaNuevoPassword(Login login)
+        /// <summary>
+        /// Se usa para guardar la informacion de los nuevos registros de invitados
+        /// </summary>
+        /// <param name="model"></param>
+        /// <returns></returns>
+        public async Task<JsonResult> GuardaRegistroInvidato(RegistroInvitadoModel model)
         {
-            crud = new CRUDManager(httpManager);
-            ResponseDto resultHttpRequest = new ResponseDto();
             responseObject = new ResponseModel();
-
             try
             {
-                bool cambiaPwd = false;
 
-                if(string.IsNullOrEmpty( login.NewPassword))
+                // Se validan los campos requeridos del modelo entrante
+                string camposRequeridosVacios = model.ValidaCamposRequeridos();
+                if (!string.IsNullOrEmpty(camposRequeridosVacios))
                 {
-                    throw new Exception("El campo Nueva Contraseña y confirmación de Nueva Contraseña deben estar llenos");
+                    responseObject.message = "Debe llenar los campos requeridos: " + camposRequeridosVacios;
+                    responseObject.response = false;
                 }
-                if (string.IsNullOrEmpty(login.ConfirmNewPassword))
+                else
                 {
-                    throw new Exception("El campo Nueva Contraseña y confirmación de Nueva Contraseña deben estar llenos");
-                }
-                if (string.IsNullOrEmpty(login.Password))
-                {
-                    throw new Exception("El campo Contraseña debe estar llenos");
-                }
+                    bool expulsadoMexico = false;
+                    if (!string.IsNullOrEmpty(model.FueExpulsadoDeMexico))
+                        expulsadoMexico = (model.FueExpulsadoDeMexico.Equals("SI") || model.FueExpulsadoDeMexico.Equals("YES")) ? true : false;
 
-                if (string.IsNullOrEmpty(login.Username))
-                {
-                    throw new Exception("El campo Usuario debe estar llenos");
-                }
-
-                if(!login.NewPassword.Equals(login.ConfirmNewPassword))
-                {
-                    throw new Exception("El campo Contraseña y Nueva Contraseña deben ser iguales");
-                }
-
-
-                var userLogin = await crud.LoginUsuario(login.Username, login.Password);
-
-                if (userLogin.code == 200)
-                {
-                    UserRegisterUpdatePwdDto obj = new UserRegisterUpdatePwdDto()
+                    bool antecedentesEnMexico = false;
+                    if (!string.IsNullOrEmpty(model.AntecedentesPenalesEnMexico))
+                        antecedentesEnMexico = (model.AntecedentesPenalesEnMexico.Equals("SI") || model.AntecedentesPenalesEnMexico.Equals("YES")) ? true : false;
+                    List<object> Events = null;
+                    if (model.Eventos != null && model.Eventos.Count > 0)
                     {
-                        ID_USER = userLogin.response.iD_USER,
-                        NewPassword = login.NewPassword,
-                        MODIFY_BY = userLogin.response.iD_USER
+                        Events = new List<object>();
+                        foreach (InfoEventoModel currentEvent in model.Eventos)
+                        {
+                            if (!string.IsNullOrEmpty(currentEvent.AnioInicioEvento) &&
+                                !string.IsNullOrEmpty(currentEvent.MesInicioEvento) &&
+                                !string.IsNullOrEmpty(currentEvent.DiaInicioEvento) &&
+                                !string.IsNullOrEmpty(currentEvent.AnioFinEvento) &&
+                                !string.IsNullOrEmpty(currentEvent.MesFinEvento) &&
+                                !string.IsNullOrEmpty(currentEvent.DiaFinEvento) &&
+                                !string.IsNullOrEmpty(currentEvent.NombreEvento) &&
+                                !string.IsNullOrEmpty(currentEvent.InmuebleEvento) &&
+                                !string.IsNullOrEmpty(currentEvent.UbicacionInmueble)
+                                )
+                            {
+                                DateTime fechaInicio = new DateTime(Convert.ToInt32(currentEvent.AnioInicioEvento), Convert.ToInt32(currentEvent.MesInicioEvento), Convert.ToInt32(currentEvent.DiaInicioEvento));
+                                DateTime fechaFin = new DateTime(Convert.ToInt32(currentEvent.AnioFinEvento), Convert.ToInt32(currentEvent.MesFinEvento), Convert.ToInt32(currentEvent.DiaFinEvento));
+                                Events.Add(new
+                                {
+                                    ID_EVENT = currentEvent.NombreEvento,//Se deja este nombre para enviar el ID del combobox
+                                    ID_ESTATE = currentEvent.InmuebleEvento.Equals("OTRA") ? "0" : currentEvent.InmuebleEvento,
+                                    DESC_LOCATION = currentEvent.UbicacionInmueble,
+                                    EVENT_DATE = fechaInicio,
+                                    EVENT_DATE_FIN = fechaFin,
+                                    NOMBRE_NUEVO_INMUEBLE = currentEvent.NuevoInmuebleEvento
+                                });
+                            }
+                        }
+
+                    }
+
+                    DateTime fechaInicioVigenciaPasaporte = new DateTime(Convert.ToInt32(model.AnioExpPas), Convert.ToInt32(model.MesExpPas), Convert.ToInt32(model.DiaExpPas));
+                    DateTime fechaExpiracionPasaporte = new DateTime(Convert.ToInt32(model.AnioVenPas), Convert.ToInt32(model.MesVenPas), Convert.ToInt32(model.DiaVenPas));
+
+                    DateTime fechaLlegada = new DateTime(Convert.ToInt32(model.AnioEntrada), Convert.ToInt32(model.MesEntrada), Convert.ToInt32(model.DiaEntrada));
+                    DateTime fechaSalida = new DateTime(Convert.ToInt32(model.AnioSalida), Convert.ToInt32(model.MesSalida), Convert.ToInt32(model.DiaSalida));
+
+                    if (string.IsNullOrEmpty(model.AeropuertoLlegada))
+                        model.AeropuertoLlegada = "0";
+
+                    if (string.IsNullOrEmpty(model.Aerolinea))
+                        model.Aerolinea = "0";
+
+                    //Consumir servicio de guardado
+                    object requestObject = new
+                    {
+                        ID_REG_EVEN_DATE = 1,
+                        ID_GENDER = model.Sexo,
+                        ID_COUNTRY = model.PaisNacimiento,
+                        ID_NATIONALITY = model.Nacionalidad,
+                        ID_ACTIVITY = 1,
+                        ID_AIRPORT = model.AeropuertoLlegada.Equals("OTRA") ? "0" : model.AeropuertoLlegada,
+                        ID_AIR_LINE = model.Aerolinea.Equals("OTRA") ? "0" : model.Aerolinea,
+                        ID_PROCESS = 1,
+                        ID_STATUS = 1,
+                        ID_COMPANY = model.Empresa.Equals("OTRA") ? "0" : model.Empresa,
+                        PASSPORT_NUM = model.NumeroPasaporte,
+                        DATE_VIG_INI = fechaInicioVigenciaPasaporte,
+                        DATE_VIG_FIN = fechaExpiracionPasaporte,
+                        PASSPORT_NAME = model.Nombre,
+                        PASSPORT_LASTNAME = model.Apellidos,
+                        EMAIL = model.Correo,
+                        ACTUAL_JOB = model.ActividadEnMexico,
+                        EXPELLED_MEX = expulsadoMexico,
+                        EXPELLED_MEX_DESC = model.ExplicacionAntecedentesExpulsion,
+                        CRIMINAL_RECORD_MEX = antecedentesEnMexico,
+                        EVENT_JOB = "",
+                        DATE_EVENT_INI = DateTime.Now,
+                        DATE_EVENT_FIN = DateTime.Now,
+                        FLIGHT = model.NumeroVuelo,
+                        FLIGHT_NUMBER = model.NumeroVuelo,
+                        SECRET_CODE = "",
+                        ACTIVITY_COUNTRY = model.ActividadPaisResidencia,
+                        ACTIVITY_MEXICO = model.ActividadEnMexico,
+                        DATE_ARRIVE = fechaLlegada,
+                        DATE_LEAVE = fechaSalida,
+                        CREATED_BY = 2,
+                        NOMBRE_NUEVA_EMPRESA = model.NuevaEmpresa,
+                        NOMBRE_NUEVO_AEROPUERTO = model.NuevoAeropuerto,
+                        NOMBRE_NUEVA_AEROLINEA = model.NuevaAerolinea,
+                        LANGUAGE = model.IdiomaActual,
+                        Events = Events
                     };
 
-                    resultHttpRequest = await crud.CambiarPasswordUsuario(obj.ID_USER.ToString(), obj);
+                    var response = await httpManager.PostAsJsonAsync<Object, CommonTools.DTOs.Query.ResponseDto>(requestObject, WebAPIEndPointsEnum.CREATE_NEW_REGISTER_ANOTHER_ASSISTANTS.GetString());
 
-                    if (resultHttpRequest != null && !resultHttpRequest.error)
+                    if (response != null && response.code == 200)
                     {
-                        Login model = new Login() { Mensaje = "Contraseña Actualizada" };
-                        return View("Login", model);
-                    }
-                    else
-                    {
-                        Login model = new Login() { Mensaje = "Ocurrio un error al guardar la contraseña: " + resultHttpRequest.message };
-                        return View("Login", model);
-                    }
-                }
-                else
-                {
-                    throw new Exception("Los datos de Acceso ingresados fueron incorrectos");
-                }
-
-            }
-            catch (Exception ex)
-            {
-                Login model = new Login() { Mensaje = "Ocurrio un error en el proceso de Guardar contraseña: " + ex.Message };
-                return View("Login", model);
-            }
-        }
-
-
-        [NoLogin]
-        public async Task<ActionResult> Login(Login login)
-        {
-            ViewBag.Title = "Login";
-
-            
-
-            return View(login);
-        }
-        [NoLogin]
-        public async Task<ActionResult> Acceder(Login login)
-        {
-            crud = new CRUDManager(httpManager);
-            ResponseDto resultHttpRequest = new ResponseDto();
-            responseObject = new ResponseModel();
-
-            try
-            {
-                //bool usuarioFirmas = ParcheUsuarioFirmas(login);
-                //if(usuarioFirmas)
-                //{
-                //    int userId = 1000;
-                //    SessionManager.AddUserToSession(userId.ToString());
-                //    CatalogsController catControl = new CatalogsController();
-                //    return RedirectToAction("FirmasDocumentos", "Catalogs");
-                //    //return await catControl.FirmasDocumentos();
-                //}
-
-
-                resultHttpRequest = await crud.LoginUsuario(login.Username, login.Password);
-                
-                if(resultHttpRequest == null)
-                {
-                    Login model = new Login() { Mensaje = "Error al intentar autenticar" };
-                    return View("Login", model);
-                }
-
-                if (!resultHttpRequest.error)
-                {
-                    int diasActualizacion = 0;
-                    //Comprobar fecha de modificacion de usuario
-                    string idStr = "";
-                    int idInt = 0;
-                    if (resultHttpRequest.response.iD_USER != null)
-                        idStr = resultHttpRequest.response.iD_USER.ToString();
-                    if(!string.IsNullOrEmpty(idStr))
-                        idInt = Convert.ToInt32(idStr);
-                    if (idInt == 0)
-                    {
-                        throw new Exception("Ocurrio un error al obtener la información del usuario");
-                    }
-                    ResponseDto usuario = await crud.DescargaCatalogoUsuarioPorId(idInt);
-                    bool mandarAActualizar = false;
-                    DateTime fechaUltimaActualizacionDte = new DateTime();
-                    if (usuario.response.modifY_DATE == null)
-                    {
-                        string fechaInicioVigenciaStr = usuario.response.createD_DATE.ToString();
-                        DateTime.TryParse(fechaInicioVigenciaStr, out fechaUltimaActualizacionDte);
-
-                        if(fechaUltimaActualizacionDte != new DateTime())
+                        //Setear respuesta
+                        responseObject.response = true;
+                        responseObject.message = "Se guardó con éxito el registro.";
+                        responseObject.result = new ResultadoRegistroModel()
                         {
-                            TimeSpan dSpan = DateTime.Now - fechaUltimaActualizacionDte;
-                            diasActualizacion = dSpan.Days;
-                            if(diasActualizacion >= 90)
-                                mandarAActualizar = true;
-                        }
+                            NombreCompleto = $"{model.Nombre} {model.Apellidos}",
+                            Codigo = response.response.secreT_CODE,
+                            Url = Url.Action("EditarRegistro", "AnotherAssistantsAdmon", new { id = response.response.idinvitacion })
+                        };
                     }
                     else
                     {
-                        string fechaInicioVigenciaStr = usuario.response.modifY_DATE.ToString();
-                        DateTime.TryParse(fechaInicioVigenciaStr, out fechaUltimaActualizacionDte);
-
-                        if (fechaUltimaActualizacionDte != new DateTime())
-                        {
-                            TimeSpan dSpan = DateTime.Now - fechaUltimaActualizacionDte;
-                            diasActualizacion = dSpan.Days;
-                            if (diasActualizacion >= 90)
-                                mandarAActualizar = true;
-                        }
-
+                        responseObject.message = response.message != null ? response.message : "No se pudo guardar, error en respuesta de API";
+                        responseObject.response = false;
                     }
-                    if (!mandarAActualizar)
-                    {
-                        int userId = resultHttpRequest.response.iD_USER;
-                        SessionManager.AddUserToSession(userId.ToString());
 
-                        ConsultaModulosPerfil model = new ConsultaModulosPerfil();
-                        var menus = await model.ObtenerModulosPorIdUsuario(userId);
-
-
-
-                        string menusSerialized = SimpleJson.SerializeObject(menus);
-                        SessionManager.AddMenuToSession(menusSerialized);
-
-
-                        return RedirectToAction("Index", "Administrator");
-                        // return await Index(new FilterRegisterDto());
-                    }
-                    else
-                    {
-                        login.Mensaje = "Han pasado mas de 90 días y debe cambiar la contraseña";
-                        //return Redirect(Url.Content("~/Administrator/CambiarPassword"));
-                        return await CambiarPassword(login);
-                    }
                 }
-                else
-                {
-                    Login model = new Login() { Mensaje = resultHttpRequest.message };
-                    return View("Login", model);
-                }
-
             }
             catch (Exception ex)
             {
-                return Content("Ocurrio un error en el proceso de Login :(" + ex.Message);
+                responseObject.response = false;
+                responseObject.message = ex.Message;
             }
 
-        }
-
-        [NoLogin]
-        public async Task<ActionResult> RecuperarPassword(Login login)
-        {
-            ViewBag.Title = "Recuperar Contraseña";
-
-            return View(login);
-        }
-
-        [NoLogin]
-        public async Task<ActionResult> IntentaRecuperarPassword(Login login)
-        {
-            crud = new CRUDManager(httpManager);
-            ResponseDto resultHttpRequest = new ResponseDto();
-            responseObject = new ResponseModel();
-
-            try
-            {
-                resultHttpRequest = await crud.RecuperarPassword(login.Username, login.Email);
-
-                if (resultHttpRequest == null)
-                {
-                    Login model = new Login() { Mensaje = "Error al intentar recuperar contraseña" };
-                    return View("RecuperarPassword", model);
-                }
-
-                if (!resultHttpRequest.error)
-                {
-                    Login model = new Login() { Mensaje = resultHttpRequest.message };
-                    return View("Login", model);
-                }
-                else
-                {
-                    Login model = new Login() { Mensaje = resultHttpRequest.message };
-                    return View("RecuperarPassword", model);
-                }
-
-            }
-            catch (Exception ex)
-            {
-                return Content("Ocurrio un error en el proceso de Login :( " + ex.Message);
-            }
-
+            return Json(responseObject);
         }
 
 
-        private bool ParcheUsuarioFirmas(Login login)
-        {
-
-
-            bool result = false;
-            if(login.Username.Equals("JMVIVASM") && login.Password.Equals("Zqrss3t#tE2"))
-            {
-                result = true;
-            }
-            return result;
-        }
-
-
-        [Autenticado]
-        public ActionResult Logout()
-        {
-            SessionManager.DestroyUserSession();
-            return Redirect("~/Administrator/Login");
-        }
 
         [Autenticado]
         public async Task<ActionResult> EditarRegistro(int id )
@@ -383,17 +459,17 @@ namespace MigracionTalentoExtranjero.Controllers
             try
             {
                 string language = "ES";
-                RegistroInvitadoModel modelFound = null;
+                RegistroInvitadoOtrosAsisModel modelFound = null;
 
                 
                 var crud = new CRUDManager(httpManager);
 
 
-                modelFound = await crud.DescargarRegistroPorId(id);
+                modelFound = await crud.DescargarRegistroOtroAsisPorId(id);
 
 
                 if (modelFound == null)
-                    registroInvitado = new RegistroInvitadoModel();
+                    registroInvitado = new RegistroInvitadoOtrosAsisModel();
                 else
                 {
                     registroInvitado = modelFound;
