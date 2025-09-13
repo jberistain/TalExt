@@ -77,6 +77,7 @@ namespace MigracionTalentoExtranjero.Models.Enum
         UPDATE_REGISTER_ANOTHER_ASSISTANTS = 25002,
         CONSULTA_REGISTROS_ENCONTRADOS_ANOTHER_ASSISTANTS = 25003,
         CONSULTA_REGISTRO_POR_ID_REGISTRO_ANOTHER_ASSISTANTS = 25004,
+        CONSULTA_VISTA_PREVIA_PDF_ANOTHER_ASSISTANTS = 25005,
     }
     public static class WebAPIEndPointsEnumExtension
     {
@@ -162,6 +163,8 @@ namespace MigracionTalentoExtranjero.Models.Enum
                     return "AnotherAssistants/ListaEventos";
                 case WebAPIEndPointsEnum.CONSULTA_REGISTRO_POR_ID_REGISTRO_ANOTHER_ASSISTANTS:
                     return "AnotherAssistants/findById";
+                case WebAPIEndPointsEnum.CONSULTA_VISTA_PREVIA_PDF_ANOTHER_ASSISTANTS:
+                    return "AnotherAssistants/GetInvitationPDF";
                 default:
                     return null;
             }

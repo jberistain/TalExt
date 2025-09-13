@@ -283,6 +283,29 @@ namespace MigracionTalentoExtranjero.Models.Utils
                     result.Eventos = new List<InfoEventoModel>() { new InfoEventoModel() };
                 else
                     result.Eventos = Eventos;
+
+                /* Para los otros asistentes */
+                List<OtroInvitadoModel> OtrosAsistentes = new List<OtroInvitadoModel>();
+                if (responseHttp.response.anotheR_ASSISTANTS_ADMON_LIST != null)
+                {
+                    foreach (var currentValue in responseHttp.response.anotheR_ASSISTANTS_ADMON_LIST)
+                    {
+                            OtrosAsistentes.Add(new CommonTools.Pdf.OtroInvitadoModel()
+                            {
+                                Id = currentValue.id,
+                                Nombre = currentValue.passporT_NAME,
+                                Apellidos = currentValue.passporT_LASTNAME,
+                                ActvidadEnMexico = currentValue.activitY_MEXICO,
+                                IdNacionalidad= currentValue.iD_NATIONALITY,
+                                NumPasaporte= currentValue.passporT_NUM,
+                            });
+                        
+                    }
+                }
+                if (OtrosAsistentes.Count == 0)
+                    result.OtrosAsistentes = new List<OtroInvitadoModel>() { new OtroInvitadoModel() };
+                else
+                    result.OtrosAsistentes = OtrosAsistentes;
             }
             return result;
         }

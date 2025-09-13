@@ -417,50 +417,20 @@
                                     </div>
                                 </div>
                             </div>
-                            @*<label>@Model.LabelMensajeVuelo</label>
-                                <div class="row">
-                                    <div class="col-xs-12 col-sm-6 col-md-6">
-                                        <div class="form-group">
-                                            <label>@Model.LabelAeropuertoLlegada</label>
-                                            @Html.DropDownListFor(m => m.AeropuertoLlegada, (List<SelectListItem>)ViewBag.AeropuertosList, new { @class = "form-control", @onchange = "validarAeropuertoSeleccionada()" })
-                                        </div>
-                                    </div>
-                                    <div class="col-xs-12 col-sm-6 col-md-6" id="seccionNuevoAeropuerto" hidden>
-                                        <div class="form-group">
-                                            <label>@Model.LabelAeropuertoLlegada</label>
-                                            @Html.TextBoxFor(m => m.NuevoAeropuerto, new { @class = "form-control", style = "position:initial" })
+                            <div class="row">
+                                <div class="col-xs-12 col-sm-6 col-md-6">
+                                    <div class="form-group">
+                                        <div class="input-group">
+                                            <span class="input-group-addon" id="basic-addon1">Carta</span>
+                                            @Html.DropDownListFor(m => m.DiaEntrada, (List<SelectListItem>)ViewBag.DiasList, new { @class = "form-control", style = "position:initial", required = "required" })
                                         </div>
                                     </div>
                                 </div>
-                                <div class="row">
-                                    <div class="col-xs-12 col-sm-12 col-md-2">
-                                        <div class="form-group">
-                                            <label>@Model.LabelVuelo</label>
+                                <div class="col-xs-12 col-sm-6 col-md-6">
+                                    <div class="form-group">
+                                        <div style="text-align:center;">
+                                            <button type="submit" id="btnFormSubmit" class="btn btn-success"><span class="glyphicon glyphicon-modal-window"></span> @Model.LabelEnviarBtn</button>
                                         </div>
-                                    </div>
-                                    <div class="col-xs-12 col-sm-6 col-md-5">
-                                        <div class="form-group">
-                                            <label>@Model.LabelAerolinea</label>
-                                            @Html.DropDownListFor(m => m.Aerolinea, (List<SelectListItem>)ViewBag.AerolineasList, new { @class = "form-control", style = "position:initial", @onchange = "validarAerolineaSeleccionada()" })
-                                        </div>
-                                    </div>
-                                    <div class="col-xs-12 col-sm-6 col-md-5" id="seccionNuevaAerolinea" hidden>
-                                        <div class="form-group">
-                                            <label>@Model.LabelAerolinea</label>
-                                            @Html.TextBoxFor(m => m.NuevaAerolinea, new { @class = "form-control", style = "position:initial" })
-                                        </div>
-                                    </div>
-                                    <div class="col-xs-12 col-sm-12 col-md-12 col-md-offset-2">
-                                        <div class="form-group">
-                                            <label>@Model.LabelNumeroVuelo</label>
-                                            @Html.TextBoxFor(m => m.NumeroVuelo, new { @class = "form-control", style = "position:initial" })
-                                        </div>
-                                    </div>
-                                </div>*@
-                            <div class="col-xs-12 col-sm-12 col-md-12">
-                                <div class="form-group">
-                                    <div style="text-align:center;">
-                                        <button type="submit" id="btnFormSubmit" class="btn btn-success"><span class="glyphicon glyphicon-modal-window"></span> @Model.LabelEnviarBtn</button>
                                     </div>
                                 </div>
                             </div>
@@ -890,6 +860,7 @@
                 }
                 else {
                     //Escenario correccto, redireccionar
+                    console.log('Resultado guardado',dataResponse);
                     let urlResultado = dataResponse.result.Url;
                     let params = {
                         NombreCompleto: dataResponse.result.NombreCompleto,

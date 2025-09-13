@@ -1,25 +1,26 @@
-﻿using System;
+﻿using BaseMVC5Project.Models.Utils;
+using CommonTools.Csv;
+using CommonTools.DTOs.Query;
+using CommonTools.DTOs.Register;
+using CommonTools.Pdf;
+using MigracionTalentoExtranjero.Models;
+using MigracionTalentoExtranjero.Models.Administrator;
+using MigracionTalentoExtranjero.Models.Catalogs;
+using MigracionTalentoExtranjero.Models.Enum;
+using MigracionTalentoExtranjero.Models.Home;
+using MigracionTalentoExtranjero.Models.Session;
+using MigracionTalentoExtranjero.Models.Utils;
+using Org.BouncyCastle.Utilities;
+using RestSharp;
+using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Net.Mail;
 using System.Text;
 using System.Threading.Tasks;
 using System.Web;
-using System.Data;
 using System.Web.Mvc;
-using BaseMVC5Project.Models.Utils;
-using MigracionTalentoExtranjero.Models.Administrator;
-using MigracionTalentoExtranjero.Models.Enum;
-using MigracionTalentoExtranjero.Models.Home;
-using MigracionTalentoExtranjero.Models.Utils;
-using CommonTools.Csv;
-using CommonTools.DTOs.Query;
-using MigracionTalentoExtranjero.Models;
-using CommonTools.Pdf;
-using MigracionTalentoExtranjero.Models.Session;
-using CommonTools.DTOs.Register;
-using MigracionTalentoExtranjero.Models.Catalogs;
-using RestSharp;
 
 namespace MigracionTalentoExtranjero.Controllers
 {
@@ -431,7 +432,8 @@ namespace MigracionTalentoExtranjero.Controllers
                         {
                             NombreCompleto = $"{model.Nombre} {model.Apellidos}",
                             Codigo = response.response.secreT_CODE,
-                            Url = Url.Action("EditarRegistro", "AnotherAssistantsAdmon", new { id = response.response.idinvitacion })
+                            Id = response.response.idinvitacion,
+                            Url = Url.Content("~/AnotherAssistantsAdmon/EditarRegistro?id="+response.response.idinvitacion)
                         };
                     }
                     else
@@ -473,11 +475,8 @@ namespace MigracionTalentoExtranjero.Controllers
                 else
                 {
                     registroInvitado = modelFound;
-                    if (registroInvitado.Eventos == null)
+                    if (registroInvitado.Eventos == null || registroInvitado.Eventos.Count == 0)
                         registroInvitado.Eventos = new List<InfoEventoModel>();
-
-                    if (registroInvitado.Eventos.Count == 0)
-                        registroInvitado.Eventos.Add(new InfoEventoModel());
                 }
                 ViewBag.Title = "Formulario de Registro";
                 if (!string.IsNullOrEmpty(language))
@@ -627,6 +626,22 @@ namespace MigracionTalentoExtranjero.Controllers
                     opcionesdeComboAniosString += opcionActual;
                 }
                 ViewBag.AniosOptionsHTML = opcionesdeComboAniosString;
+
+                /* pARA NUEVA FUNCIONALIDAD */
+                string HtmlOpcionesNacionalidades = "<option value=\"\"></option>\r\n";
+                for (int i = 0; i < ListaNacionalidades.Count; i++)
+                {
+                    string opcionSeleccionada = "";
+                    if (ListaNacionalidades[i].AtributoAdicionalStr1.Equals("SI"))
+                    {
+                        HtmlOpcionesNacionalidades += $"<option {opcionSeleccionada} style=\"color:red;\" value=\"{ListaNacionalidades[i].Id}\">{ListaNacionalidades[i].Descripcion}</option>";
+                    }
+                    else
+                    {
+                        HtmlOpcionesNacionalidades += $"<option {opcionSeleccionada} style value=\"{ListaNacionalidades[i].Id}\">{ListaNacionalidades[i].Descripcion}</option>";
+                    }
+                }
+                ViewBag.NacionalidadesOptionsHTML = HtmlOpcionesNacionalidades;
             }
             catch (Exception e)
             {
@@ -639,7 +654,7 @@ namespace MigracionTalentoExtranjero.Controllers
 
 
         [Autenticado]
-        public async Task<JsonResult> ActualizarRegistroInvidato(RegistroInvitadoModel model)
+        public async Task<JsonResult> ActualizarRegistroInvidato(RegistroInvitadoOtrosAsisModel model)
         {
             responseObject = new ResponseModel();
 
@@ -699,6 +714,33 @@ namespace MigracionTalentoExtranjero.Controllers
 
                     }
 
+                    List<object> Assistants = null;
+                    if (model.OtrosAsistentes != null && model.OtrosAsistentes.Count > 0)
+                    {
+                        Assistants = new List<object>();
+                        foreach ( OtroInvitadoModel currentInvite in model.OtrosAsistentes)
+                        {
+                            if (!string.IsNullOrEmpty(currentInvite.Nombre) &&
+                                !string.IsNullOrEmpty(currentInvite.Apellidos) &&
+                                !string.IsNullOrEmpty(currentInvite.ActvidadEnMexico) &&
+                                Convert.ToInt32(currentInvite.IdNacionalidad) > 0 &&
+                                !string.IsNullOrEmpty(currentInvite.NumPasaporte))
+                            {
+                                int idCurrentAssistant = currentInvite.Id == null ? 0 : int.Parse(currentInvite.Id);
+                                Assistants.Add(new
+                                {
+                                    ID = idCurrentAssistant,
+                                    PASSPORT_NAME = currentInvite.Nombre,//Se deja este nombre para enviar el ID del combobox
+                                    PASSPORT_LASTNAME = currentInvite.Apellidos,
+                                    ACTIVITY_MEXICO = currentInvite.ActvidadEnMexico,
+                                    ID_NATIONALITY = currentInvite.IdNacionalidad,
+                                    PASSPORT_NUM = currentInvite.NumPasaporte,
+                                });
+                            }
+                        }
+
+                    }
+
                     DateTime fechaInicioVigenciaPasaporte = new DateTime(Convert.ToInt32(model.AnioExpPas), Convert.ToInt32(model.MesExpPas), Convert.ToInt32(model.DiaExpPas));
                     DateTime fechaExpiracionPasaporte = new DateTime(Convert.ToInt32(model.AnioVenPas), Convert.ToInt32(model.MesVenPas), Convert.ToInt32(model.DiaVenPas));
 
@@ -740,10 +782,11 @@ namespace MigracionTalentoExtranjero.Controllers
                         DATE_LEAVE = fechaSalida,
                         MODIFY_BY = idUser,
                         CHECK_VERIFY = model.CHECK_VERIFY,
-                        Events = Events
+                        Events = Events,
+                        ANOTHER_ASSISTANTS_ADMON_LIST = Assistants
                     };
 
-                    response = await httpManager.PostAsJsonAsync<Object, ResponseDto>(requestObject, WebAPIEndPointsEnum.UPDATE_REGISTER.GetString());
+                    response = await httpManager.PostAsJsonAsync<Object, ResponseDto>(requestObject, WebAPIEndPointsEnum.UPDATE_REGISTER_ANOTHER_ASSISTANTS.GetString());
                 }
 
 
@@ -937,6 +980,36 @@ namespace MigracionTalentoExtranjero.Controllers
             return Json(responseObject);
         }
 
+
+        
+        public async Task<JsonResult> DescargaPDFVistaPrevia(RegistroInvitadoOtrosAsisModel model)
+        {
+            responseObject = new ResponseModel();
+            try
+            {
+                if (crud == null)
+                    crud = new CRUDManager(httpManager);
+
+                object requestObject = new
+                {
+                    ID_REG = model.Id
+                };
+
+                var response = await httpManager.PostAsJsonAsync<Object, CommonTools.DTOs.Query.ResponseDto>(requestObject, WebAPIEndPointsEnum.CONSULTA_VISTA_PREVIA_PDF_ANOTHER_ASSISTANTS.GetString());
+
+                responseObject.response = true;
+                responseObject.message = $"Descarga correcta";
+                responseObject.result = response.response;
+                
+            }
+            catch (Exception ex)
+            {
+                responseObject.response = false;
+                responseObject.message = $"Error al obtener el evento: {ex.Message}";
+            }
+
+            return Json(responseObject);
+        }
 
 
     }

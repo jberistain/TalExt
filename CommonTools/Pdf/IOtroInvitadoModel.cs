@@ -11,7 +11,7 @@ namespace CommonTools.Pdf
          string Nombre { get; set; }
          string Apellidos { get; set; }
          string ActvidadEnMexico { get; set; }
-         int IdNacionalidad { get; set; }
+         string IdNacionalidad { get; set; }
          string NumPasaporte { get; set; }
 
          List<IOtroInvitadoModel> InfoEventosList { get; set; }

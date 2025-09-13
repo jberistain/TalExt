@@ -193,6 +193,21 @@ namespace Migracion.Talento.CoreWebApi.Controllers
                 if (listEventsFound != null)
                     RegEventsDto.EVENTS = listEventsFound;
 
+
+                List<AnotherAssistantDto> listAnotherAssistantsFound = null;
+                if (await _appDbContext.ANOTHER_ASSISTANTS_ADMON.AnyAsync(even => even.ID_REG == id))
+                {
+                    listAnotherAssistantsFound = new List<AnotherAssistantDto>();
+
+                    var itemsEvents = await _appDbContext.ANOTHER_ASSISTANTS_ADMON
+                        .Where((eventos) => eventos.ID_REG == id).ToListAsync();
+                    listAnotherAssistantsFound = _mapper.Map<List<AnotherAssistantDto>>(itemsEvents);
+
+                }
+                if (listAnotherAssistantsFound != null)
+                    RegEventsDto.ANOTHER_ASSISTANTS_ADMON_LIST = listAnotherAssistantsFound;
+
+
                 ResponseDto result = new ResponseDto(ResponseDtoEnum.Success);
                 result.response = RegEventsDto;
 
@@ -333,7 +348,7 @@ namespace Migracion.Talento.CoreWebApi.Controllers
 
 
         [HttpPost("UpdateInvitation")]
-        public async Task<ActionResult<ResponseDto>> UpdateEvent([FromBody] QryRegEventDto newEvent)
+        public async Task<ActionResult<ResponseDto>> UpdateInvitation([FromBody] QryRegEventAdmonDto newEvent)
         {
             ResponseDto responseDto = new ResponseDto();
 
@@ -342,18 +357,18 @@ namespace Migracion.Talento.CoreWebApi.Controllers
                 //Eliminar eventos que referencian al registro principal
                 //Guardar Los eventos que llegan
                 int id;
-                foreach (RegEvenStateDateDto currentEvent in newEvent.EVENTS)
+                foreach (RegEvenStateDateAdmonDto currentEvent in newEvent.EVENTS)
                 {
-                    RegEvenStateDate itemEvent = null;
+                    RegEvenStateDateAdmon itemEvent = null;
                     if (currentEvent.ID_REG_EVEN_DATE != 0)
                     {
                         id = currentEvent.ID_REG_EVEN_DATE;
-                        var regDb = await _appDbContext.REG_EVENT_ESTATES_DATE.AnyAsync(g => g.ID_REG_EVEN_DATE == id);
+                        var regDb = await _appDbContext.REG_EVENT_ESTATES_DATE_ADMON.AnyAsync(g => g.ID_REG_EVEN_DATE == id);
 
-                        itemEvent = await _appDbContext.REG_EVENT_ESTATES_DATE
+                        itemEvent = await _appDbContext.REG_EVENT_ESTATES_DATE_ADMON
                              .Where((even) => even.ID_REG_EVEN_DATE == id).FirstAsync();
-                        itemEvent.ID_EVENT = currentEvent.ID_EVENT;
-                        itemEvent.ID_ESTATE = currentEvent.ID_ESTATE;
+                        itemEvent.ID_EVENT = (int)currentEvent.ID_EVENT;
+                        itemEvent.ID_ESTATE = (int)currentEvent.ID_ESTATE;
                         itemEvent.DESC_LOCATION = currentEvent.DESC_LOCATION;
                         itemEvent.EVENT_DATE = currentEvent.EVENT_DATE;
                         itemEvent.EVENT_DATE_FIN = currentEvent.EVENT_DATE_FIN;
@@ -363,13 +378,13 @@ namespace Migracion.Talento.CoreWebApi.Controllers
                     }
                     else
                     {
-                        itemEvent = new RegEvenStateDate();
+                        itemEvent = new RegEvenStateDateAdmon();
                         itemEvent.CREATED_DATE = DateTime.Now;
                         itemEvent.CREATED_BY = newEvent.MODIFY_BY;
                         itemEvent.ID_REG = newEvent.ID_REG;
 
-                        itemEvent.ID_EVENT = currentEvent.ID_EVENT;
-                        itemEvent.ID_ESTATE = currentEvent.ID_ESTATE;
+                        itemEvent.ID_EVENT = (int)currentEvent.ID_EVENT;
+                        itemEvent.ID_ESTATE = (int)currentEvent.ID_ESTATE;
                         itemEvent.DESC_LOCATION = currentEvent.DESC_LOCATION;
                         itemEvent.EVENT_DATE = currentEvent.EVENT_DATE;
                         itemEvent.EVENT_DATE_FIN = currentEvent.EVENT_DATE_FIN;
@@ -383,6 +398,46 @@ namespace Migracion.Talento.CoreWebApi.Controllers
                     var rsEvent = await _appDbContext.SaveChangesAsync();
                 }
 
+                if (newEvent.ANOTHER_ASSISTANTS_ADMON_LIST != null) {
+                    foreach (AnotherAssistantDto currentEvent in newEvent.ANOTHER_ASSISTANTS_ADMON_LIST)
+                    {
+                        AnotherAssistantsAdmon itemEvent = null;
+                        if (currentEvent.ID != 0)
+                        {
+                            id = currentEvent.ID;
+                            itemEvent = await _appDbContext.ANOTHER_ASSISTANTS_ADMON
+                                 .Where((even) => even.ID == id).FirstAsync();
+                            itemEvent.PASSPORT_LASTNAME = currentEvent.PASSPORT_LASTNAME;
+                            itemEvent.PASSPORT_NAME = currentEvent.PASSPORT_NAME;
+                            itemEvent.ACTIVITY_MEXICO = currentEvent.ACTIVITY_MEXICO;
+                            itemEvent.ID_NATIONALITY = currentEvent.ID_NATIONALITY;
+                            itemEvent.PASSPORT_NUM = currentEvent.PASSPORT_NUM;
+                            itemEvent.MODIFY_BY = newEvent.MODIFY_BY;
+                            itemEvent.MODIFY_DATE = DateTime.Now;
+                            itemEvent.ACTIVE = true;
+                        }
+                        else
+                        {
+                            itemEvent = new AnotherAssistantsAdmon();
+                            itemEvent.CREATED_DATE = DateTime.Now;
+                            itemEvent.CREATED_BY = newEvent.MODIFY_BY;
+                            itemEvent.ID_REG = newEvent.ID_REG;
+
+                            itemEvent.PASSPORT_LASTNAME = currentEvent.PASSPORT_LASTNAME;
+                            itemEvent.PASSPORT_NAME = currentEvent.PASSPORT_NAME;
+                            itemEvent.ACTIVITY_MEXICO = currentEvent.ACTIVITY_MEXICO;
+                            itemEvent.ID_NATIONALITY = currentEvent.ID_NATIONALITY;
+                            itemEvent.PASSPORT_NUM = currentEvent.PASSPORT_NUM;
+                            itemEvent.MODIFY_BY = newEvent.MODIFY_BY;
+                            itemEvent.MODIFY_DATE = DateTime.Now;
+                            itemEvent.ACTIVE = true;
+
+                            await _appDbContext.AddAsync(itemEvent);
+                        }
+
+                        var rsEvent = await _appDbContext.SaveChangesAsync();
+                    }
+                }
 
 
                 id = newEvent.ID_REG;
@@ -390,7 +445,7 @@ namespace Migracion.Talento.CoreWebApi.Controllers
                 if (!genderDb)
                     return Ok(new ResponseDto(ResponseDtoEnum.NoData));
 
-                var item = await _appDbContext.REG_EVENTS
+                var item = await _appDbContext.REG_EVENTS_ADMON
                      .Where((even) => even.ID_REG == id).FirstOrDefaultAsync();
 
 
@@ -441,7 +496,7 @@ namespace Migracion.Talento.CoreWebApi.Controllers
 
 
         [HttpPost("GetInvitationPDF")]
-        public async Task<ActionResult<ResponseDto>> GetInvitationPDF(int idRegister)
+        public async Task<ActionResult<ResponseDto>> GetInvitationPDF([FromBody] QryRegEventDto regEvent)
         {
 
             ResponseDto responseDto = new ResponseDto();
@@ -450,7 +505,7 @@ namespace Migracion.Talento.CoreWebApi.Controllers
 
             var regInvite = await _appDbContext.REG_EVENTS_ADMON
                 .Include(r => r.CAT_NATIONALITIES)
-                .Where(r => r.ID_REG == idRegister)
+                .Where(r => r.ID_REG == regEvent.ID_REG)
                 .FirstOrDefaultAsync();
 
             //incluye nuevos documentos pdf
@@ -472,13 +527,13 @@ namespace Migracion.Talento.CoreWebApi.Controllers
 
                 List<InfoEventoModel> EventList = new List<InfoEventoModel>();
                 //BUSCAR LOS EVENTOS REGISTRADOS
-                if (await _appDbContext.REG_EVENT_ESTATES_DATE_ADMON.AnyAsync(even => even.ID_REG == idRegister))
+                if (await _appDbContext.REG_EVENT_ESTATES_DATE_ADMON.AnyAsync(even => even.ID_REG == regEvent.ID_REG))
                 {
 
                     var RegEventsStatesList = await _appDbContext.REG_EVENT_ESTATES_DATE_ADMON
                         .Include("CAT_EVENTS")
                         .Include("CAT_ESTATES")
-                        .Where((even) => even.ID_REG == idRegister).ToListAsync();
+                        .Where((even) => even.ID_REG == regEvent.ID_REG).ToListAsync();
                     foreach (var currentEventEstate in RegEventsStatesList)
                     {
                         EventList.Add(new InfoEventoModel()
@@ -507,7 +562,7 @@ namespace Migracion.Talento.CoreWebApi.Controllers
 
                 responseDto.error = false;
             responseDto.code = 200;
-            responseDto.response = invitacion.File;
+            responseDto.response = Convert.ToBase64String(invitacion.File);
             return responseDto;
         }
 
