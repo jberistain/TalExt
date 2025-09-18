@@ -377,7 +377,8 @@ namespace MigracionTalentoExtranjero.Controllers
                         ID_ESTATE = Convert.ToInt16(data.AtributoAdicionalStr2),
                         EMAIL1 = data.AtributoAdicionalStr4,
                         EMAIL2 = data.AtributoAdicionalStr5,
-                        DESC_LOCATION = data.AtributoAdicionalStr3
+                        DESC_LOCATION = data.AtributoAdicionalStr3,
+                        ID_EVENT_TYPE_ADMON = Convert.ToInt32(data.AtributoAdicionalStr6) /* Agregado para la administracion de las nuevas cartas de otros invitados -administracion */
                     });
                     break;
 
@@ -495,6 +496,7 @@ namespace MigracionTalentoExtranjero.Controllers
                         EMAIL1 = data.AtributoAdicionalStr4,
                         EMAIL2 = data.AtributoAdicionalStr5,
                         DESC_LOCATION = data.AtributoAdicionalStr3,
+                        ID_EVENT_TYPE_ADMON = Convert.ToInt32(data.AtributoAdicionalStr6), /* Agregado para la administracion de las nuevas cartas de otros invitados -administracion */
                         MODIFY_BY = idUser
                     }) ;
                     break;
@@ -744,6 +746,9 @@ namespace MigracionTalentoExtranjero.Controllers
 
                             catalogResponse.AtributoAdicionalStr5 = resultHttpRequest.response.emaiL2;
                             catalogResponse.AtributoAdicionalStr5 = string.IsNullOrEmpty(catalogResponse.AtributoAdicionalStr5) ? "" : catalogResponse.AtributoAdicionalStr5;
+
+                            catalogResponse.AtributoAdicionalStr6 = resultHttpRequest.response.iD_EVENT_TYPE_ADMON;
+                            catalogResponse.AtributoAdicionalStr6 = string.IsNullOrEmpty(catalogResponse.AtributoAdicionalStr6) ? "" : catalogResponse.AtributoAdicionalStr6;
                         }
                         break;
 

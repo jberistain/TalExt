@@ -42,6 +42,7 @@ namespace CommonTools.Pdf
         private Font FuenteArial11Roja = new Font(FontFactory.GetFont("Arial MT", 11, Font.NORMAL, BaseColor.Red));
         private Font FuenteArial11RojaNegrita = new Font(FontFactory.GetFont("Arial MT", 11, Font.BOLD, BaseColor.Red));
         private Font FuenteArial11Negrita = new Font(FontFactory.GetFont("Arial MT", 11, Font.BOLD));
+        private Font FuenteArial14Negrita = new Font(FontFactory.GetFont("Arial MT", 14, Font.BOLD));
 
 
         Document doc;
@@ -418,7 +419,7 @@ namespace CommonTools.Pdf
 
 
         /* Se agrega nueva version para administrador */
-        public AttachmentFileDto GenerateOtherAssistantsDocument(InviteDto regInvite, IReporteInfo reporteInfo)
+        public AttachmentFileDto GenerateOtherAssistantsDocument(InviteDto regInvite, IReporteInfo reporteInfo, List<IOtroInvitadoModel> otrosInvitados, string lenguaje)
         {
             AttachmentFileDto result = new AttachmentFileDto();
             result.FileName = $"{regInvite.FILE_NAME}";
@@ -444,7 +445,7 @@ namespace CommonTools.Pdf
             doc.AddAuthor("OCESA");
 
             doc.Open();
-            plantillaOCESAOtrosAsistentes(regInvite, reporteInfo);
+            plantillaOCESAOtrosAsistentes(regInvite, reporteInfo, otrosInvitados, lenguaje);
 
             doc.Close();
 
@@ -516,7 +517,7 @@ namespace CommonTools.Pdf
             return result;
         }
 
-        private void plantillaOCESAOtrosAsistentes(InviteDto regInvite, IReporteInfo reporteInfo)
+        private void plantillaOCESAOtrosAsistentes(InviteDto regInvite, IReporteInfo reporteInfo, List<IOtroInvitadoModel> otrosInvitados, string language = "ES")
         {
             FontFactory.RegisterDirectories();
 
@@ -530,13 +531,6 @@ namespace CommonTools.Pdf
             logoOcesaPresenta.ScaleAbsoluteHeight(ALTO_IMAGEN_OCESA);
             logoOcesaPresenta.ScaleAbsoluteWidth(ANCHO_IMAGEN_OCESA);
 
-            // ENCABEZADO
-            //var encabezado = new Paragraph() { Alignment = Element.ALIGN_CENTER, Font = FuenteArial11Negrita };
-            //encabezado.Add(new Chunk(logo, -100, -35));
-            ////encabezado.Add(new Chunk("CARTA INVITACIÓN/INVITATION LETTER"));
-            //encabezado.Add(new Chunk(regInvite.DES_TITLE));
-            //encabezado.Add(new Chunk(logoOcesaPresenta, 100, -35));
-
             var TableHeader = new PdfPTable(new float[] { 15f, 70f, 15f });
             TableHeader.WidthPercentage = 100;
 
@@ -546,7 +540,7 @@ namespace CommonTools.Pdf
             cellLogoOCESA.Border = Rectangle.NO_BORDER;
 
 
-            var phraseTituloDocumento = new Phrase(regInvite.DES_TITLE, FuenteArial11Negrita);
+            var phraseTituloDocumento = new Phrase(regInvite.DES_TITLE, FuenteArial14Negrita);
             var cellTitulo = new PdfPCell(phraseTituloDocumento);
             cellTitulo.HorizontalAlignment = Element.ALIGN_CENTER;
             cellTitulo.VerticalAlignment = Element.ALIGN_MIDDLE;
@@ -570,27 +564,35 @@ namespace CommonTools.Pdf
             generalTable.SplitLate = false;
 
 
-            StringBuilder celdaEspanol = GeneraContenidoCeldaEspanOCESA(regInvite, reporteInfo);
-            StringBuilder celdaIngles = GeneraContenidoCeldaEngOCESA(regInvite, reporteInfo);
+            StringBuilder celdaGen;
+            if (language.Equals("EN"))
+            {
+                celdaGen = GeneraContenidoCeldaEngOCESA(regInvite, reporteInfo);
+            }
+            else {
+                celdaGen = GeneraContenidoCeldaEspanOCESA(regInvite, reporteInfo);
+            }
 
-            string celdaEspanolStr = celdaEspanol.ToString();
-            Phrase phraseEsp = GeneraParrafoCeldaConEstilos(celdaEspanolStr);
+            string celdaStr = celdaGen.ToString();
+            Phrase phrase = GeneraParrafoCeldaConEstilos(celdaStr, 11);
+            //string celdaEspanolStr = celdaEspanol.ToString();
+            //Phrase phraseEsp = GeneraParrafoCeldaConEstilos(celdaEspanolStr);
             //columns.AddElement(celdaEspanText);
             //var phraseEsp = new Phrase(celdaEspanol.ToString(), FuenteArial8);
-            var cellEsp = new PdfPCell(phraseEsp);
-            cellEsp.HorizontalAlignment = Element.ALIGN_JUSTIFIED;
-            cellEsp.Padding = 10;
-            cellEsp.BorderColorBottom = BaseColor.White;
+            var cellGen = new PdfPCell(phrase);
+            cellGen.HorizontalAlignment = Element.ALIGN_JUSTIFIED;
+            cellGen.Padding = 10;
+            cellGen.BorderColorBottom = BaseColor.White;
 
-            string celdaInglesStr = celdaIngles.ToString();
-            Phrase phraseIng = GeneraParrafoCeldaConEstilos(celdaInglesStr);
+            //string celdaInglesStr = celdaIngles.ToString();
+            //Phrase phraseIng = GeneraParrafoCeldaConEstilos(celdaInglesStr);
             //var cellIng = new PdfPCell(phraseIng);
             //cellIng.HorizontalAlignment = Element.ALIGN_JUSTIFIED;
             //cellIng.Padding = 10;
             //cellIng.BorderColorBottom = BaseColor.White;
 
             //Agregar celdas de los cuerpos principales
-            generalTable.AddCell(cellEsp);
+            generalTable.AddCell(cellGen);
             //generalTable.AddCell(cellIng);
 
 
@@ -700,7 +702,6 @@ namespace CommonTools.Pdf
             /* Agregar extra de la lista */
             // 2) Fuentes
             var fontHeader = FontFactory.GetFont(FontFactory.HELVETICA, 10, Font.BOLD);
-            var fontCell = FontFactory.GetFont(FontFactory.HELVETICA, 10, Font.NORMAL);
 
             // 3) Tabla de 5 columnas
             var table = new PdfPTable(5)
@@ -718,7 +719,7 @@ namespace CommonTools.Pdf
             table.DefaultCell.Padding = 5f;
 
             // 4) Encabezados (primera fila)
-            string[] headers = { "Col 1", "Col 2", "Col 3", "Col 4", "Col 5" };
+            string[] headers = { "APELLIDO", "NOMBRE", "ACTIVIDAD", "NACIONALIDAD", "PASAPORTE No." };
             foreach (var h in headers)
             {
                 var th = new PdfPCell(new Phrase(h, fontHeader))
@@ -734,22 +735,14 @@ namespace CommonTools.Pdf
             }
             // Indicar que la primera fila es encabezado
             table.HeaderRows = 1;
-            int nFilas = 8;
             // 5) Filas de datos (N filas)
-            for (int i = 0; i < nFilas; i++)
+            for (int i = 0; i < otrosInvitados.Count; i++)
             {
-                for (int c = 0; c < 5; c++)
-                {
-                    var cell = new PdfPCell(new Phrase($"Fila {i + 1} - Col {c + 1}", fontCell))
-                    {
-                        Border = Rectangle.BOX,
-                        BorderWidth = 1f,
-                        Padding = 5f,
-                        HorizontalAlignment = Element.ALIGN_LEFT,
-                        VerticalAlignment = Element.ALIGN_MIDDLE
-                    };
-                    table.AddCell(cell);
-                }
+                table.AddCell(CreaNuevaCeldaTablaOtrosInvitados(otrosInvitados[i].Apellidos));
+                table.AddCell(CreaNuevaCeldaTablaOtrosInvitados(otrosInvitados[i].Nombre));
+                table.AddCell(CreaNuevaCeldaTablaOtrosInvitados(otrosInvitados[i].ActvidadEnMexico));
+                table.AddCell(CreaNuevaCeldaTablaOtrosInvitados(otrosInvitados[i].Nacionalidad));
+                table.AddCell(CreaNuevaCeldaTablaOtrosInvitados(otrosInvitados[i].NumPasaporte));
             }
 
             // 6) Agregar la tabla al documento
@@ -759,7 +752,19 @@ namespace CommonTools.Pdf
             {
                 doc.Add(footer);
             }
+        }
 
+        private PdfPCell CreaNuevaCeldaTablaOtrosInvitados(string phraseStr) {
+            var fontCell = FontFactory.GetFont(FontFactory.HELVETICA, 10, Font.NORMAL);
+            var cell = new PdfPCell(new Phrase(phraseStr, fontCell))
+            {
+                Border = Rectangle.BOX,
+                BorderWidth = 1f,
+                Padding = 5f,
+                HorizontalAlignment = Element.ALIGN_LEFT,
+                VerticalAlignment = Element.ALIGN_MIDDLE
+            };
+            return cell;
         }
 
 
@@ -973,6 +978,36 @@ namespace CommonTools.Pdf
             }
             return phraseResult;
         }
+
+        private Phrase GeneraParrafoCeldaConEstilos(string texto, int tamanoFuente)
+        {
+            FontFactory.RegisterDirectories();
+
+            string[] arregloParrafos = texto.Split('\n');
+            var phraseResult = new Phrase();
+            string textoAuxiliar = "";
+            foreach (string parrafoActual in arregloParrafos)
+            {
+                textoAuxiliar = "\n" + parrafoActual;
+                if (tamanoFuente == 11)
+                {
+                    if (parrafoActual.StartsWith("[RED]"))
+                    {
+                        phraseResult.Add(new Chunk(textoAuxiliar.Replace("[RED]", ""), FuenteArial11Roja));
+                    }
+                    else if (parrafoActual.StartsWith("[BOLD]"))
+                    {
+                        phraseResult.Add(new Chunk(textoAuxiliar.Replace("[BOLD]", ""), FuenteArial11Negrita));
+                    }
+                    else
+                    {
+                        phraseResult.Add(new Chunk(textoAuxiliar, FuenteArial11));
+                    }
+                }
+            }
+            return phraseResult;
+        }
+
         private List<Paragraph> GeneraParrafoFooterConEstilos(string texto)
         {
             FontFactory.RegisterDirectories();

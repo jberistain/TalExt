@@ -441,7 +441,7 @@ namespace Migracion.Talento.CoreWebApi.Controllers
 
 
                 id = newEvent.ID_REG;
-                var genderDb = await _appDbContext.REG_EVENTS.AnyAsync(g => g.ID_REG == id);
+                var genderDb = await _appDbContext.REG_EVENTS_ADMON.AnyAsync(g => g.ID_REG == id);
                 if (!genderDb)
                     return Ok(new ResponseDto(ResponseDtoEnum.NoData));
 
@@ -501,66 +501,113 @@ namespace Migracion.Talento.CoreWebApi.Controllers
 
             ResponseDto responseDto = new ResponseDto();
 
-            
-
             var regInvite = await _appDbContext.REG_EVENTS_ADMON
                 .Include(r => r.CAT_NATIONALITIES)
                 .Where(r => r.ID_REG == regEvent.ID_REG)
                 .FirstOrDefaultAsync();
 
-            //incluye nuevos documentos pdf
-            RegInviteAdmon esquemaInvitacion = await _appDbContext.REG_INVITE_ADMON.Where(doc => doc.ID_INVITE == regInvite.ID_INVITE_ADMON).FirstOrDefaultAsync();
-            InviteDto esquemaInvitacionDto = _mapper.Map<InviteDto>(esquemaInvitacion);
-
             IReporteInfo reporteInfo = new ReportInformation()
+            {
+                NombreInvitado = $"{regInvite.PASSPORT_NAME} {regInvite.PASSPORT_LASTNAME}",
+                FechaEntradaAlPais = regInvite.DATE_ARRIVE.Value.ToString("dd/MM/yyyy"),
+                FechaSalidaAlPais = regInvite.DATE_LEAVE.Value.ToString("dd/MM/yyyy"),
+                NacionalidadEsp = regInvite.CAT_NATIONALITIES.DESC_NACIONALITY_SP,
+                NacionalidadIng = regInvite.CAT_NATIONALITIES.DESC_NACIONALITY_EN,
+                NumPasaporte = regInvite.PASSPORT_NUM,
+                PuestoParteStaff = regInvite.ACTUAL_JOB,
+                TipoArchivoGenerado = string.Empty
+            };
+
+            int idEvento =0;
+            List<InfoEventoModel> EventList = new List<InfoEventoModel>();
+            //BUSCAR LOS EVENTOS REGISTRADOS
+            if (await _appDbContext.REG_EVENT_ESTATES_DATE_ADMON.AnyAsync(even => even.ID_REG == regEvent.ID_REG))
+            {
+
+                var RegEventsStatesList = await _appDbContext.REG_EVENT_ESTATES_DATE_ADMON
+                    .Include("CAT_EVENTS")
+                    .Include("CAT_ESTATES")
+                    .Where((even) => even.ID_REG == regEvent.ID_REG).ToListAsync();
+                foreach (var currentEventEstate in RegEventsStatesList)
                 {
-                    NombreInvitado = $"{regInvite.PASSPORT_NAME} {regInvite.PASSPORT_LASTNAME}",
-                    FechaEntradaAlPais = regInvite.DATE_ARRIVE.Value.ToString("dd/MM/yyyy"),
-                    FechaSalidaAlPais = regInvite.DATE_LEAVE.Value.ToString("dd/MM/yyyy"),
-                    NacionalidadEsp = regInvite.CAT_NATIONALITIES.DESC_NACIONALITY_SP,
-                    NacionalidadIng = regInvite.CAT_NATIONALITIES.DESC_NACIONALITY_EN,
-                    NumPasaporte = regInvite.PASSPORT_NUM,
-                    PuestoParteStaff = regInvite.ACTUAL_JOB,
-                    TipoArchivoGenerado = string.Empty
-                };
-
-
-                List<InfoEventoModel> EventList = new List<InfoEventoModel>();
-                //BUSCAR LOS EVENTOS REGISTRADOS
-                if (await _appDbContext.REG_EVENT_ESTATES_DATE_ADMON.AnyAsync(even => even.ID_REG == regEvent.ID_REG))
-                {
-
-                    var RegEventsStatesList = await _appDbContext.REG_EVENT_ESTATES_DATE_ADMON
-                        .Include("CAT_EVENTS")
-                        .Include("CAT_ESTATES")
-                        .Where((even) => even.ID_REG == regEvent.ID_REG).ToListAsync();
-                    foreach (var currentEventEstate in RegEventsStatesList)
+                    EventList.Add(new InfoEventoModel()
                     {
-                        EventList.Add(new InfoEventoModel()
-                        {
-                            FechaInicioEvento = currentEventEstate.EVENT_DATE.ToString("dd/MM/yyyy"),
-                            FechaFinEvento = currentEventEstate.EVENT_DATE_FIN.ToString("dd/MM/yyyy"),
-                            InmuebleEvento = currentEventEstate.CAT_ESTATES.DESC_ESTATE_SP,
-                            NombreEvento = currentEventEstate.CAT_EVENTS.DESC_EVENT_SP,
-                            UbicacionInmueble = currentEventEstate.DESC_LOCATION
-                        });
+                        FechaInicioEvento = currentEventEstate.EVENT_DATE.ToString("dd/MM/yyyy"),
+                        FechaFinEvento = currentEventEstate.EVENT_DATE_FIN.ToString("dd/MM/yyyy"),
+                        InmuebleEvento = currentEventEstate.CAT_ESTATES.DESC_ESTATE_SP,
+                        NombreEvento = currentEventEstate.CAT_EVENTS.DESC_EVENT_SP,
+                        UbicacionInmueble = currentEventEstate.DESC_LOCATION
+                    });
+                    if(idEvento == 0)
+                    { 
+                        idEvento = currentEventEstate.ID_EVENT != null ? (int)currentEventEstate.ID_EVENT : 0;
                     }
                 }
-                reporteInfo.InfoEventosList = EventList.ToList<IInfoEvento>();
+            }
+            
+            reporteInfo.InfoEventosList = EventList.ToList<IInfoEvento>();
 
-                //Genera Carta invitacion
-
-                PdfManager reporte = new PdfManager();
-                var invitacion = reporte.GenerateOtherAssistantsDocument(esquemaInvitacionDto, reporteInfo);
-                if (string.IsNullOrEmpty(invitacion.FileName))
+            /* Buscar lista de otros asistentes */
+            List<OtroInvitadoModel> OtrosInvitadosList = new List<OtroInvitadoModel>();
+            OtrosInvitadosList.Add(new OtroInvitadoModel()
+            {
+                Apellidos = regInvite.PASSPORT_LASTNAME,
+                Nombre = regInvite.PASSPORT_NAME,
+                ActvidadEnMexico = regInvite.ACTIVITY_MEXICO,
+                IdNacionalidad = regInvite.ID_NATIONALITY.ToString(),
+                Nacionalidad = regInvite.LANGUAGE.Equals("EN") ? regInvite.CAT_NATIONALITIES.DESC_NACIONALITY_EN : regInvite.CAT_NATIONALITIES.DESC_NACIONALITY_SP,
+                NumPasaporte = regInvite.PASSPORT_NUM
+            });
+            if (await _appDbContext.ANOTHER_ASSISTANTS_ADMON.AnyAsync(even => even.ID_REG == regEvent.ID_REG))
+            {
+                var AnotherAssistants = await _appDbContext.ANOTHER_ASSISTANTS_ADMON
+                    .Include("CAT_NATIONALITIES")
+                    .Where((even) => even.ID_REG == regEvent.ID_REG).ToListAsync();
+                foreach (var currentElement in AnotherAssistants)
                 {
-                    invitacion.FileName = "Docto";
+                    OtrosInvitadosList.Add(new OtroInvitadoModel()
+                    {
+                        Apellidos = currentElement.PASSPORT_LASTNAME,
+                        Nombre= currentElement.PASSPORT_NAME,
+                        ActvidadEnMexico= currentElement.ACTIVITY_MEXICO,
+                        IdNacionalidad= currentElement.ID_NATIONALITY.ToString(),
+                        Nacionalidad= regEvent.LANGUAGE.Equals("EN") ? currentElement.CAT_NATIONALITIES.DESC_NACIONALITY_EN : currentElement.CAT_NATIONALITIES.DESC_NACIONALITY_SP,
+                        NumPasaporte= currentElement.PASSPORT_NUM
+                    });
                 }
+            }
+            List<IOtroInvitadoModel> AnotherAssistantsList = OtrosInvitadosList.ToList<IOtroInvitadoModel>();
+
+
+            // Buscar documento a partir del primer evento encontrado
+            /* El usuario definio que solo se iban  a seleccionar eventos que fueran de la misma empresa */
+            var firstEventFoud = await _appDbContext.CAT_EVENTS.Where(doc => doc.ID_EVENT == idEvento).FirstAsync();
+            /* Si ningun evento tiene un documento asignado se manda error */
+            if (firstEventFoud.ID_EVENT_TYPE_ADMON == null || firstEventFoud.ID_EVENT_TYPE_ADMON == 0)
+            {
+                responseDto.error = true;
+                responseDto.code = 400;
+                responseDto.message = "No se encontro un evento que tenga asignada una empresa para generar la invitación. Pida al administrador que asigne una empresa en el catálogo de Eventos para el evento seleccionado";
+                return responseDto;
+            }
+            var firstEventType = await _appDbContext.CAT_EVENT_TYPES.Where(doc => doc.ID_EVENT_TYPE == firstEventFoud.ID_EVENT_TYPE_ADMON).FirstOrDefaultAsync(); 
+            
+            /* Se gennera un solo documento, se obtiene el primero que se encuentre activo */
+            RegInviteAdmon esquemaInvitacion = await _appDbContext.REG_INVITE_ADMON.Where(doc => doc.ID_EVENT_TYPE == firstEventType.ID_EVENT_TYPE && doc.ACTIVE == true).FirstOrDefaultAsync();
+            InviteDto esquemaInvitacionDto = _mapper.Map<InviteDto>(esquemaInvitacion);
+
+
+            //Genera Carta invitacion
+            PdfManager reporte = new PdfManager();
+            var invitacion = reporte.GenerateOtherAssistantsDocument(esquemaInvitacionDto, reporteInfo, AnotherAssistantsList, regEvent.LANGUAGE);
+            if (string.IsNullOrEmpty(invitacion.FileName))
+            {
+                invitacion.FileName = "Docto";
+            }
 
 
 
-
-                responseDto.error = false;
+            responseDto.error = false;
             responseDto.code = 200;
             responseDto.response = Convert.ToBase64String(invitacion.File);
             return responseDto;

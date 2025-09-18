@@ -108,6 +108,7 @@ namespace Migracion.Talento.CoreWebApi.Controllers
                 item.DATE_INI = Convert.ToDateTime( data.DATE_INI);
                 item.DATE_FIN = Convert.ToDateTime( data.DATE_FIN);
                 item.ID_EVENT_TYPE = data.ID_EVENT_TYPE;
+                item.ID_EVENT_TYPE_ADMON = data.ID_EVENT_TYPE_ADMON;
                 item.MODIFY_BY = data.MODIFY_BY;
                 item.MODIFY_DATE = DateTime.Now;
 

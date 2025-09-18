@@ -17,6 +17,6 @@ namespace MigracionTalentoExtranjero.Models.Home
     public class RegistroInvitadoOtrosAsisModel : RegistroInvitadoModel
     {
         public List<OtroInvitadoModel> OtrosAsistentes { get; set; } = new List<OtroInvitadoModel>();
-
+        public string IdiomaInvitacion { get; set; } 
     }
 }

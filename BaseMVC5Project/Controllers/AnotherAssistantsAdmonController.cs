@@ -992,20 +992,29 @@ namespace MigracionTalentoExtranjero.Controllers
 
                 object requestObject = new
                 {
-                    ID_REG = model.Id
+                    ID_REG = model.Id,
+                    LANGUAGE = model.IdiomaInvitacion
                 };
 
                 var response = await httpManager.PostAsJsonAsync<Object, CommonTools.DTOs.Query.ResponseDto>(requestObject, WebAPIEndPointsEnum.CONSULTA_VISTA_PREVIA_PDF_ANOTHER_ASSISTANTS.GetString());
 
-                responseObject.response = true;
-                responseObject.message = $"Descarga correcta";
-                responseObject.result = response.response;
+                if (!response.error)
+                {
+                    responseObject.response = true;
+                    responseObject.message = $"Descarga correcta";
+                    responseObject.result = response.response;
+                }
+                else
+                {
+                    responseObject.response = false;
+                    responseObject.message = response.message;
+                }
                 
             }
             catch (Exception ex)
             {
                 responseObject.response = false;
-                responseObject.message = $"Error al obtener el evento: {ex.Message}";
+                responseObject.message = $"Error al obtener el documento: {ex.Message}";
             }
 
             return Json(responseObject);

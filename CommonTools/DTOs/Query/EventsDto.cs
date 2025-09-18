@@ -16,5 +16,6 @@ namespace CommonTools.DTOs.Query
         public bool ACTIVE { get; set; }
         public string DATE_INI { get; set; }
         public string DATE_FIN { get; set; }
+        public int? ID_EVENT_TYPE_ADMON { get; set; }
     }
 }

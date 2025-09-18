@@ -20,6 +20,7 @@ namespace CommonTools.DTOs.Register
         public DateTime CREATED_DATE { get; set; } = DateTime.Now;
         public int CREATED_BY { get; set; }
         public int? MODIFY_BY { get; set; }
+        public int? ID_EVENT_TYPE_ADMON { get; set; }
 
     }
 }

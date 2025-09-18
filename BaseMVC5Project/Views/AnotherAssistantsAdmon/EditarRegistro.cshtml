@@ -9,6 +9,7 @@
         @using (Html.BeginForm("", "", FormMethod.Post, new { id = "frm-registro-invitado" }))
         {
             @Html.HiddenFor(m => m.IdiomaActual)
+            @Html.HiddenFor(m => m.IdiomaInvitacion)
             @Html.HiddenFor(m => m.Id)
             <!-- PASAPORTE-->
             <div class="col-xs-12 col-sm-12 col-md-12">
@@ -506,7 +507,7 @@
                                     </div>
                                 </div>
                             </div>
-                           
+
                             <div class="col-xs-12 col-sm-12 col-md-12">
                                 <div id="mensajeError"></div>
                             </div>
@@ -518,71 +519,56 @@
 
             <div class="col-xs-12 col-sm-12 col-md-12">
                 <div class="panel panel-default">
-                    <div class="panel-heading">Vista previa <button type="button" id="btnVistaPrevia" class="btn btn-warning" onclick="generarVistaPrevia();"><span class="glyphicon glyphicon-modal-window"></span> Vista Previa</button> </div>
+                    <div class="panel-heading">
+                        Vista previa
+                        <button type="button" id="btnVistaPrevia" class="btn btn-warning" onclick="generarVistaPrevia('ES');"><span class="glyphicon glyphicon-modal-window"></span> Vista Previa Español</button>
+                        <button type="button" id="btnVistaPrevia" class="btn btn-warning" onclick="generarVistaPrevia('EN');"><span class="glyphicon glyphicon-modal-window"></span> Vista Previa Ingles</button>
+                    </div>
                     <div id="responseMessage"></div>
                     <div class="panel-body">
                         <div class="container">
                             <div style="height:80vh">
                                 <iframe id="pdfViewer" style="width:100%; height:100%; border:0;"></iframe>
-                            </div>                        
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
-            
+
             <!-- FIN INFORMACIÓN DEL VUELO DE LLEGADA-->
 
-            <!-- MODAL -->
-            <div id="ventanaModal" class="modal-aviso">
-                <div class="contenido-modal">
-                    <span class="close-modal" onclick="closeModal()">&times;</span>
-                    <div class="page-header">
-                        <h2>Importante</h2>
-                    </div>
-                    <div class="well">
-                        <p>
-                            Operadora de Centros de Espectáculos, S.A. de C.V. (en adelante OCESA) y/o sus empresas filiares y subsidiarias con domicilio fiscal en Avenida Rio Churubusco y Añil S/N, Colonia Granjas México, Alcaldía Iztacalco, C.P. 08400, Ciudad de México, es responsable del tratamiento de los datos personales recabados en este formato tales como nombre completo, domicilio, teléfono, correo electrónico e información contenida en la identificación oficial presentada, dicha información única y exclusivamente será utilizada por OCESA y/o sus empresas filiales y subsidiarias, para la aceptación de los términos y condiciones establecidas en este párrafo, así como para identificarlo como participante acreditado, la información se conservara por un periodo indeterminado, lo que resulte de los siguientes periodos (i) el tiempo que sea necesario para la actividad (ii) cualquier periodo de retención requerido por la ley, (iii) el final del periodo en el cual pueden surgir litigios o investigaciones con respecto a los servicios. El texto completo del aviso de privacidad integral se pondrá a su disposición cuando así se requiera por escrito el cual debe presentarse en el domicilio indicado en el presente párrafo o enviado al correo electrónico talentoextranjero@ocesa.mx
-                        </p>
-                    </div>
-                    <div class="row">
-                        <div class="col-xs-6 col-sm-6 col-md-4 col-lg-4">
-                            <input type="checkbox" id="aceptaAvisoPrivacidad" onclick="avisoPrivacidadCheckEvent()" />
-                            <span class="label label-info"><label for="aceptaAvisoPrivacidad">Acepto la política de privacidad</label></span>
-                        </div>
-                        <div class="col-xs-6 col-sm-6 col-md-8 col-lg-8">
-                            <div id="alertaPoliticaPrivacidad"></div>
-                        </div>
 
-                    </div>
-                    <div class="row">
-                        <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6" style="text-align:center;">
-                            <button type="button" class="btn btn-danger" onclick="closeModal()">Cancelar</button>
-                        </div>
-                        <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6" style="text-align:center;">
-                            <button type="button" onclick="" class="btn btn-success" id="btnEnviarAvisoPrivacidad" disabled>Aceptar</button>
-                        </div>
-                        <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6" style="text-align:center;">
-                            <div id="g-captcha" data-type="image"></div>
-
-                        </div>
-
-                    </div>
-                    <div class="row">
-                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12" style="text-align:center;">
-                            <div id="messageErrorModal"></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <!-- FIN MODAL -->
 
         }
+    </div>
+</div>
+
+
+
+<div class="contenedor-modales" id="containerAlert">
+    <div class="contenido-modal2">
+        <div class="p-2" style="width:30px; float: right; margin-top:10px;">
+            <span onclick="cerrarModalAlert()" style="cursor: pointer; color: crimson; font-weight:bold; font-size:14px;">X</span>
+        </div>
+        <div class="contenido-modal-grupos">
+            <hr>
+            <p class="subtitulos-modal">Resultado</p>
+            <hr>
+            <div class="row">
+                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                    <div id="modalAlertMessageResult"></div>
+                </div>
+            </div>
+            <button onclick="cerrarModalAlert()" class="btn-block">Cerrar</button>
+        </div>
     </div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <script type="text/javascript">
+
+    let popupAlert = document.getElementById('containerAlert');
 
     var onloadCallback = function () {
         grecaptcha.render('g-captcha', {
@@ -792,12 +778,10 @@
 
     async function enviarFormulario() {
 
-        //const btnEnviarAvisoPrivacidad = document.getElementById("btnEnviarAvisoPrivacidad");
-        //btnEnviarAvisoPrivacidad.disabled = true;
-        showLoader();
-        let formularioCompleto = true;
+        try {
+            showLoader();
+            let formularioCompleto = true;
 
-        if (formularioCompleto) {
             let form = document.getElementById('frm-registro-invitado');
             let formJson = serializeForm(form);
             let url = "@Url.Content("~/AnotherAssistantsAdmon/ActualizarRegistroInvidato")";
@@ -813,30 +797,25 @@
                 })
                 .catch(error => {
                     console.log(error);
-                    btnEnviarAvisoPrivacidad.disabled = false;
                     hideLoader();
                 });
 
             if (dataResponse.response === false) {
                 let messageError = dataResponse.message;
-                setErrorMessageForm(messageError, 'messageErrorModal');
-                btnEnviarAvisoPrivacidad.disabled = false;
-                hideLoader();
+                setErrorMessageForm(messageError, 'modalAlertMessageResult');
+                popupAlert.classList.add('show');
             }
             else {
-                //Escenario correccto, redireccionar
-                let urlResultado = dataResponse.href;
-                let params = {
-                };
-                let methodNewView = 'POST';
-                postForm(urlResultado, params, methodNewView);
+                setSuccessMessageForm(dataResponse.message, 'modalAlertMessageResult');
+                popupAlert.classList.add('show');
             }
         }
-        else {
-            btnEnviarAvisoPrivacidad.disabled = false;
+        catch (e) {
+            console.log(e);
         }
-
-        hideLoader();
+        finally {
+            hideLoader();
+        }
 
     }
 
@@ -1251,37 +1230,44 @@
         }
     }
 
-    async function generarVistaPrevia() {
-        let form = document.getElementById('frm-registro-invitado');
-        let formJson = serializeForm(form);
-        let url = "@Url.Content("~/AnotherAssistantsAdmon/DescargaPDFVistaPrevia")";
-        let id = $("#Id").val();
-        console.log(url);
-        const response = httpPost(
-            url,
-            formJson
-        );
-        const dataResponse = await response
-            .then(data => {
-                return data;
-            })
-            .catch(error => {
-                console.log(error);
-                btnEnviarAvisoPrivacidad.disabled = false;
-                hideLoader();
-            });
+    async function generarVistaPrevia(idioma) {
+        try {
+            showLoader();
+            let form = document.getElementById('frm-registro-invitado');
+            $('#IdiomaInvitacion').val(idioma);
+            let formJson = serializeForm(form);
+            let url = "@Url.Content("~/AnotherAssistantsAdmon/DescargaPDFVistaPrevia")";
+            const response = httpPost(
+                url,
+                formJson
+            );
+            const dataResponse = await response
+                .then(data => {
+                    return data;
+                })
+                .catch(error => {
+                    console.log(error);
+                    btnEnviarAvisoPrivacidad.disabled = false;
+                    hideLoader();
+                });
 
-        if (dataResponse.response === false) {
-            let messageError = dataResponse.message;
-            setErrorMessageForm(messageError, 'messageErrorModal');
-            btnEnviarAvisoPrivacidad.disabled = false;
-            hideLoader();
+            if (dataResponse.response === false) {
+                let messageError = dataResponse.message;
+                setErrorMessageForm(messageError, 'modalAlertMessageResult');
+                popupAlert.classList.add('show');
+            }
+            else {
+                const blob = base64ToBlob(dataResponse.result);
+                const url = URL.createObjectURL(blob);
+
+                document.getElementById("pdfViewer").src = url;
+            }
         }
-        else {
-            const blob = base64ToBlob(dataResponse.result);
-            const url = URL.createObjectURL(blob);
-
-            document.getElementById("pdfViewer").src = url;
+        catch (e) {
+            setErrorMessageForm(messageError, 'modalAlertMessageResult');
+        }
+        finally {
+            hideLoader();
         }
     }
 
@@ -1301,6 +1287,9 @@
         return new Blob(byteArrays, { type: contentType });
     }
 
+    function cerrarModalAlert() {
+        popupAlert.classList.remove('show');
+    }
 
 </script>
 
