@@ -1,27 +1,31 @@
 ﻿using AutoMapper;
+using CommonTools.DTOs;
+using CommonTools.DTOs.Query;
+using CommonTools.DTOs.Register;
+using CommonTools.Enums;
+using CommonTools.Implementation;
+using CommonTools.Pdf;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
+using Microsoft.IdentityModel.Tokens;
 using Migracion.Talento.CoreWebApi.Interfaces;
 using Migracion.Talento.CoreWebApi.Services;
 using Migracion.Talento.Entities.Models;
 using Migracion.Talento.Models;
 using Migracion.Talento.WebAPI.DataConnection;
-using CommonTools.DTOs.Query;
-using CommonTools.DTOs;
-using CommonTools.DTOs.Register;
-using CommonTools.Enums;
-using static System.Net.WebRequestMethods;
-using Microsoft.Extensions.Options;
-using static iTextSharp.text.pdf.AcroFields;
-using CommonTools.Pdf;
-using System.Linq;
 using Org.BouncyCastle.Crypto.IO;
 using SkiaSharp;
+using System.Globalization;
+using System.Linq;
 using System.Runtime.Loader;
-using CommonTools.Implementation;
-using Microsoft.IdentityModel.Tokens;
-using System.util;
 using System.Text;
+using System.Text.RegularExpressions;
+using System.util;
+using static iTextSharp.text.pdf.AcroFields;
+using static System.Net.WebRequestMethods;
 
 namespace Migracion.Talento.CoreWebApi.Controllers
 {
@@ -48,7 +52,6 @@ namespace Migracion.Talento.CoreWebApi.Controllers
             _mapper = mapper;
             _documentEvents = documentsEvents;
         }
-
 
 
         [HttpPost("ListaEventos")]
@@ -484,6 +487,111 @@ namespace Migracion.Talento.CoreWebApi.Controllers
                 responseDto.error = false;
 
 
+            }
+            catch (Exception ex)
+            {
+                responseDto.error = true;
+                responseDto.message = ex.Message;
+            }
+
+            return Ok(responseDto);
+        }
+
+
+        public static string RemoveDiacritics(string input)
+        {
+            if (string.IsNullOrEmpty(input)) return input;
+            var normalized = input.Normalize(NormalizationForm.FormD);
+            var sb = new StringBuilder(normalized.Length);
+            foreach (var c in normalized)
+            {
+                var uc = CharUnicodeInfo.GetUnicodeCategory(c);
+                if (uc != UnicodeCategory.NonSpacingMark &&
+                    uc != UnicodeCategory.SpacingCombiningMark &&
+                    uc != UnicodeCategory.EnclosingMark)
+                {
+                    sb.Append(c);
+                }
+            }
+            return sb.ToString().Normalize(NormalizationForm.FormC);
+        }
+
+        [HttpPost("UpdateAssistants")]
+        public async Task<ActionResult<ResponseDto>> UpdateAssistants([FromBody] QryRegEventAdmonDto newEvent)
+        {
+            ResponseDto responseDto = new ResponseDto();
+
+            try
+            {
+                int idRegEvent = newEvent.ID_REG;
+                int numRegsAfectados = 0;
+                if (newEvent?.ANOTHER_ASSISTANTS_ADMON_LIST is { Count: > 0 } list)
+                {
+                    // 1) Normaliza y prepara llaves
+                    var passports = list
+                        .Where(x => !string.IsNullOrWhiteSpace(x.PASSPORT_NUM))
+                        .Select(x => x.PASSPORT_NUM.Trim())
+                        .Distinct(StringComparer.OrdinalIgnoreCase)
+                        .ToList();
+
+                    // 2) Trae de una sola vez los existentes para este evento
+                    var existingMap = await _appDbContext.ANOTHER_ASSISTANTS_ADMON
+                        .Where(a => a.ID_REG == idRegEvent && passports.Contains(a.PASSPORT_NUM))
+                        .ToDictionaryAsync(a => a.PASSPORT_NUM, StringComparer.OrdinalIgnoreCase);
+
+                    // 3) Upsert en memoria
+                    foreach (var dto in list)
+                    {
+                        var pass = dto.PASSPORT_NUM?.Trim();
+                        if (string.IsNullOrEmpty(pass)) continue; // pasar al siguiente porque el pasaporte no puede ser nulo o vacío
+
+                        /* Validar que tenga existencia la nacionalidad */
+                        if (string.IsNullOrEmpty(dto.NATIONALITY) || !await _appDbContext.CAT_NATIONALITIES.AnyAsync( m => m.DESC_NACIONALITY_EN.ToUpper().Equals(dto.NATIONALITY.ToUpper()) || m.DESC_NACIONALITY_SP.ToUpper().Equals(dto.NATIONALITY.ToUpper())))
+                        {
+                            continue;
+                        }
+
+                        var currentNationality = await _appDbContext.CAT_NATIONALITIES
+                            .Where(m => m.DESC_NACIONALITY_EN.ToUpper().Equals(dto.NATIONALITY.ToUpper()) || m.DESC_NACIONALITY_SP.ToUpper().Equals(dto.NATIONALITY.ToUpper())).FirstAsync();
+
+                        if (existingMap.TryGetValue(pass, out var assistant))
+                        {
+                            // Update
+                            assistant.PASSPORT_LASTNAME = dto.PASSPORT_LASTNAME;
+                            assistant.PASSPORT_NAME = dto.PASSPORT_NAME;
+                            assistant.ACTIVITY_MEXICO = dto.ACTIVITY_MEXICO;
+                            assistant.ID_NATIONALITY = currentNationality.ID_NATIONALITY;
+                        }
+                        else
+                        {
+                            // Insert
+                            var newAssistant = new AnotherAssistantsAdmon
+                            {
+                                ID_REG = idRegEvent,          
+                                PASSPORT_LASTNAME = dto.PASSPORT_LASTNAME,
+                                PASSPORT_NAME = dto.PASSPORT_NAME,
+                                ACTIVITY_MEXICO = dto.ACTIVITY_MEXICO,
+                                ID_NATIONALITY = dto.ID_NATIONALITY,
+                                PASSPORT_NUM = pass
+                            };
+                            await _appDbContext.AddAsync(newAssistant);
+                        }
+                        numRegsAfectados++;
+                    }
+
+                    // 4) Un solo SaveChanges (o por lotes si la lista es enorme)
+                    await _appDbContext.SaveChangesAsync();
+
+                    responseDto.code = 200;
+                    responseDto.message = $"Registros ingresados correctamente. Se actualizaron {numRegsAfectados} registros";
+                    responseDto.error = false;
+                }
+                else
+                {
+                    responseDto.code = 400;
+                    responseDto.message = "No se encontraron registros en el archivo";
+                    responseDto.error = false;
+                }
             }
             catch (Exception ex)
             {
@@ -1101,6 +1209,137 @@ namespace Migracion.Talento.CoreWebApi.Controllers
 
         }
 
+        #region ADMIN CATALOGO DOCUMENTOS
+        [HttpGet]
+        public async Task<ActionResult<ResponseDto>> GetActiveDocuments()
+        {
+            try
+            {
+                var documents = await _appDbContext.REG_INVITE_ADMON.AnyAsync();
+
+                if (!documents)
+                    return Ok(new ResponseDto(ResponseDtoEnum.NoData));
+
+                ResponseDto response = new ResponseDto(ResponseDtoEnum.Success);
+
+                var listDocumen = await _appDbContext.REG_INVITE_ADMON.OrderBy(p => p.ID_INVITE).ToListAsync();
+                var map = _mapper.Map<List<InviteDto>>(listDocumen);
+                response.response = map;
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ResponseDto(ResponseDtoEnum.Error).message + ex.Message);
+            }
+
+        }
+
+        // GET: api/<DocumentsController>
+        [HttpGet("GetDocumentById")]
+        public async Task<ActionResult<ResponseDto>> GetDocumentById(int id)
+        {
+            try
+            {
+                if (!await _appDbContext.REG_INVITE_ADMON.AnyAsync(i => i.ID_INVITE == id))
+                    return Ok(new ResponseDto(ResponseDtoEnum.NoData));
+
+                ResponseDto response = new ResponseDto(ResponseDtoEnum.Success);
+
+                var Documen = await _appDbContext.REG_INVITE_ADMON.FirstAsync(i => i.ID_INVITE == id);
+                var map = _mapper.Map<InviteDto>(Documen);
+                response.response = map;
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ResponseDto(ResponseDtoEnum.Error).message + ex.Message);
+            }
+
+        }
+        // POST api/<DocumentsController>
+        [HttpPost("SaveDocument")]
+        public async Task<ActionResult<ResponseDto>> SaveDocument([FromBody] RegInviteDto value)
+        {
+            try
+            {
+                var exist = await _appDbContext.REG_INVITE_ADMON.AnyAsync(g => g.DESC_SPANISH == value.DESC_SPANISH
+                    && g.ID_EVENT_TYPE == value.ID_EVENT_TYPE);
+                if (exist)
+                    return Ok(new ResponseDto(ResponseDtoEnum.Duplicated));
+
+                var document = _mapper.Map<RegInviteAdmon>(value);
+
+                await _appDbContext.REG_INVITE_ADMON.AddAsync(document);
+                await _appDbContext.SaveChangesAsync();
+                return Ok(new ResponseDto(ResponseDtoEnum.Success));
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ResponseDto(ResponseDtoEnum.Error).message + ex.Message);
+            }
+        }
+
+        // PUT api/<DocumentsController>/5
+        [HttpPost("UpdateDocument")]
+        public async Task<ActionResult<ResponseDto>> UpdateDocument(int id, [FromBody] RegInviteDto value)
+        {
+            try
+            {
+                var documentDb = await _appDbContext.REG_INVITE_ADMON.AnyAsync(g => g.ID_INVITE == id);
+                if (!documentDb)
+                    return Ok(new ResponseDto(ResponseDtoEnum.NoData));
+
+                var item = await _appDbContext.REG_INVITE_ADMON
+                     .Where((even) => even.ID_INVITE == id).FirstOrDefaultAsync();
+
+
+                item.ID_REG = value.ID_REG;
+                item.ID_EVENT_TYPE = value.ID_EVENT_TYPE;
+                item.DES_TITLE = value.DES_TITLE;
+                item.DESC_SPANISH = value.DESC_SPANISH;
+                item.DESC_ENGLISH = value.DESC_ENGLISH;
+                item.SIGN_1 = value.SIGN_1;
+                item.SIGN_2 = value.SIGN_2;
+                item.SIGN_3 = value.SIGN_3;
+                item.SIGN_4 = value.SIGN_4;
+                item.FOOT_PAGE = value.FOOT_PAGE;
+                item.FILE_NAME= value.FILE_NAME;
+                item.SIGN_BLOB = value.SIGN_BLOB;
+                item.MODIFY_BY = value.MODIFY_BY;
+                item.MODIFY_DATE = DateTime.Now;
+
+                await _appDbContext.SaveChangesAsync();
+
+                return Ok(new ResponseDto(ResponseDtoEnum.Success));
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ResponseDto(ResponseDtoEnum.Error).message + ex.Message);
+            }
+        }
+
+        // DELETE api/<DocumentsController>/5
+        [HttpPost("DeleteDocument")]
+        public async Task<ActionResult<ResponseDto>> DeleteDocument([FromBody] InviteDto data)
+        {
+            try
+            {
+                int id = data.ID_INVITE;
+                var document = await _appDbContext.REG_INVITE_ADMON.FirstOrDefaultAsync(g => g.ID_INVITE.Equals(id));
+
+                if (document == null)
+                    return Ok(new ResponseDto(ResponseDtoEnum.NoData));
+
+                _appDbContext.Remove(document);
+                await _appDbContext.SaveChangesAsync();
+                return Ok(new ResponseDto(ResponseDtoEnum.Success));
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ResponseDto(ResponseDtoEnum.Error).message + ex.Message);
+            }
+        }
+        #endregion
 
     }
 }

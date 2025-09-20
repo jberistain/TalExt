@@ -3,6 +3,7 @@ using CommonTools.Csv;
 using CommonTools.DTOs.Query;
 using CommonTools.DTOs.Register;
 using CommonTools.Pdf;
+using Microsoft.Ajax.Utilities;
 using MigracionTalentoExtranjero.Models;
 using MigracionTalentoExtranjero.Models.Administrator;
 using MigracionTalentoExtranjero.Models.Catalogs;
@@ -10,10 +11,13 @@ using MigracionTalentoExtranjero.Models.Enum;
 using MigracionTalentoExtranjero.Models.Home;
 using MigracionTalentoExtranjero.Models.Session;
 using MigracionTalentoExtranjero.Models.Utils;
+using OfficeOpenXml;
 using Org.BouncyCastle.Utilities;
 using RestSharp;
+using RestSharp.Extensions;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Data;
 using System.Linq;
 using System.Net.Mail;
@@ -21,6 +25,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
+
 
 namespace MigracionTalentoExtranjero.Controllers
 {
@@ -981,7 +986,10 @@ namespace MigracionTalentoExtranjero.Controllers
         }
 
 
-        
+      
+
+
+
         public async Task<JsonResult> DescargaPDFVistaPrevia(RegistroInvitadoOtrosAsisModel model)
         {
             responseObject = new ResponseModel();
@@ -1020,6 +1028,306 @@ namespace MigracionTalentoExtranjero.Controllers
             return Json(responseObject);
         }
 
+
+        public async Task<JsonResult> CargaOtrosAsistentes(HttpPostedFileBase archivoExcel, RegistroInvitadoOtrosAsisModel model)
+        {
+            responseObject = new ResponseModel();
+
+            if(archivoExcel == null)
+            {
+                responseObject.message = "No se selecciono un archivo para cargar";
+                responseObject.response = false;
+            }
+            #region Carga de excel
+
+            ExcelPackage.LicenseContext = 0; // LicenseContext.NonCommercial;
+
+            if (archivoExcel != null && archivoExcel.ContentLength > 0)
+            {
+                // Procesar el archivo
+                var datos = new List<string>();
+
+                List<object> Assistants = new List<object>();
+                using (var package = new ExcelPackage(archivoExcel.InputStream))
+                {
+                    // Obtener la hoja de trabajo
+                    ExcelWorksheet worksheet = package.Workbook.Worksheets[0];
+
+                    // Obtener el número de filas y columnas de la hoja de trabajo
+                    int filas = worksheet.Dimension.Rows;
+                    int columnas = worksheet.Dimension.Columns;
+
+                    List<OtroInvitadoModel> otrosAsistentes = new List<OtroInvitadoModel>();
+                    
+                    // Leer los datos de la hoja de trabajo
+                    for (int i = 2; i <= filas; i++)
+                    {
+                        // Obtener la fila que se desea verificar
+                        //ExcelRange range = worksheet.Cells[i, 1, i, worksheet.Dimension.End.Column];
+                        string apellido = worksheet.Cells[i, 2].Value?.ToString();
+                        string nombre = worksheet.Cells[i, 3].Value?.ToString();
+                        string actividad = worksheet.Cells[i, 4].Value?.ToString();
+                        string nacionalidad = worksheet.Cells[i, 5].Value?.ToString();
+                        string numPasaporte = worksheet.Cells[i, 6].Value?.ToString();
+
+                        Assistants.Add(new
+                        {
+                            PASSPORT_NAME = nombre,//Se deja este nombre para enviar el ID del combobox
+                            PASSPORT_LASTNAME = apellido,
+                            ACTIVITY_MEXICO = actividad,
+                            ID_NATIONALITY = 0,
+                            NATIONALITY = nacionalidad,
+                            PASSPORT_NUM = numPasaporte,
+                        });
+                    }
+                }
+                object requestObject = new
+                {
+                    ID_REG = model.Id,
+                    ANOTHER_ASSISTANTS_ADMON_LIST = Assistants
+                };
+                var response = await httpManager.PostAsJsonAsync<Object, CommonTools.DTOs.Query.ResponseDto>(requestObject, WebAPIEndPointsEnum.UPDATE_ANOTHER_ASSISTANTS_LIST.GetString());
+
+                if (!response.error)
+                {
+                    responseObject.response = true;
+                    responseObject.message = response.message;
+                    
+                }
+                else
+                {
+                    responseObject.response = false;
+                    responseObject.message = response.message;
+                }
+            }
+            #endregion
+            return Json(responseObject);
+        }
+
+
+        #region CATALOGO
+        /// <summary>
+        /// Retornar Vista
+        /// </summary>
+        /// <returns></returns>
+        // [PermisoPerfil]
+        public async Task<ActionResult> Documentos()
+        {
+            ViewBag.Title = "DOCUMENTOS PARA OTROS ASISTENTES";
+
+            crud = new CRUDManager(httpManager);
+
+            List<CatalogoGeneral> catalogoGeneralList;
+
+            ViewBag.ListaTiposEvento = await CB.GetSearchComboBox(CatalogosEnum.CAT_TIPOS_EVENTOS.GetString(), 0, "");
+
+            catalogoGeneralList = await crud.DescargaCatalogosDocumentos();
+
+            ViewBag.CatalogList = catalogoGeneralList;
+
+            return View();
+        }
+
+        public async Task<JsonResult> ObtenerElementoCatalogo(CatalogoGeneral data)
+        {
+            responseObject = new ResponseModel();
+            try
+            {
+                crud = new CRUDManager(httpManager);
+                ResponseDto resultHttpRequest = new ResponseDto();
+                CatalogoGeneral catalogResponse = new CatalogoGeneral();
+                switch (data.NombreCatalogo)
+                {
+                    case "DOCUMENTO":
+                        resultHttpRequest = await crud.DescargaCatalogoDocumentoPorId(data.Id);
+                        if (resultHttpRequest != null && !resultHttpRequest.error)
+                        {
+                            catalogResponse.Id = resultHttpRequest.response.iD_INVITE;
+                            catalogResponse.AtributoAdicionalInt1 = resultHttpRequest.response.iD_EVENT_TYPE;
+                            catalogResponse.AtributoAdicionalStr1 = resultHttpRequest.response.deS_TITLE;
+                            catalogResponse.AtributoAdicionalStr2 = resultHttpRequest.response.desC_SPANISH;
+                            catalogResponse.AtributoAdicionalStr3 = resultHttpRequest.response.desC_ENGLISH;
+                            catalogResponse.AtributoAdicionalStr4 = resultHttpRequest.response.sigN_1;
+                            catalogResponse.AtributoAdicionalStr5 = resultHttpRequest.response.fooT_PAGE;
+                            catalogResponse.AtributoAdicionalStr6 = resultHttpRequest.response.iD_EVENT_TYPE != null ? resultHttpRequest.response.iD_EVENT_TYPE.ToString() : 0;
+                        }
+                        break;
+
+                    default:
+                        resultHttpRequest = null;
+                        break;
+                }
+
+                if (resultHttpRequest == null)
+                {
+                    responseObject.response = false;
+                    responseObject.message = "No se encontro ningun caso de guardado, enviar la bandera correcta al metodo";
+                }
+                else
+                {
+                    if (resultHttpRequest.error)
+                    {
+                        responseObject.response = false;
+                        responseObject.message = resultHttpRequest.message;
+                    }
+                    else
+                    {
+                        responseObject.response = true;
+                        responseObject.message = "Consulta exitosa";
+                        responseObject.result = catalogResponse;
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                responseObject = new ResponseModel();
+                responseObject.response = false;
+                responseObject.message = e.Message;
+
+            }
+
+            return Json(responseObject);
+        }
+
+        public async Task<JsonResult> EliminarElementoCatalogo(CatalogoGeneral data)
+        {
+            responseObject = new ResponseModel();
+
+            crud = new CRUDManager(httpManager);
+            ResponseDto resultHttpRequest = new ResponseDto();
+            string mensajeRespuesta = "Borrado exitoso";
+            switch (data.NombreCatalogo)
+            {
+                case "DOCUMENTO":
+                    resultHttpRequest = await crud.EliminarDocumento(new InviteDto() { ID_INVITE = data.Id });
+                    break;
+                default:
+                    resultHttpRequest = null;
+                    break;
+            }
+
+            if (resultHttpRequest == null)
+            {
+                responseObject.response = false;
+                responseObject.message = "No se encontro ningun caso de guardado, enviar la bandera correcta al metodo";
+            }
+            else
+            {
+                if (resultHttpRequest.error)
+                {
+                    responseObject.response = false;
+                    responseObject.message = resultHttpRequest.message;
+                }
+                else
+                {
+                    responseObject.response = true;
+                    responseObject.message = mensajeRespuesta;
+                }
+            }
+
+            return Json(responseObject);
+        }
+
+        public async Task<JsonResult> CreaNuevoElementoCatalogo(CatalogoGeneral data, HttpPostedFileBase ArchivoPDF)
+        {
+            responseObject = new ResponseModel();
+
+            crud = new CRUDManager(httpManager);
+            ResponseDto resultHttpRequest = new ResponseDto();
+
+            if (!SessionManager.ExistUserInSession())
+            {
+                responseObject.response = false;
+                responseObject.message = "No se una tiene sesión iniciada, por favor vuelva a iniciar sesión.";
+                return Json(responseObject);
+            }
+
+            int idUser = SessionManager.GetUser();
+
+
+            switch (data.NombreCatalogo)
+            {
+                case "DOCUMENTO":
+                    resultHttpRequest = await crud.CrearDocumento(new RegInviteDto() { DES_TITLE = data.AtributoAdicionalStr1, DESC_SPANISH = data.AtributoAdicionalStr2, DESC_ENGLISH = data.AtributoAdicionalStr3, SIGN_1 = data.AtributoAdicionalStr4, FOOT_PAGE = data.AtributoAdicionalStr5, ID_EVENT_TYPE = Convert.ToInt32(data.AtributoAdicionalStr6), CREATED_BY = idUser });
+                    break;
+                default:
+                    resultHttpRequest = null;
+                    break;
+            }
+
+            if (resultHttpRequest == null)
+            {
+                responseObject.response = false;
+                responseObject.message = "No se encontro ningun caso de guardado, enviar la bandera correcta al metodo";
+            }
+            else
+            {
+                if (resultHttpRequest.error)
+                {
+                    responseObject.response = false;
+                    responseObject.message = resultHttpRequest.message;
+                }
+                else
+                {
+                    responseObject.response = true;
+                    responseObject.message = "Guardado exitoso";
+                }
+            }
+
+            return Json(responseObject);
+        }
+
+
+        public async Task<JsonResult> ActualizarElementoCatalogo(CatalogoGeneral data, HttpPostedFileBase ArchivoPDF, HttpPostedFileBase ArchivoImagen)
+        {
+            responseObject = new ResponseModel();
+
+            crud = new CRUDManager(httpManager);
+            ResponseDto resultHttpRequest = new ResponseDto();
+
+            if (!SessionManager.ExistUserInSession())
+            {
+                responseObject.response = false;
+                responseObject.message = "No se una tiene sesión iniciada, por favor vuelva a iniciar sesión.";
+                return Json(responseObject);
+            }
+
+            int idUser = SessionManager.GetUser();
+
+            switch (data.NombreCatalogo)
+            {
+                case "DOCUMENTO":
+                    resultHttpRequest = await crud.ActualizarDocumento(data.Id, new RegInviteDto() { DES_TITLE = data.AtributoAdicionalStr1, DESC_SPANISH = data.AtributoAdicionalStr2, DESC_ENGLISH = data.AtributoAdicionalStr3, SIGN_1 = data.AtributoAdicionalStr4, FOOT_PAGE = data.AtributoAdicionalStr5, ID_EVENT_TYPE = Convert.ToInt32(data.AtributoAdicionalStr6), MODIFY_BY = idUser });
+                    break;
+                default:
+                    resultHttpRequest = null;
+                    break;
+            }
+
+            if (resultHttpRequest == null)
+            {
+                responseObject.response = false;
+                responseObject.message = "No se encontro ningun caso de guardado, enviar la bandera correcta al metodo";
+            }
+            else
+            {
+                if (resultHttpRequest.error)
+                {
+                    responseObject.response = false;
+                    responseObject.message = resultHttpRequest.message;
+                }
+                else
+                {
+                    responseObject.response = true;
+                    responseObject.message = "Guardado exitoso";
+                }
+            }
+
+            return Json(responseObject);
+        }
+
+
+        #endregion
 
     }
 }

@@ -65,6 +65,7 @@ namespace Migracion.Talento.CoreWebApi.Utils
             CreateMap<RegEvenStateDateAdmon, RegEvenStateDateAdmonDto>();
             CreateMap<RegInviteAdmon, InviteDto>();
             CreateMap<AnotherAssistantsAdmon, AnotherAssistantDto>();
+            CreateMap<RegInviteDto, RegInviteAdmon>();
 
         }
     }

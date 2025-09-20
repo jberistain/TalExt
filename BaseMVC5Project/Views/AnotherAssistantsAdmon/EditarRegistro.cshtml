@@ -112,7 +112,21 @@
             <!-- OTROS ASISTENTES -->
             <div class="col-xs-12 col-sm-12 col-md-12">
                 <div class="panel panel-default">
-                    <div class="panel-heading">Invitados adicionales</div>
+                    <div class="panel-heading">
+                        <div class="row">
+                            <div class="col-xs-4 col-sm-4 col-md-4">
+                                Invitados adicionales
+                            </div>
+                            <div class="col-xs-4 col-sm-4 col-md-4">
+                                <span><input type="file" name="archivoExcel" /></span>
+                            </div>
+                            <div class="col-xs-4 col-sm-4 col-md-4">
+                                <span>
+                                    <button type="button" class="btn btn-primary" id="btnImportSol" onclick="CargaExcel()"><i class="fas fa-search me-2"></i>Cargar Excel</button>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
                     <div id="responseMessage"></div>
                     <div class="panel-body">
                         <div class="container">
@@ -1289,6 +1303,51 @@
 
     function cerrarModalAlert() {
         popupAlert.classList.remove('show');
+    }
+
+    async function CargaExcel() {
+     try {
+         showLoader();
+
+         let form = document.getElementById('frm-registro-invitado');
+         var formData = new FormData(form);
+         let url = "@Url.Content("~/AnotherAssistantsAdmon/CargaOtrosAsistentes")";
+
+          $.ajax({
+                type: 'POST',
+                url: url,
+              data: formData,
+              contentType: false,  // Importante
+              processData: false,  // Importante
+              success: function (dataResponse) {
+                  if (dataResponse.response === false) {
+                      let messageError = dataResponse.message;
+                      setErrorMessageForm(messageError, 'modalAlertMessageResult');
+                      popupAlert.classList.add('show');
+                  }
+                  else {
+                      $('#modalAlertMessageResult').one('hidden.bs.modal', function () {
+                          window.location.reload();
+                      });
+                      let message= dataResponse.message;
+                      setSuccessMessageForm(message, 'modalAlertMessageResult');
+                      popupAlert.classList.add('show');
+
+                  }
+                },
+                error: function (error) {
+
+                }
+            });
+
+
+     }
+     catch (e) {
+         setErrorMessageForm(e, 'modalAlertMessageResult');
+     }
+     finally {
+         hideLoader();
+     }
     }
 
 </script>

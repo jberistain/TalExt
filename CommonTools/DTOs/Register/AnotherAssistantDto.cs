@@ -11,6 +11,7 @@ namespace CommonTools.DTOs.Register
         public string PASSPORT_NAME { get; set; }
         public string ACTIVITY_MEXICO { get; set; }
         public int ID_NATIONALITY { get; set; }
+        public string NATIONALITY { get; set; }
         public string PASSPORT_NUM { get; set; }
         public bool ACTIVE { get; set; }
         public DateTime CREATED_DATE { get; set; } = DateTime.Now;
