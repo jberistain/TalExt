@@ -967,5 +967,88 @@ namespace Migracion.Talento.CoreWebApi.Controllers
         }
         #endregion
 
+        #region REPORTE
+
+        [HttpPost("GetRerporte")]
+        public async Task<ActionResult<ResponseDto>> GetRerporte([FromBody] ReporteDto model)
+        {
+            try
+            {
+                ResponseDto response = new ResponseDto(ResponseDtoEnum.Success);
+                DateTime fechaInicio = model.FechaInicio;
+                DateTime fechaFin = model.FechaFin;
+                var endExclusive = fechaFin.Date.AddDays(1);
+
+                // 1) Trae de DB ya filtrado y ordenado (AsNoTracking para performance en lecturas)
+                var items = await _appDbContext.REG_EVENTS_ADMON
+                    .AsNoTracking()
+                    .Where(x => x.CREATED_DATE >= fechaInicio && x.CREATED_DATE < endExclusive)
+                    .OrderBy(x => x.CREATED_BY)
+                    .Include(x => x.CAT_NATIONALITIES)
+                    .ToListAsync();
+
+                /* Grupos */
+                var bucketsByMonth = items
+                .GroupBy(i => new { i.CREATED_DATE.Year, i.CREATED_DATE.Month })
+                .OrderBy(g => g.Key.Year).ThenBy(g => g.Key.Month)
+                .ToList();
+
+                List<ReporteDto> reporteList = new List<ReporteDto>();
+
+                foreach (var grupo in bucketsByMonth) 
+                {
+                    ReporteDto reporte = new ReporteDto();
+
+                    var listaIDs = grupo.Select(g => g.ID_REG).ToList();    
+
+
+                    // Totales de asistentes invitados por mes
+                    var totalInvitados = _appDbContext.ANOTHER_ASSISTANTS_ADMON
+                      .Where(a => listaIDs.Contains(a.ID_REG))
+                      .Count();
+
+                    // Obten NAcionalidades
+                    var nacionalidades = grupo
+                     .GroupBy(i => i.CAT_NATIONALITIES.DESC_NACIONALITY_SP) // agrupar por nombre del catálogo
+                     .Select(g => new NacionalidadesFrecuentes
+                     {
+                         Nacionalidad = g.Key,
+                         Total = g.Count()
+                     })
+                     .OrderBy(x => x.Nacionalidad)
+                     .ToList();
+
+
+                    // Obten NAcionalidades
+                    var nacionalidadesRestringidas = grupo
+                     .Where(i => i.CAT_NATIONALITIES.RESTRICTION) // filtra solo los restringidos
+                     .GroupBy(i => i.CAT_NATIONALITIES.DESC_NACIONALITY_SP) // agrupar por nombre del catálogo
+                     .Select(g => new RestringidosFrecuentes
+                     {
+                         Nacionalidad = g.Key,
+                         Total = g.Count()
+                     })
+                     .OrderBy(x => x.Nacionalidad)
+                     .ToList();
+
+
+                    reporte.TotalExtranjerosInmvitados = (grupo.Count() + totalInvitados).ToString();
+                    reporte.TotalCartasGeneradas = grupo.Count().ToString();
+                    reporte.NacionalidadesFrecuentesList = nacionalidades;
+                    reporte.RestringidosFrecuentesList = nacionalidadesRestringidas;
+                    reporteList.Add(reporte);
+                }
+                response.error = false;
+                response.message= "Consulta realizada correctamente";
+                response.response = reporteList;
+                return response;
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ResponseDto(ResponseDtoEnum.Error).message + ex.Message);
+            }
+        }
+
+        #endregion
     }
 }
