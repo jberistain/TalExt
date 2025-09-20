@@ -602,11 +602,7 @@ namespace Migracion.Talento.CoreWebApi.Controllers
             return Ok(responseDto);
         }
 
-
-        [HttpPost("GetInvitationPDF")]
-        public async Task<ActionResult<ResponseDto>> GetInvitationPDF([FromBody] QryRegEventDto regEvent)
-        {
-
+        private async Task<ResponseDto> GeneraInvitacionPDF(QryRegEventDto regEvent) {
             ResponseDto responseDto = new ResponseDto();
 
             var regInvite = await _appDbContext.REG_EVENTS_ADMON
@@ -626,7 +622,7 @@ namespace Migracion.Talento.CoreWebApi.Controllers
                 TipoArchivoGenerado = string.Empty
             };
 
-            int idEvento =0;
+            int idEvento = 0;
             List<InfoEventoModel> EventList = new List<InfoEventoModel>();
             //BUSCAR LOS EVENTOS REGISTRADOS
             if (await _appDbContext.REG_EVENT_ESTATES_DATE_ADMON.AnyAsync(even => even.ID_REG == regEvent.ID_REG))
@@ -646,13 +642,13 @@ namespace Migracion.Talento.CoreWebApi.Controllers
                         NombreEvento = currentEventEstate.CAT_EVENTS.DESC_EVENT_SP,
                         UbicacionInmueble = currentEventEstate.DESC_LOCATION
                     });
-                    if(idEvento == 0)
-                    { 
+                    if (idEvento == 0)
+                    {
                         idEvento = currentEventEstate.ID_EVENT != null ? (int)currentEventEstate.ID_EVENT : 0;
                     }
                 }
             }
-            
+
             reporteInfo.InfoEventosList = EventList.ToList<IInfoEvento>();
 
             /* Buscar lista de otros asistentes */
@@ -676,11 +672,11 @@ namespace Migracion.Talento.CoreWebApi.Controllers
                     OtrosInvitadosList.Add(new OtroInvitadoModel()
                     {
                         Apellidos = currentElement.PASSPORT_LASTNAME,
-                        Nombre= currentElement.PASSPORT_NAME,
-                        ActvidadEnMexico= currentElement.ACTIVITY_MEXICO,
-                        IdNacionalidad= currentElement.ID_NATIONALITY.ToString(),
-                        Nacionalidad= regEvent.LANGUAGE.Equals("EN") ? currentElement.CAT_NATIONALITIES.DESC_NACIONALITY_EN : currentElement.CAT_NATIONALITIES.DESC_NACIONALITY_SP,
-                        NumPasaporte= currentElement.PASSPORT_NUM
+                        Nombre = currentElement.PASSPORT_NAME,
+                        ActvidadEnMexico = currentElement.ACTIVITY_MEXICO,
+                        IdNacionalidad = currentElement.ID_NATIONALITY.ToString(),
+                        Nacionalidad = regEvent.LANGUAGE.Equals("EN") ? currentElement.CAT_NATIONALITIES.DESC_NACIONALITY_EN : currentElement.CAT_NATIONALITIES.DESC_NACIONALITY_SP,
+                        NumPasaporte = currentElement.PASSPORT_NUM
                     });
                 }
             }
@@ -698,8 +694,8 @@ namespace Migracion.Talento.CoreWebApi.Controllers
                 responseDto.message = "No se encontro un evento que tenga asignada una empresa para generar la invitación. Pida al administrador que asigne una empresa en el catálogo de Eventos para el evento seleccionado";
                 return responseDto;
             }
-            var firstEventType = await _appDbContext.CAT_EVENT_TYPES.Where(doc => doc.ID_EVENT_TYPE == firstEventFoud.ID_EVENT_TYPE_ADMON).FirstOrDefaultAsync(); 
-            
+            var firstEventType = await _appDbContext.CAT_EVENT_TYPES.Where(doc => doc.ID_EVENT_TYPE == firstEventFoud.ID_EVENT_TYPE_ADMON).FirstOrDefaultAsync();
+
             /* Se gennera un solo documento, se obtiene el primero que se encuentre activo */
             RegInviteAdmon esquemaInvitacion = await _appDbContext.REG_INVITE_ADMON.Where(doc => doc.ID_EVENT_TYPE == firstEventType.ID_EVENT_TYPE && doc.ACTIVE == true).FirstOrDefaultAsync();
             InviteDto esquemaInvitacionDto = _mapper.Map<InviteDto>(esquemaInvitacion);
@@ -718,6 +714,41 @@ namespace Migracion.Talento.CoreWebApi.Controllers
             responseDto.error = false;
             responseDto.code = 200;
             responseDto.response = Convert.ToBase64String(invitacion.File);
+            responseDto.message = invitacion.FileName;
+            return responseDto;
+        }
+
+        [HttpPost("GetInvitationPDF")]
+        public async Task<ActionResult<ResponseDto>> GetInvitationPDF([FromBody] QryRegEventDto regEvent)
+        {
+            return await GeneraInvitacionPDF(regEvent);
+        }
+
+
+
+        [HttpPost("DownloadInvitationsAnotherAssistants")]
+        public async Task<ActionResult<ResponseDto>> DownloadInvitationsAnotherAssistants([FromBody] List<string> regEvent)
+        {
+            ResponseDto responseDto = new ResponseDto();
+            List<ResponseDto> ListaDocumentos = new List<ResponseDto>();
+            foreach (string idStr in regEvent)
+            { 
+
+                int ID_REG = Convert.ToInt32(idStr);
+                
+                /* invocar al otro metodo que genera el pdf */   
+                var documentoEsp = await GeneraInvitacionPDF(new QryRegEventDto() { ID_REG = ID_REG, LANGUAGE = "ES" });
+                documentoEsp.message = "ES"+ documentoEsp.message;
+                ListaDocumentos.Add(documentoEsp);
+                var documentoIng = await GeneraInvitacionPDF(new QryRegEventDto() { ID_REG = ID_REG, LANGUAGE = "EN" });
+                documentoIng.message = "EN"+ documentoIng.message;
+                ListaDocumentos.Add(documentoIng);
+
+            }
+
+            responseDto.error = false;
+            responseDto.code = 200;
+            responseDto.response = ListaDocumentos;
             return responseDto;
         }
 
@@ -763,146 +794,6 @@ namespace Migracion.Talento.CoreWebApi.Controllers
         }
 
 
-        [HttpPost("ConfirmRegisterEmail")]
-        public async Task<ActionResult<ResponseDto>> ConfirmRegisterEmail([FromBody] QryRegEventDto newEvent)
-        {
-            ResponseDto responseDto = new ResponseDto();
-
-            try
-            {
-                int idEvent = newEvent.ID_REG;
-
-                if (!await _appDbContext.REG_EVENTS.AnyAsync(even => even.ID_REG == idEvent))
-                    return Ok(new ResponseDto(ResponseDtoEnum.NoData));
-
-                var item = await _appDbContext.REG_EVENTS
-                    .Where((even) => even.ID_REG == idEvent).FirstOrDefaultAsync();
-
-
-                
-
-                item.MODIFY_BY = 2;
-                item.MODIFY_DATE = DateTime.Now;
-                item.ID_STATUS = 2;
-                // _appDbContext.Add(item);
-                var rs = await _appDbContext.SaveChangesAsync();
-
-                responseDto.error = false;
-                responseDto.response = item;
-            }
-            catch (Exception ex)
-            {
-                responseDto.error = true;
-                responseDto.message = ex.Message;
-            }
-
-            return Ok(responseDto);
-        }
-        
-        
-        [HttpPost("ConfirmInvitationReceivedEmail")]
-        public async Task<ActionResult<ResponseDto>> ConfirmInvitationReceivedEmail([FromBody] QryRegEventDto newEvent)
-        {
-            ResponseDto responseDto = new ResponseDto();
-
-            try
-            {
-                int idEvent = newEvent.ID_REG;
-
-                if (!await _appDbContext.REG_EVENTS.AnyAsync(even => even.ID_REG == idEvent))
-                    return Ok(new ResponseDto(ResponseDtoEnum.NoData));
-
-                var item = await _appDbContext.REG_EVENTS
-                    .Where((even) => even.ID_REG == idEvent).FirstOrDefaultAsync();
-
-
-                
-
-                item.MODIFY_BY = 2;
-                item.MODIFY_DATE = DateTime.Now;
-                item.ID_STATUS = 5;
-                // _appDbContext.Add(item);
-                var rs = await _appDbContext.SaveChangesAsync();
-
-                responseDto.error = false;
-                responseDto.response = item;
-            }
-            catch (Exception ex)
-            {
-                responseDto.error = true;
-                responseDto.message = ex.Message;
-            }
-
-            return Ok(responseDto);
-        }
-
-
-        // GET: RegisterEventsController
-        [HttpPost]
-        public async Task<ActionResult> SendEmail([FromForm] MailDataDto mailData)
-        {
-           mailData.Body= "<!DOCTYPE html>\r\n<html lang=\"en\" xmlns=\"http://www.w3.org/1999/xhtml\" xmlns:o=\"urn:schemas-microsoft-com:office:office\">\r\n<head>\r\n  <meta charset=\"UTF-8\">\r\n  <meta name=\"viewport\" content=\"width=device-width,initial-scale=1\">\r\n  <meta name=\"x-apple-disable-message-reformatting\">\r\n  <title></title>\r\n  <!--[if mso]>\r\n  <noscript>\r\n    <xml>\r\n      <o:OfficeDocumentSettings>\r\n        <o:PixelsPerInch>96</o:PixelsPerInch>\r\n      </o:OfficeDocumentSettings>\r\n    </xml>\r\n  </noscript>\r\n  <![endif]-->\r\n  <style>\r\n    table, td, div, h1, p {font-family: Arial, sans-serif;}\r\n  </style>\r\n</head>\r\n<body style=\"margin:0;padding:0;\">\r\n  <table role=\"presentation\" style=\"width:100%;border-collapse:collapse;border:0;border-spacing:0;background:#ffffff;\">\r\n    <tr>\r\n      <td align=\"center\" style=\"padding:0;\">\r\n        <table role=\"presentation\" style=\"width:602px;border-collapse:collapse;border:1px solid #cccccc;border-spacing:0;text-align:left;\">\r\n          <tr>\r\n            <td align=\"center\" style=\"padding:40px 0 30px 0;background:#70bbd9;\">\r\n              <img src=\"https://assets.codepen.io/210284/h1.png\" alt=\"\" width=\"300\" style=\"height:auto;display:block;\" />\r\n            </td>\r\n          </tr>\r\n          <tr>\r\n            <td style=\"padding:36px 30px 42px 30px;\">\r\n              <table role=\"presentation\" style=\"width:100%;border-collapse:collapse;border:0;border-spacing:0;\">\r\n                <tr>\r\n                  <td style=\"padding:0 0 36px 0;color:#153643;\">\r\n                    <h1 style=\"font-size:24px;margin:0 0 20px 0;font-family:Arial,sans-serif;\">Creating Email Magic</h1>\r\n                    <p style=\"margin:0 0 12px 0;font-size:16px;line-height:24px;font-family:Arial,sans-serif;\">Lorem ipsum dolor sit amet, consectetur adipiscing elit. In tempus adipiscing felis, sit amet blandit ipsum volutpat sed. Morbi porttitor, eget accumsan et dictum, nisi libero ultricies ipsum, posuere neque at erat.</p>\r\n                    <p style=\"margin:0;font-size:16px;line-height:24px;font-family:Arial,sans-serif;\"><a href=\"http://www.example.com\" style=\"color:#ee4c50;text-decoration:underline;\">In tempus felis blandit</a></p>\r\n                  </td>\r\n                </tr>\r\n                <tr>\r\n                  <td style=\"padding:0;\">\r\n                    <table role=\"presentation\" style=\"width:100%;border-collapse:collapse;border:0;border-spacing:0;\">\r\n                      <tr>\r\n                        <td style=\"width:260px;padding:0;vertical-align:top;color:#153643;\">\r\n                          <p style=\"margin:0 0 25px 0;font-size:16px;line-height:24px;font-family:Arial,sans-serif;\"><img src=\"https://assets.codepen.io/210284/left.gif\" alt=\"\" width=\"260\" style=\"height:auto;display:block;\" /></p>\r\n                          <p style=\"margin:0 0 12px 0;font-size:16px;line-height:24px;font-family:Arial,sans-serif;\">Lorem ipsum dolor sit amet, consectetur adipiscing elit. In tempus adipiscing felis, sit amet blandit ipsum volutpat sed. Morbi porttitor, eget accumsan dictum, est nisi libero ultricies ipsum, in posuere mauris neque at erat.</p>\r\n                          <p style=\"margin:0;font-size:16px;line-height:24px;font-family:Arial,sans-serif;\"><a href=\"http://www.example.com\" style=\"color:#ee4c50;text-decoration:underline;\">Blandit ipsum volutpat sed</a></p>\r\n                        </td>\r\n                        <td style=\"width:20px;padding:0;font-size:0;line-height:0;\">&nbsp;</td>\r\n                        <td style=\"width:260px;padding:0;vertical-align:top;color:#153643;\">\r\n                          <p style=\"margin:0 0 25px 0;font-size:16px;line-height:24px;font-family:Arial,sans-serif;\"><img src=\"https://assets.codepen.io/210284/right.gif\" alt=\"\" width=\"260\" style=\"height:auto;display:block;\" /></p>\r\n                          <p style=\"margin:0 0 12px 0;font-size:16px;line-height:24px;font-family:Arial,sans-serif;\">Morbi porttitor, eget est accumsan dictum, nisi libero ultricies ipsum, in posuere mauris neque at erat. Lorem ipsum dolor sit amet, consectetur adipiscing elit. In tempus adipiscing felis, sit amet blandit ipsum volutpat sed.</p>\r\n                          <p style=\"margin:0;font-size:16px;line-height:24px;font-family:Arial,sans-serif;\"><a href=\"http://www.example.com\" style=\"color:#ee4c50;text-decoration:underline;\">In tempus felis blandit</a></p>\r\n                        </td>\r\n                      </tr>\r\n                    </table>\r\n                  </td>\r\n                </tr>\r\n              </table>\r\n            </td>\r\n          </tr>\r\n          <tr>\r\n            <td style=\"padding:30px;background:#ee4c50;\">\r\n              <table role=\"presentation\" style=\"width:100%;border-collapse:collapse;border:0;border-spacing:0;font-size:9px;font-family:Arial,sans-serif;\">\r\n                <tr>\r\n                  <td style=\"padding:0;width:50%;\" align=\"left\">\r\n                    <p style=\"margin:0;font-size:14px;line-height:16px;font-family:Arial,sans-serif;color:#ffffff;\">\r\n                      &reg; Someone, Somewhere 2021<br/><a href=\"http://www.example.com\" style=\"color:#ffffff;text-decoration:underline;\">Unsubscribe</a>\r\n                    </p>\r\n                  </td>\r\n                  <td style=\"padding:0;width:50%;\" align=\"right\">\r\n                    <table role=\"presentation\" style=\"border-collapse:collapse;border:0;border-spacing:0;\">\r\n                      <tr>\r\n                        <td style=\"padding:0 0 0 10px;width:38px;\">\r\n                          <a href=\"http://www.twitter.com/\" style=\"color:#ffffff;\"><img src=\"https://assets.codepen.io/210284/tw_1.png\" alt=\"Twitter\" width=\"38\" style=\"height:auto;display:block;border:0;\" /></a>\r\n                        </td>\r\n                        <td style=\"padding:0 0 0 10px;width:38px;\">\r\n                          <a href=\"http://www.facebook.com/\" style=\"color:#ffffff;\"><img src=\"https://assets.codepen.io/210284/fb_1.png\" alt=\"Facebook\" width=\"38\" style=\"height:auto;display:block;border:0;\" /></a>\r\n                        </td>\r\n                      </tr>\r\n                    </table>\r\n                  </td>\r\n                </tr>\r\n              </table>\r\n            </td>\r\n          </tr>\r\n        </table>\r\n      </td>\r\n    </tr>\r\n  </table>\r\n</body>\r\n</html>";
-            await _emailSender.SendEmailAsync(mailData);
-
-            return Ok();
-
-        }
-
-        [HttpPost("Sendtemplate")]
-        private async Task<ResponseDto> Template(WelcomeMailTemplate welcomeMail)
-        {
-            try
-            {
-                
-                // Create MailData object
-                MailDataDto mailData = new MailDataDto()
-                {
-                    To = welcomeMail.Email,
-                    Subject = welcomeMail.Subject,
-                    Body = _emailSender.GetWelcomeTemplateEmail("Welcome", welcomeMail),
-                    EmailsCC = ListaEmailsCC
-                };
-                
-                await _emailSender.SendEmailAsync(mailData);
-
-
-
-                return new ResponseDto(ResponseDtoEnum.Success);
-            }catch(Exception ex)
-            {
-                var error= new ResponseDto(ResponseDtoEnum.Error);
-                error.message += ex.Message;
-                return error;
-            }
-            
-
-        }
-
-
-
-        private async Task<ResponseDto> TemplateEmail(WelcomeMailTemplate welcomeMail, string nameTemplate)
-        {
-            try
-            {
-                // Create MailData object
-                MailDataDto mailData = new MailDataDto()
-                {
-                    To = welcomeMail.Email,
-                    Subject = welcomeMail.Subject,
-                    Body = _emailSender.GetWelcomeTemplateEmail(nameTemplate, welcomeMail),
-                    EmailsCC = ListaEmailsCC
-                };
-                await _emailSender.SendEmailAsync(mailData);
-                return new ResponseDto(ResponseDtoEnum.Success);
-            }
-            catch (Exception ex)
-            {
-                var error = new ResponseDto(ResponseDtoEnum.Error);
-                error.message += ex.Message;
-                return error;
-            }
-        }
-
 
 
 
@@ -913,271 +804,6 @@ namespace Migracion.Talento.CoreWebApi.Controllers
             return Ok();
         }
 
-
-        [HttpPost("SendInvitation")]
-        public async Task<ActionResult<ResponseDto>> SendInvitation([FromBody] List<int> idsEventos)
-        {
-            ResponseDto responseDto = new ResponseDto();
-            try
-            {
-                string mensajeRespuesta = "";
-                foreach (int id in idsEventos)
-                {
-                    int idEvent = id;
-
-                    if (!await _appDbContext.REG_EVENTS.AnyAsync(even => even.ID_REG == idEvent))
-                        return Ok(new ResponseDto(ResponseDtoEnum.NoData));
-
-                    var item = await _appDbContext.REG_EVENTS
-                        .Include("CAT_NATIONALITIES")
-                        .Where((even) => even.ID_REG == idEvent).FirstOrDefaultAsync();
-
-                    /* Obtener los correos a los que se mandara copia*/
-                    if (await _appDbContext.REG_EVENT_ESTATES_DATE.AnyAsync(even => even.ID_REG == idEvent))
-                    {
-                    /* Obtener los eventos que tiene asociado ese id registro */
-                        var listRegEventEstates = await _appDbContext.REG_EVENT_ESTATES_DATE
-                            .Where(even => even.ID_REG == idEvent).ToListAsync();
-                        if (listRegEventEstates.Count > 0)
-                        {
-                            foreach (var regEventState in listRegEventEstates)
-                            {
-                                var eventoActual = await _appDbContext.CAT_EVENTS.Where(even => even.ID_EVENT == regEventState.ID_EVENT).SingleOrDefaultAsync();
-                                if (eventoActual != null)
-                                {
-                                    if (!string.IsNullOrEmpty(eventoActual.EMAIL1))
-                                    {
-                                        ListaEmailsCC.Add(eventoActual.EMAIL1);
-                                    }
-                                    if (!string.IsNullOrEmpty(eventoActual.EMAIL2))
-                                    {
-                                        ListaEmailsCC.Add(eventoActual.EMAIL2);
-                                    }
-                                }
-                            }
-                        }
-                    }
-
-
-                    try
-                    {
-                        bool mandarCorreo = true;
-                        if (item.ID_STATUS == 3 && item.CHECK_VERIFY == false)
-                        {
-                            mandarCorreo = false;
-                        }
-                        if (mandarCorreo)
-                        {
-                            bool esPaisRestringido = true;
-
-                            if (await _appDbContext.CAT_NATIONALITIES.AnyAsync(even => even.ID_NATIONALITY == item.ID_NATIONALITY))
-                            {
-                                var nacionalidadCat = await _appDbContext.CAT_NATIONALITIES
-                                .Where((even) => even.ID_NATIONALITY == item.ID_NATIONALITY).SingleOrDefaultAsync();
-
-                                if (!nacionalidadCat.RESTRICTION)
-                                    esPaisRestringido = false;
-                            }
-
-
-
-                            //incluye nuevos documentos pdf
-                            var queryDoctos = await _documentEvents.GetAllDocsBySecretCode(item.SECRET_CODE);
-                            var doctos = (List<InviteDto>)queryDoctos.response;
-                            var pdfdoctos = (List<DocumentDto>)queryDoctos.secondResponse;
-
-                            RegInviteController regInvite = new RegInviteController(_appDbContext, _mapper);
-                            var queryDocumentosRestriccion = await regInvite.GetAllDocsByRestrictedFlag(esPaisRestringido);
-                            var doctosRestriccionPais = (List<InviteDto>)queryDocumentosRestriccion.response;
-
-                            if (doctos != null && doctos.Count > 0)
-                            {
-
-                                string tipoEventoStr = string.Empty;
-                                if (doctos[0].ID_EVENT_TYPE != null)
-                                {
-                                    if (await _appDbContext.CAT_EVENT_TYPES.AnyAsync(even => even.ID_EVENT_TYPE == doctos[0].ID_EVENT_TYPE))
-                                    {
-                                        var PrimerTipoEvento = await _appDbContext.CAT_EVENT_TYPES
-                                            .Where((even) => even.ID_EVENT_TYPE == doctos[0].ID_EVENT_TYPE).FirstOrDefaultAsync();
-                                        if (PrimerTipoEvento != null)
-                                            tipoEventoStr = PrimerTipoEvento.DESC_ACTIVITY_SP;
-                                    }
-                                }
-
-
-                                IReporteInfo reporteInfo = new ReportInformation()
-                                {
-                                    NombreInvitado = $"{item.PASSPORT_NAME} {item.PASSPORT_LASTNAME}",
-                                    FechaEntradaAlPais = item.DATE_ARRIVE.Value.ToString("dd/MM/yyyy"),
-                                    FechaSalidaAlPais = item.DATE_LEAVE.Value.ToString("dd/MM/yyyy"),
-                                    NacionalidadEsp = item.CAT_NATIONALITIES.DESC_NACIONALITY_SP,
-                                    NacionalidadIng = item.CAT_NATIONALITIES.DESC_NACIONALITY_EN,
-                                    NumPasaporte = item.PASSPORT_NUM,
-                                    PuestoParteStaff = item.ACTUAL_JOB,
-                                    TipoArchivoGenerado = tipoEventoStr
-                                };
-
-
-                                List<InfoEventoModel> EventList = new List<InfoEventoModel>();
-                                //BUSCAR LOS EVENTOS REGISTRADOS
-                                if (await _appDbContext.REG_EVENT_ESTATES_DATE.AnyAsync(even => even.ID_REG == idEvent))
-                                {
-
-                                    var RegEventsStatesList = await _appDbContext.REG_EVENT_ESTATES_DATE
-                                        .Include("CAT_EVENTS")
-                                        .Include("CAT_ESTATES")
-                                        .Where((even) => even.ID_REG == idEvent).ToListAsync();
-                                    foreach (var currentEventEstate in RegEventsStatesList)
-                                    {
-                                        EventList.Add(new InfoEventoModel()
-                                        {
-                                            FechaInicioEvento = currentEventEstate.EVENT_DATE.ToString("dd/MM/yyyy"),
-                                            FechaFinEvento = currentEventEstate.EVENT_DATE_FIN.ToString("dd/MM/yyyy"),
-                                            InmuebleEvento = currentEventEstate.CAT_ESTATES.DESC_ESTATE_SP,
-                                            NombreEvento = currentEventEstate.CAT_EVENTS.DESC_EVENT_SP,
-                                            UbicacionInmueble = currentEventEstate.DESC_LOCATION
-                                        });
-                                    }
-                                }
-                                reporteInfo.InfoEventosList = EventList.ToList<IInfoEvento>();
-
-                                List<AttachmentFileDto> attachments = new List<AttachmentFileDto>();
-
-                                //Genera Carta invitacion
-
-                                doctos.ForEach(docto =>
-                                {
-                                    PdfManager reporte = new PdfManager();
-                                    var invitacion = reporte.GenerateDocument(docto, reporteInfo);
-                                    if (string.IsNullOrEmpty(invitacion.FileName))
-                                    {
-                                        invitacion.FileName = "Docto";
-                                    }
-                                    attachments.Add(invitacion);
-
-                                });
-
-                                doctosRestriccionPais.ForEach(docto =>
-                                {
-                                    PdfManager reporte = new PdfManager();
-                                    var invitacion = reporte.GenerateDocument(docto, reporteInfo);
-                                    if (string.IsNullOrEmpty(invitacion.FileName))
-                                    {
-                                        invitacion.FileName = "Docto";
-                                    }
-                                    attachments.Add(invitacion);
-                                });
-
-                                //documentos pdf
-                                if (pdfdoctos != null)
-                                    pdfdoctos.ForEach(pdf =>
-                                    {
-
-                                        var attachment = new AttachmentFileDto
-                                        {
-                                            File = Convert.FromBase64String(pdf.FILE_BLOB),
-                                            FileName = string.IsNullOrEmpty(pdf.DESC_SPANISH) ? "Documento" : pdf.DESC_SPANISH
-                                        };
-                                        attachments.Add(attachment);
-                                    });
-
-
-                                InvitationMailTemplate dataTemplate = new InvitationMailTemplate()
-                                {
-                                    Email = item.EMAIL,
-                                    Name = $"{item.PASSPORT_NAME} {item.PASSPORT_LASTNAME}",
-                                    Evento = item.ID_ACTIVITY.ToString(),
-                                    NumSolicitud = item.SECRET_CODE,
-                                    Subject = "OCESA",
-                                    UrlToConfirm = _configuration.UrlToConfirmReceiveDocumentation + item.ID_REG.ToString(),
-                                    attachments = attachments
-                                };
-
-                                // En caso de que se tenga expulsion del pais o antecedentes en el pais (mexico) no se deben generar cargas de ingreso, no se manda correo
-                                if ((item.CRIMINAL_RECORD_MEX != null
-                                    && item.EXPELLED_MEX != null
-                                    && (!(bool)item.CRIMINAL_RECORD_MEX
-                                    && !(bool)item.EXPELLED_MEX)) || item.CHECK_VERIFY == true)
-                                {
-                                    bool esLenguajeIngles = item.LANGUAGE != null ? item.LANGUAGE.Equals("EN") : false;
-                                    if (!esPaisRestringido)
-                                    {
-                                        if (esLenguajeIngles)
-                                        {
-                                            responseDto = await Template(TemplateTypeEnum.NationalityNotRestrictedEN, dataTemplate);
-                                        }
-                                        else
-                                        {
-                                            responseDto = await Template(TemplateTypeEnum.NationalityNotRestrictedES, dataTemplate);
-                                        }
-                                    }
-                                    else
-                                    {
-                                        if (esLenguajeIngles)
-                                        {
-                                            responseDto = await Template(TemplateTypeEnum.NationalityRestrictedEN, dataTemplate);
-                                        }
-                                        else
-                                        {
-                                            responseDto = await Template(TemplateTypeEnum.NationalityRestrictedES, dataTemplate);
-                                        }
-
-                                    }
-                                    
-
-                                }
-
-                            }
-
-                            item.ID_STATUS = 4;
-                            //Actualizar el estatus del registro al siguiente paso 
-                            var rs = await _appDbContext.SaveChangesAsync();
-                            if (responseDto.code == 200)
-                            {
-                                responseDto.error = false;
-                                responseDto.response = item;
-                                mensajeRespuesta += $"<br>El correo del registro {id} con Código {item.SECRET_CODE} se mandó correctamente.";
-                            }
-                            else
-                            {
-                                mensajeRespuesta += $"<br>El correo del registro {id} con Código {item.SECRET_CODE} NO logró mandar correctamente. Por favor vuelva a intentarlo.";
-                            }
-
-                        }
-                        else
-                        {
-                            mensajeRespuesta += $"<br>El correo del registro {id} con Código {item.SECRET_CODE} no se mandó ya que tiene antecedentes en México.";
-                        }
-                    }
-                    catch(Exception e)
-                    {
-                        mensajeRespuesta += $"<br>El correo del registro {id} con Código {item.SECRET_CODE} no se mandó ya que hubo un error al procesar el correo: {e.Message}";
-                    }
-                }
-                //desconectar envio de smtp
-                await _emailSender.DisconnectSmtpClient();
-
-                if (responseDto.code == (int)ResponseDtoEnum.Success)
-                {
-                    responseDto.message = mensajeRespuesta;
-                    return Ok(responseDto);
-                }
-                else
-                {
-                    responseDto.message = mensajeRespuesta;
-                    return Ok(responseDto);
-                }
-
-            }
-            catch (Exception ex)
-            {
-                responseDto.error = true;
-                responseDto.message = ex.Message;
-            }
-
-            return Ok(responseDto);
-        }
 
         private async Task<ResponseDto> Template(TemplateTypeEnum templateType, InvitationMailTemplate invitationMail)
         {

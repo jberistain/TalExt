@@ -3,6 +3,7 @@ using CommonTools.Csv;
 using CommonTools.DTOs.Query;
 using CommonTools.DTOs.Register;
 using CommonTools.Pdf;
+using DocumentFormat.OpenXml.Spreadsheet;
 using Microsoft.Ajax.Utilities;
 using MigracionTalentoExtranjero.Models;
 using MigracionTalentoExtranjero.Models.Administrator;
@@ -19,13 +20,14 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
+using System.IO;
 using System.Linq;
 using System.Net.Mail;
 using System.Text;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
-
+using System.IO.Compression;
 
 namespace MigracionTalentoExtranjero.Controllers
 {
@@ -888,43 +890,97 @@ namespace MigracionTalentoExtranjero.Controllers
         }
 
         [Autenticado]
-        public async Task<JsonResult> EnviarInvitaciones(List<string> idRegistroList)
+        public async Task<ActionResult> DescargarInvitaciones(List<string> idRegistroList)
         {
             responseObject = new ResponseModel();
-
-            if (idRegistroList != null)
+            try
             {
-                List<int> ids = new List<int>();
-                foreach (string id in idRegistroList)
+                if (crud == null)
+                    crud = new CRUDManager(httpManager);
+
+
+                var response = await httpManager.PostAsJsonAsync<Object, CommonTools.DTOs.Query.ResponseDto>(idRegistroList, WebAPIEndPointsEnum.DESCARGAR_LISTA_INVITACIONES.GetString());
+
+                if (!response.error)
                 {
-                    if (!string.IsNullOrEmpty(id))
-                        ids.Add(Convert.ToInt32(id));
-                }
 
+                    List<ResponseDto> listaPdfs = new List<ResponseDto>();
 
-                CRUDManager crud = new CRUDManager(httpManager);
-                var resultadoEnvios = await crud.EnviarCorreosInvitacionesPorIds(ids);
+                    foreach(var  responseObject in response.response)
+                    {
+                        ResponseDto item = new ResponseDto();
+                        item.response = responseObject.response;
+                        item.message = responseObject.message;
 
-                if (resultadoEnvios.code == 200)
-                {
-                    responseObject.response = true;
-                    responseObject.message = resultadoEnvios.message;
+                        listaPdfs.Add(item);
+                    }
+                    return GeneraZipReponse(listaPdfs);
                 }
                 else
                 {
                     responseObject.response = false;
-                    responseObject.message = resultadoEnvios.message;
+                    responseObject.message = "Error al descargar el zip";
                 }
+
             }
-            else
+            catch (Exception ex)
             {
                 responseObject.response = false;
-                responseObject.message = "No se marcó ningún elemento para enviar invitación";
+                responseObject.message = $"Error al obtener el documento: {ex.Message}";
             }
-
 
             return Json(responseObject);
         }
+
+        private FileStreamResult GeneraZipReponse(List<ResponseDto> listaPdfs) {
+            var zipFileName = $"pdfs_{DateTime.Now:yyyyMMdd_HHmmss}.zip";
+
+            // OJO: no ponemos 'using' alrededor de ms porque lo retornaremos como Stream
+            var ms = new MemoryStream();
+
+            using (var zip = new ZipArchive(ms, ZipArchiveMode.Create, leaveOpen: true))
+            {
+                int seq = 1;
+                foreach (var item in listaPdfs)
+                {
+
+                    // Quitar encabezado "data:*;base64," si existe
+                    var b64 = item.response.ToString(); // El base64 se guarda en este campo
+                    var commaIdx = b64.IndexOf(',');
+                    if (commaIdx >= 0) b64 = b64.Substring(commaIdx + 1);
+
+                    byte[] pdfBytes;
+                    try
+                    {
+                        pdfBytes = Convert.FromBase64String(b64);
+                    }
+                    catch
+                    {
+                        // si algún elemento viene corrupto, lo saltamos
+                        continue;
+                    }
+
+                    var safeName = item.message;
+
+                    var entry = zip.CreateEntry(safeName, System.IO.Compression.CompressionLevel.Optimal);
+                    using (var entryStream = entry.Open())
+                    {
+                        entryStream.Write(pdfBytes, 0, pdfBytes.Length);
+                    }
+
+                    seq++;
+                }
+            }
+
+            ms.Position = 0;
+
+            return new FileStreamResult(ms, "application/zip")
+            {
+                FileDownloadName = zipFileName
+            };
+            // Si prefieres en byte[]: var bytes = ms.ToArray(); return File(bytes, "application/zip", zipFileName);
+        }
+
 
         [Autenticado]
         public JsonResult FiltrarRegistros(DashboardModel filtros)

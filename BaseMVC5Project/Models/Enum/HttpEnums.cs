@@ -84,6 +84,7 @@ namespace MigracionTalentoExtranjero.Models.Enum
         CREATE_CATALOG_INVITE_ANOTHER_ASSISTANTS = 25009,
         UPDATE_CATALOG_INVITE_ANOTHER_ASSISTANTS = 25010,
         DELETE_CATALOG_INVITE_ANOTHER_ASSISTANTS = 25011,
+        DESCARGAR_LISTA_INVITACIONES = 25012,
     }
     public static class WebAPIEndPointsEnumExtension
     {
@@ -183,6 +184,8 @@ namespace MigracionTalentoExtranjero.Models.Enum
                     return "AnotherAssistants/UpdateAssistants";
                 case WebAPIEndPointsEnum.DELETE_CATALOG_INVITE_ANOTHER_ASSISTANTS:
                     return "AnotherAssistants/UpdateAssistants";
+                case WebAPIEndPointsEnum.DESCARGAR_LISTA_INVITACIONES:
+                    return "AnotherAssistants/DownloadInvitationsAnotherAssistants";
                 default:
                     return null;
             }

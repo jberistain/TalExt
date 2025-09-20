@@ -33,7 +33,7 @@
                     }*@
                             <li><a href="@Url.Content("~/AnotherAssistantsAdmon/Index")">Ver Registros</a></li>
                             <li><a href="@Url.Content("~/AnotherAssistantsAdmon/NuevoRegistro")">Nuevo registro</a></li>
-                        }
+                            }
                     </ul>
                 </li>
 
@@ -43,7 +43,7 @@
                         Catálogos <span class="caret"></span>
                     </a>
                     <ul class="dropdown-menu">
-                        @{
+                        @{ 
                             List<ModuloDto> listaModulos = ConsultaModulosPerfil.ObtenerModulosDeSesion();
 
                             foreach (var modulo in listaModulos)
@@ -53,20 +53,6 @@
                                     <li><a href="@Url.Content(modulo.URL_PROCESS)">@modulo.DESC_PROCESS_SP</a></li>
                                 }
                             }
-                            @*<li><a href="@Url.Content("~/Catalogs/Eventos")">Eventos</a></li>
-                    <li><a href="@Url.Content("~/Catalogs/Empresas")">Empresas</a></li>
-                    <li><a href="@Url.Content("~/Catalogs/Paises")">Paises</a></li>
-                    <li><a href="@Url.Content("~/Catalogs/Aerolineas")">Aerolineas</a></li>
-                    <li><a href="@Url.Content("~/Catalogs/Aeropuertos")">Aeropuertos</a></li>
-                    <li><a href="@Url.Content("~/Catalogs/Inmuebles")">Inmuebles</a></li>
-                    <li><a href="@Url.Content("~/Catalogs/Nacionalidades")">Nacionalidades</a></li>
-                    <li><a href="@Url.Content("~/Catalogs/Sexos")">Sexos</a></li>
-                    <li><a href="@Url.Content("~/Catalogs/Usuarios")">Usuarios</a></li>
-                    <li><a href="@Url.Content("~/Catalogs/Documentos")">Documentos</a></li>
-                    <li><a href="@Url.Content("~/Catalogs/PDFs")">PDFs</a></li>
-                    <li><a href="@Url.Content("~/Catalogs/TipoEventos")">Tipos de evento</a></li>
-                    <li><a href="@Url.Content("~/Catalogs/AvisoPrivacidad")">Aviso de Privacidad</a></li>
-                    <li><a href="@Url.Content("~/Catalogs/Perfiles")">Perfiles</a></li>*@
                         }
                     </ul>
                 </li>
@@ -125,11 +111,11 @@
                 </div>
                 <div class="row">
                     <div class="col-xs-12 col-sm-12 col-md-3">
-                        <button type="button" class="btn btn-default" onclick="enviarInvitaciones()"> Enviar Invitaciones a Marcados</button>
+                        <button type="button" class="btn btn-default" onclick="enviarInvitaciones()"> Descargar PDFs de registros marcados</button>
                     </div>
-                    <div class="col-xs-12 col-sm-12 col-md-3">
+                    @*<div class="col-xs-12 col-sm-12 col-md-3">
                         <button type="button" class="btn btn-default" onclick="generaCsvDeConsulta()"> Exportar Excel</button>
-                    </div>
+                    </div>*@
                     <div class="col-xs-12 col-sm-12 col-md-3">
                         <button type="button" class="btn btn-default" onclick="limpiarFiltros()"> Limpiar Filtros</button>
                     </div>
@@ -173,7 +159,7 @@
                 <th>FOLIO Y FECHA DE REGISTRO</th>
                 <th>CORREO ELECTRÓNICO</th>
                 <th>STATUS</th>
-                <th></th>
+                @*<th></th>*@
                 <th>EDICIÓN</th>
             </tr>
             @foreach (MigracionTalentoExtranjero.Models.Administrator.Registro registro in Model.Registros)
@@ -188,10 +174,10 @@
                     <td style="vertical-align:middle;">@registro.FolioYFechaRegistro</td>
                     <td style="vertical-align:middle;">@registro.CorreoElectronico</td>
                     <td style="vertical-align:middle;">@registro.EstatusDesc</td>
-                    <td>
+                    @*<td>
                         <button type="button" id="btn_bloquea_@registro.Id" onclick="mostrarModalEvento('@registro.ClaveSecreta')" class="glyphicon glyphicon-pawn"></button>
                         <button type="button" id="btn_elimina_@registro.Id" onclick="eliminarEvento(this.id)" class="glyphicon glyphicon-remove-sign"></button>
-                    </td>
+                    </td*@>
                     <td style="vertical-align:middle;"><button type="button" class="glyphicon glyphicon-pencil" id="open_register_@registro.Id" onclick="editarRegistro(this.id)"> Editar</button></td>
                 </tr>
             }
@@ -274,9 +260,6 @@
                     </div>
                 </div>
             </div>
-
-
-
             <br />
             <button onclick="cerrarModalEmpresa()" class="btn-group-sm center-block">Guardar Cambios</button>
             <br />
@@ -578,37 +561,78 @@
     }
 
     async function enviarInvitaciones() {
-        let url = "@Url.Content("~/AnotherAssistantsAdmon/EnviarInvitaciones")";
-        let dataJson = arregloMarcados;
+        try {
+            showLoader();
+            let urlService = "@Url.Content("~/AnotherAssistantsAdmon/DescargarInvitaciones")";
+            let dataJson = arregloMarcados;
 
-        showLoader();
-
-        const response = httpPost(
-            url,
-            dataJson
-        );
-        const dataResponse = await response
-            .then(data => {
-                return data;
-            })
-            .catch(error => {
-                console.log(error);
-                hideLoader();
+            const resp = await fetch(urlService, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(dataJson)
             });
-        console.log(dataResponse);
-        if (dataResponse.response === false) {
-            setSuccessMessageForm(dataResponse.message, 'modalAlertMessageResult');
-            popupAlert.classList.add('show');
-            accionPopupAlert = 'REFRESCAR';
-            hideLoader();
-        }
-        else {
-            setSuccessMessageForm(dataResponse.message, 'modalAlertMessageResult');
-            popupAlert.classList.add('show');
-            accionPopupAlert = 'REFRESCAR';
-            hideLoader();
-        }
 
+            if (!resp.ok) {
+                const txt = await resp.text();
+                throw new Error(`Error ${resp.status}: ${txt}`);
+            }
+
+            // Nombre de archivo desde Content-Disposition (si lo mandas)
+            let fileName = 'pdfs.zip';
+            const dispo = resp.headers.get('Content-Disposition');
+            if (dispo && dispo.includes('filename=')) {
+                const match = dispo.match(/filename\*=UTF-8''([^;]+)|filename="?([^"]+)"?/i);
+                fileName = decodeURIComponent((match && (match[1] || match[2])) || fileName);
+            }
+
+            const blob = await resp.blob();
+
+            // Soporte para IE/Edge legacy
+            if (window.navigator && window.navigator.msSaveOrOpenBlob) {
+                window.navigator.msSaveOrOpenBlob(blob, fileName);
+                return;
+            }
+
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = fileName;   // clave para que baje con ese nombre
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+            URL.revokeObjectURL(url);
+            //const response = httpPost(
+            //    url,
+            //    dataJson
+            //);
+            //const dataResponse = await response
+            //    .then(data => {
+            //        return data;
+            //    })
+            //    .catch(error => {
+            //        console.log(error);
+            //        hideLoader();
+            //    });
+            //console.log(dataResponse);
+            //if (dataResponse.response === false) {
+            //    setSuccessMessageForm(dataResponse.message, 'modalAlertMessageResult');
+            //    popupAlert.classList.add('show');
+            //    accionPopupAlert = 'REFRESCAR';
+            //}
+            //else {
+            //    setSuccessMessageForm(dataResponse.message, 'modalAlertMessageResult');
+            //    popupAlert.classList.add('show');
+            //    accionPopupAlert = 'REFRESCAR';
+            //}
+        }
+        catch (e) {
+            console.log(e);
+        }
+        finally {
+            hideLoader();
+        }
     }
 
 
