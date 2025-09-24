@@ -1,8 +1,10 @@
 ﻿using BaseMVC5Project.Models.Utils;
 using CommonTools.Csv;
+using CommonTools.DTOs;
 using CommonTools.DTOs.Query;
 using CommonTools.DTOs.Register;
 using CommonTools.Pdf;
+using DocumentFormat.OpenXml.Bibliography;
 using DocumentFormat.OpenXml.Spreadsheet;
 using Microsoft.Ajax.Utilities;
 using MigracionTalentoExtranjero.Models;
@@ -21,13 +23,13 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.IO;
+using System.IO.Compression;
 using System.Linq;
 using System.Net.Mail;
 using System.Text;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
-using System.IO.Compression;
 
 namespace MigracionTalentoExtranjero.Controllers
 {
@@ -1381,6 +1383,156 @@ namespace MigracionTalentoExtranjero.Controllers
 
             return Json(responseObject);
         }
+        #endregion
+
+        #region EXPORTA REPORTE
+
+
+        public async Task<ActionResult> ExportarReporte(DashboardModel filtros)
+        {
+            List<ReporteDto> reportesFinal = new List<ReporteDto>();
+
+            object reporteFiltros = new
+            {
+                FechaInicio = filtros.Fecha1,
+                FechaFin = filtros.Fecha2
+            };
+
+            var response = await httpManager.PostAsJsonAsync<Object, CommonTools.DTOs.Query.ResponseDto>(reporteFiltros, WebAPIEndPointsEnum.DESCARGAR_REPORTE_OTROS_ASISTENTES.GetString());
+
+
+            reportesFinal = DynamicMapper.ConvertDynamicTo<List<ReporteDto>>(response.response);
+
+
+            // Crear una instancia de Excel
+            Microsoft.Office.Interop.Excel.Application excel = new Microsoft.Office.Interop.Excel.Application();
+            Microsoft.Office.Interop.Excel.Workbook workbook = excel.Workbooks.Add();
+            Microsoft.Office.Interop.Excel.Worksheet worksheet = workbook.ActiveSheet;
+
+            // Escribir los datos en el rango de celdas
+
+            worksheet.Cells[1, 1].Value = "TOTAL EXTRANJEROS INVITADOS";
+            worksheet.Cells[1, 2].Value = "TOTAL CARTAS GENERADAS";
+            worksheet.Cells[1, 3].Value = "CARTAS GENERADAS PARA TRAMITES DE VISADO";
+            worksheet.Cells[1, 4].Value = "DESGLOCE DE EXTRANJEROS POR EVENTO";
+            worksheet.Cells[1, 5].Value = "NACIONALIDADES MAS FRECUENTES";
+            worksheet.Cells[1, 6].Value = "RESTRINGIDOS MAS FRECUENTES";
+
+            int row = 2;
+            bool primerElemento = true;
+            /* Se va a recorrer cada renglon "general" que tendra el reporte*/
+            foreach (var item in reportesFinal)
+            {
+                /* Datos de un solo renglon */
+                worksheet.Cells[row, 1].Value = item.TotalExtranjerosInmvitados;
+                worksheet.Cells[row, 2].Value = item.TotalCartasGeneradas;
+
+                /*Datos de listas*/
+                /*Cartas generadas por tramite de visado */
+                if (item.CartasGeneradasVisadoList != null && item.CartasGeneradasVisadoList.Count > 0) 
+                {
+                    foreach (CartasGeneradasVisado carta in item.CartasGeneradasVisadoList)
+                    {
+                        if (primerElemento)
+                        {
+                            worksheet.Cells[row, 3].Value = item.CartasGeneradasVisadoList[0].TotalCartas;
+                            primerElemento = false;
+                            row++;
+                        }
+                        worksheet.Cells[row, 3].Value = item.CartasGeneradasVisadoList[0].Cartas;
+                        row++;
+                    }
+
+                }
+
+                /* Reiniciar para pasar al siguiente columna - Extranjeros por evento */
+                row = 2;
+                primerElemento = true;
+                if (item.CartasGeneradasVisadoList != null && item.CartasGeneradasVisadoList.Count > 0)
+                {
+                    foreach (var elemento in item.CartasGeneradasVisadoList)
+                    {
+                        if (primerElemento)
+                        {
+                            worksheet.Cells[row, 3].Value = elemento.TotalCartas;
+                            primerElemento = false;
+                            row++;
+                        }
+                        worksheet.Cells[row, 3].Value = elemento.Cartas;
+                        row++;
+                    }
+
+                }
+
+                /* Reiniciar para pasar al siguiente columna - Extranjeros por evento */
+                row = 2;
+                primerElemento = true;
+                if (item.DesgloceExtranjerosPorEventoList != null && item.DesgloceExtranjerosPorEventoList.Count > 0)
+                {
+                    foreach (var elemento in item.DesgloceExtranjerosPorEventoList)
+                    {
+                        worksheet.Cells[row, 4].Value = $"{elemento.Evento}: {elemento.Total}";
+                        row++;
+                    }
+                }
+
+                /* Reiniciar para pasar al siguiente columna - Nacionalidades mas frecuentes */
+                row = 2;
+                primerElemento = true;
+                if (item.NacionalidadesFrecuentesList != null && item.NacionalidadesFrecuentesList.Count > 0)
+                {
+                    foreach (var elemento in item.NacionalidadesFrecuentesList)
+                    {
+                        worksheet.Cells[row, 4].Value = $"{elemento.Nacionalidad}: {elemento.Total}";
+                        row++;
+                    }
+                }
+
+                /* Reiniciar para pasar al siguiente columna - Restringidos mas frecuentes */
+                row = 2;
+                primerElemento = true;
+                if (item.RestringidosFrecuentesList != null && item.RestringidosFrecuentesList.Count > 0)
+                {
+                    foreach (var elemento in item.RestringidosFrecuentesList)
+                    {
+                        worksheet.Cells[row, 4].Value = $"{elemento.Nacionalidad}: {elemento.Total}";
+                        row++;
+                    }
+                }
+            }
+
+
+            string tempFolder = Path.GetTempPath();
+            string tempFilePath = Path.Combine(tempFolder, Guid.NewGuid().ToString() + ".xlsx");
+            // Guardar el archivo
+            workbook.SaveAs(tempFilePath);
+
+            // CERRAR Excel y liberar COM antes de leer el archivo
+            workbook.Close(false);
+            excel.Quit();
+
+            System.Runtime.InteropServices.Marshal.ReleaseComObject(workbook);
+            System.Runtime.InteropServices.Marshal.ReleaseComObject(excel);
+            workbook = null;
+            excel = null;
+
+            // Forzar recolección de basura (liberar COM completamente)
+            GC.Collect();
+            GC.WaitForPendingFinalizers();
+
+            // Ahora sí: leer el archivo del disco
+            byte[] fileBytes = System.IO.File.ReadAllBytes(tempFilePath);
+
+            // Borrar archivo temporal
+            System.IO.File.Delete(tempFilePath);
+
+            // Nombre visible para el usuario
+            string currentDate = DateTime.Now.ToString("yyyyMMdd");
+            string fileName = "Reporte_" + currentDate + ".xlsx";
+
+            return File(fileBytes, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", fileName);
+        }
+
 
 
         #endregion

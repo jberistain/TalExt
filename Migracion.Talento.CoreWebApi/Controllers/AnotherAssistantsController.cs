@@ -969,8 +969,8 @@ namespace Migracion.Talento.CoreWebApi.Controllers
 
         #region REPORTE
 
-        [HttpPost("GetRerporte")]
-        public async Task<ActionResult<ResponseDto>> GetRerporte([FromBody] ReporteDto model)
+        [HttpPost("DownloadReportAnotherassistants")]
+        public async Task<ActionResult<ResponseDto>> DownloadReportAnotherassistants([FromBody] ReporteDto model)
         {
             try
             {

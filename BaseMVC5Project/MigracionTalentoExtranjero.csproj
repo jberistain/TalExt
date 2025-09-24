@@ -227,6 +227,7 @@
     <Compile Include="Models\Utils\CatalogsManager.cs" />
     <Compile Include="Models\Utils\ComboBoxHelper.cs" />
     <Compile Include="Models\Utils\CRUDManager.cs" />
+    <Compile Include="Models\Utils\DynamicMapper.cs" />
     <Compile Include="Models\Utils\httpManager.cs" />
     <Compile Include="Models\Utils\ResponseModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
