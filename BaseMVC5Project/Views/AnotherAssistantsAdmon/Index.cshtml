@@ -118,7 +118,7 @@
             </tr>
             @foreach (MigracionTalentoExtranjero.Models.Administrator.Registro registro in Model.Registros)
             {
-                <tr style="background-color:@registro.CssBackground;">
+                <tr style="">
                     <td style="vertical-align:middle;"><input type="checkbox" id="check_element_@registro.Id" onclick="agregaQuitaEventos(this.id)" /></td>
                     <td style="vertical-align:middle;">@registro.Nombre</td>
                     <td style="vertical-align:middle;">@registro.Nacionalidad</td>
@@ -131,7 +131,7 @@
                     @*<td>
                         <button type="button" id="btn_bloquea_@registro.Id" onclick="mostrarModalEvento('@registro.ClaveSecreta')" class="glyphicon glyphicon-pawn"></button>
                         <button type="button" id="btn_elimina_@registro.Id" onclick="eliminarEvento(this.id)" class="glyphicon glyphicon-remove-sign"></button>
-                    </td*@>
+                    </td>*@
                     <td style="vertical-align:middle;"><button type="button" class="glyphicon glyphicon-pencil" id="open_register_@registro.Id" onclick="editarRegistro(this.id)"> Editar</button></td>
                 </tr>
             }

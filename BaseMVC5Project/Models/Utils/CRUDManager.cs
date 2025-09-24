@@ -1318,6 +1318,13 @@ namespace MigracionTalentoExtranjero.Models.Utils
             return result;
         }
 
+        public async Task<ResponseDto> DescargaAccesooModuloOtrosAsisPorIdUsuario(int id)
+        {
+            ResponseDto result;
+            result = await http.GetAsJsonAsync<ResponseDto>($"AnotherAssistants/GetAccessByIdUser?id={id}");
+            return result;
+        }
+
         public async Task<ResponseDto> DescargaCatalogoModulos()
         {
             ResponseDto result;

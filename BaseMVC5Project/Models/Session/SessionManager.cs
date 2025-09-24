@@ -62,6 +62,14 @@ namespace MigracionTalentoExtranjero.Models.Session
             cookie.Expires = DateTime.Now.AddDays(1);
             HttpContext.Current.Response.Cookies.Add(cookie);
         }
+        public static void AddAccessAnotherAssistantToSession(bool acceso)
+        {
+            HttpCookie cookie = new HttpCookie("AccessAnotherAssistants");
+
+            cookie.Value = acceso.ToString();
+            cookie.Expires = DateTime.Now.AddDays(1);
+            HttpContext.Current.Response.Cookies.Add(cookie);
+        }
         public static string GetMenus()
         {
             string menus = "";
@@ -73,6 +81,22 @@ namespace MigracionTalentoExtranjero.Models.Session
                 if (!string.IsNullOrEmpty(listaSerializada))
                 {
                     menus = listaSerializada;
+                }
+            }
+            return menus;
+        }
+
+        public static bool GetAccessAnotherAssistants()
+        {
+            bool menus = false;
+            // Verifica si la cookie existe
+            if (HttpContext.Current.Request.Cookies["AccessAnotherAssistants"] != null)
+            {
+                string texto = HttpUtility.UrlDecode(HttpContext.Current.Request.Cookies["AccessAnotherAssistants"].Value);
+
+                if (!string.IsNullOrEmpty(texto))
+                {
+                    menus = Convert.ToBoolean(texto);
                 }
             }
             return menus;

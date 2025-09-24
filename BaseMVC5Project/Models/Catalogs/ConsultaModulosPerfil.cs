@@ -47,6 +47,35 @@ namespace MigracionTalentoExtranjero.Models.Catalogs
 
         }
 
+        public async Task<bool> ObtenerAccesoOtrosAsisPorIdUsuario(int idUsuario)
+        {
+            bool resultado = false;
+            try
+            {
+
+                if (idUsuario > 0)
+                {
+                    HttpManager httpManager = new HttpManager(Constants.WebAPIUrl);
+                    CRUDManager crud = new CRUDManager(httpManager);
+                    var consultaPermiso = await crud.DescargaAccesooModuloOtrosAsisPorIdUsuario(idUsuario);
+
+                    if (consultaPermiso != null && consultaPermiso.code == 200)
+                    {
+                        if(consultaPermiso.response != null)
+                        {
+                            resultado = Convert.ToBoolean(consultaPermiso.response);
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                resultado= false;
+            }
+            return resultado;
+
+        }
+
 
         public static List<ModuloDto> ObtenerModulosDeSesion()
         {
@@ -59,6 +88,14 @@ namespace MigracionTalentoExtranjero.Models.Catalogs
                 
 
             return Modulos;
+        }
+
+
+        public static bool ObtenerAccesoOtrosAsisDeSesion()
+        {
+            bool serializedObject = SessionManager.GetAccessAnotherAssistants();
+
+            return serializedObject;
         }
     }
 }

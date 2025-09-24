@@ -89,7 +89,7 @@ namespace MigracionTalentoExtranjero.Controllers
                 
             }
             List<Registro> registrosEncontradosList = new List<Registro>();
-            
+
             List<ModuloDto> listaModulos = ConsultaModulosPerfil.ObtenerModulosDeSesion();
             bool buscarRegistros = false;
             foreach(var modulo in listaModulos)
@@ -105,6 +105,9 @@ namespace MigracionTalentoExtranjero.Controllers
                 registrosEncontradosList = await crud.DescargarRegistros(filter);
 
             model.Registros = registrosEncontradosList;
+
+            ViewBag.MuestraModulosOtrosAsis = ConsultaModulosPerfil.ObtenerAccesoOtrosAsisDeSesion();
+
             return View("Index",model);
         }
 
@@ -282,11 +285,13 @@ namespace MigracionTalentoExtranjero.Controllers
                         ConsultaModulosPerfil model = new ConsultaModulosPerfil();
                         var menus = await model.ObtenerModulosPorIdUsuario(userId);
 
-
-
                         string menusSerialized = SimpleJson.SerializeObject(menus);
                         SessionManager.AddMenuToSession(menusSerialized);
 
+
+                        /* Para nuevo modulo */
+                        bool AccesoNuevoModuloOtroAsis = await model.ObtenerAccesoOtrosAsisPorIdUsuario(userId);
+                        SessionManager.AddAccessAnotherAssistantToSession(AccesoNuevoModuloOtroAsis);
 
                         return RedirectToAction("Index", "Administrator");
                         // return await Index(new FilterRegisterDto());

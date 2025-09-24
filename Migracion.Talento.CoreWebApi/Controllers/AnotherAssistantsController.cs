@@ -1050,5 +1050,58 @@ namespace Migracion.Talento.CoreWebApi.Controllers
         }
 
         #endregion
+
+        #region Obtener permisos de usuario
+
+
+
+        [HttpGet("GetAccessByIdUser")]
+        public async Task<ActionResult<ResponseDto>> GetAccessByIdUser(int id)
+        {
+            ResponseDto result;
+            try
+            {
+                if (!await _appDbContext.CAT_USERS.AnyAsync(even => even.ID_USER == id))
+                    return Ok(new ResponseDto(ResponseDtoEnum.NoData));
+
+                var Usuario = await _appDbContext.CAT_USERS
+                    .Where(even => even.ID_USER == id).FirstAsync();
+
+
+                if (Usuario == null || Usuario.ID_ROLE == null || Usuario.ID_ROLE == 0)
+                    return Ok(new ResponseDto(ResponseDtoEnum.NoData) { message = "El usuario no tiene se tiene un rol asignado" });
+
+
+                int idRol = (int)Usuario.ID_ROLE;
+
+                if (!await _appDbContext.CAT_ROLE_BY_COMPANIES.AnyAsync(even => even.ID_ROLE == idRol))
+                    return Ok(new ResponseDto(ResponseDtoEnum.NoData));
+
+                var item = await _appDbContext.CAT_ROLE_BY_COMPANIES
+                    .Where((even) => even.ID_ROLE == idRol).FirstAsync();
+
+                bool tieneAcceso = false;
+                if(item.ACCESS_ANOTHER_ASSISTANTS != null)
+                {
+                    if(item.ACCESS_ANOTHER_ASSISTANTS == 1) 
+                    {
+                        tieneAcceso = true;
+                    }
+                }
+
+                result = new ResponseDto(ResponseDtoEnum.Success);
+                result.response = tieneAcceso;
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                result = new ResponseDto(ResponseDtoEnum.Error);
+                result.message = ex.Message;
+                return BadRequest(result);
+            }
+        }
+
+
+        #endregion
     }
 }
