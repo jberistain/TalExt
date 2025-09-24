@@ -84,7 +84,8 @@ namespace Migracion.Talento.CoreWebApi.Controllers
 
 
                 var item = new RoleByCompany() { ACTIVE=true, CREATED_BY=data.CREATED_BY, CREATED_DATE=DateTime.Now, 
-                    DESC_ROLE_SP = data.Descripcion, DESC_ROLE_EN=data.Descripcion, ID_ROLE=data.IdRol };
+                    DESC_ROLE_SP = data.Descripcion, DESC_ROLE_EN=data.Descripcion, ID_ROLE=data.IdRol, ACCESS_ANOTHER_ASSISTANTS = data.ACCESS_ANOTHER_ASSISTANTS
+                };
 
                 await _context.CAT_ROLE_BY_COMPANIES.AddAsync(item);
                 await _context.SaveChangesAsync();
@@ -140,6 +141,7 @@ namespace Migracion.Talento.CoreWebApi.Controllers
                 item.DESC_ROLE_SP = data.Descripcion;
                 item.DESC_ROLE_EN = data.Descripcion;
                 item.MODIFY_BY = data.MODIFY_BY;
+                item.ACCESS_ANOTHER_ASSISTANTS = data.ACCESS_ANOTHER_ASSISTANTS;
                 item.MODIFY_DATE = DateTime.Now;
                 await _context.SaveChangesAsync();
 

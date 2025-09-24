@@ -15,6 +15,7 @@ namespace CommonTools.DTOs.Register
 
         public int MODIFY_BY { get; set; }
         public int CREATED_BY { get; set; }
+        public int ACCESS_ANOTHER_ASSISTANTS { get; set; }
 
     }
 

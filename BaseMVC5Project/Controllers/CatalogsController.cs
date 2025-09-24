@@ -956,6 +956,7 @@ namespace MigracionTalentoExtranjero.Controllers
                     catalogResponse.IdRol = resultHttpRequest.response.iD_ROLE;
                     // catalogResponse.AtributoAdicionalInt1 = resultHttpRequest.response.desC_AIR_LINE_SP;
                     catalogResponse.Descripcion = resultHttpRequest.response.desC_ROLE_SP;
+                    catalogResponse.ACCESS_ANOTHER_ASSISTANTS = resultHttpRequest.response.accesS_ANOTHER_ASSISTANTS != null ? Convert.ToInt32(resultHttpRequest.response.accesS_ANOTHER_ASSISTANTS) : 0;
                 }
 
                
@@ -1033,7 +1034,7 @@ namespace MigracionTalentoExtranjero.Controllers
 
             int idUser = SessionManager.GetUser();
 
-            resultHttpRequest = await crud.ActualizarPerfil(data.IdRol, new CatalogoPerfilesDto() { Descripcion = data.Descripcion, IdRol = data.IdRol, MODIFY_BY = idUser, Modulos=data.Modulos });
+            resultHttpRequest = await crud.ActualizarPerfil(data.IdRol, new CatalogoPerfilesDto() { Descripcion = data.Descripcion, IdRol = data.IdRol, MODIFY_BY = idUser, Modulos=data.Modulos, ACCESS_ANOTHER_ASSISTANTS = data.ACCESS_ANOTHER_ASSISTANTS });
 
             if (resultHttpRequest == null)
             {
@@ -1073,7 +1074,7 @@ namespace MigracionTalentoExtranjero.Controllers
 
             int idUser = SessionManager.GetUser();
 
-            resultHttpRequest = await crud.CrearPerfil( new CatalogoPerfilesDto() { Descripcion = data.Descripcion, IdRol = data.IdRol, CREATED_BY = idUser, Modulos = data.Modulos });
+            resultHttpRequest = await crud.CrearPerfil( new CatalogoPerfilesDto() { Descripcion = data.Descripcion, IdRol = data.IdRol, CREATED_BY = idUser, Modulos = data.Modulos, ACCESS_ANOTHER_ASSISTANTS = data.ACCESS_ANOTHER_ASSISTANTS });
 
             if (resultHttpRequest == null)
             {

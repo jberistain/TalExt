@@ -12,5 +12,6 @@ namespace CommonTools.DTOs.Register
         public bool ACTIVE { get; set; } = true;
         public DateTime CREATED_DATE { get; set; } = DateTime.Now;
         public int CREATED_BY { get; set; }
+        public int? ACCESS_ANOTHER_ASSISTANTS { get; set; }
     }
 }

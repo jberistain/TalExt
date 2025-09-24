@@ -45,6 +45,7 @@
     @using (Html.BeginForm("", "", FormMethod.Post, new { id = "frm-registro-modulos" }))
     {
         @Html.HiddenFor(m=> m.IdRol)
+        @Html.HiddenFor(m=> m.ACCESS_ANOTHER_ASSISTANTS)
         <div class="contenido-modal2">
             <div class="p-2" style="width:30px; float: right; margin-top:10px;">
                 <span onclick="cerrarModal()" style="cursor: pointer; color: crimson; font-weight:bold; font-size:14px;">X</span>
@@ -59,12 +60,20 @@
                 <hr>
                 <p class="subtitulos-modal">Datos de catálogo</p>
                 <hr>
-                
+
                 <div class="row">
                     <div class="col-xs-8 col-sm-12 col-md-12 col-lg-12">
                         <div class="input-group">
                             <span class="input-group-addon">Descripción:</span>
                             @Html.TextBoxFor(m => m.Descripcion, new { @class = "form-control" })
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-xs-8 col-sm-12 col-md-12 col-lg-12">
+                        <div class="input-group">
+                            <span class="input-group-addon">Tiene acceso a "OTROS ASISTENTES"</span>
+                            @Html.CheckBox("CHKACCESS_ANOTHER_ASSISTANTS")
                         </div>
                     </div>
                 </div>
@@ -271,6 +280,7 @@
             descripcion.value = dataResponse.result.Descripcion;
             IdRol.value = dataResponse.result.IdRol;
 
+            $('#CHKACCESS_ANOTHER_ASSISTANTS').prop('checked', dataResponse.result.ACCESS_ANOTHER_ASSISTANTS == 1);
 
             const newTagElement = dataResponse.result.HtmlTablaModulos;
 
@@ -328,6 +338,7 @@
                 return;
 
 
+            $("#ACCESS_ANOTHER_ASSISTANTS").val($('#CHKACCESS_ANOTHER_ASSISTANTS').is(':checked') ? 1 : 0);
 
             let form = document.getElementById('frm-registro-modulos');
             let formJson = serializeForm(form);
