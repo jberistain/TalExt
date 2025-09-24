@@ -836,7 +836,7 @@ namespace Migracion.Talento.CoreWebApi.Controllers
         }
 
         #region ADMIN CATALOGO DOCUMENTOS
-        [HttpGet]
+        [HttpGet("GetActiveDocuments")]
         public async Task<ActionResult<ResponseDto>> GetActiveDocuments()
         {
             try

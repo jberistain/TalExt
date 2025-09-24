@@ -432,7 +432,7 @@ namespace CommonTools.Pdf
             //Configuraciones de estructura del documento
             doc.SetPageSize(PageSize.Letter);
             //28.34f son los puntos que equivalen a un cm
-            doc.SetMargins(MARGEN_IZQUIERDO_OCESA_PRESENTA, MARGEN_DERECHO_OCESA_PRESENTA, MARGEN_SUPERIOR_OCESA_PRESENTA, MARGEN_IZQUIERDO_OCESA_PRESENTA);
+            doc.SetMargins(MARGEN_IZQUIERDO_OCESA_PRESENTA*4, MARGEN_DERECHO_OCESA_PRESENTA*4, MARGEN_SUPERIOR_OCESA_PRESENTA, MARGEN_IZQUIERDO_OCESA_PRESENTA);
 
 
             // Indicamos donde vamos a guardar el documento
@@ -583,6 +583,7 @@ namespace CommonTools.Pdf
             cellGen.HorizontalAlignment = Element.ALIGN_JUSTIFIED;
             cellGen.Padding = 10;
             cellGen.BorderColorBottom = BaseColor.White;
+            cellGen.Border = Rectangle.NO_BORDER;
 
             //string celdaInglesStr = celdaIngles.ToString();
             //Phrase phraseIng = GeneraParrafoCeldaConEstilos(celdaInglesStr);
@@ -1045,68 +1046,11 @@ namespace CommonTools.Pdf
         private StringBuilder GeneraContenidoCeldaEspanOCESA(InviteDto regInvite, IReporteInfo infoEventosList)
         {
 
-
-            //Parrafo 1
-            //string NombreInvitado = infoEventosList.NombreInvitado;//"MIGUEL ANGEL VILLEGAS";
-            //string Nacionalidad = infoEventosList.Nacionalidad;// "USA";
-            //string NumPasaporte = infoEventosList.NumPasaporte;// "213123x122342";
-
-            ////Punto 6
-            //string puestoParteStaff = infoEventosList.PuestoParteStaff; //Staff
-
-            ////Punto 7
-            //string fechaEntradaAlPais = infoEventosList.FechaEntradaAlPais;// "2023/03/28";
-            //string fechaSalidaAlPais = infoEventosList.FechaSalidaAlPais;// "2023/04/28";
-
-            //string[] dataDocumentInsert = { infoEventosList.NombreInvitado,
-            //    infoEventosList.Nacionalidad,
-            //    infoEventosList.NumPasaporte,
-            //    infoEventosList.PuestoParteStaff,
-            //    infoEventosList.FechaEntradaAlPais,
-            //    infoEventosList.FechaSalidaAlPais};
-
             StringBuilder result = new StringBuilder();
             //var content = string.Format($"{regInvite.DESC_SPANISH}",  dataDocumentInsert);
             var content = ReemplazaBanderasPorContenidoPrincipalCeldasESP(infoEventosList,regInvite.DESC_SPANISH);
             result.AppendLine(content);
 
-            //string parrafo1 = $"De conformidad con el artículo 26 de los “Lineamientos para Trámites y Procedimientos Migratorios” y Trámite 1 de los “Lineamientos generales para la expedición de visas” que emiten las Secretarías de Gobernación y de Relaciones Exteriores se extiende la presente CARTA INVITACION a favor de {NombreInvitado}, de la nacionalidad de {Nacionalidad}, con número de pasaporte {NumPasaporte}, en los siguientes términos:";
-            ////result.AppendLine(parrafo1);
-            ////result.AppendLine("");
-            //string punto1 = "1.- NOMBRE COMPLETO DEL APODERADO LEGAL Y NACIONALIDAD:\nLic. Alfonso David Aragon Buendia, apoderado legal de OCESA PRESENTA, S.A. de C.V. de nacionalidad mexicana.";
-            ////result.AppendLine(punto1);
-            ////result.AppendLine("\n");
-            ////string punto2 = "2.- DENOMINACION O RAZON SOCIAL DE LA ORGANIZACIÓN: OCESA PRESENTA, S.A. de C.V. (en adelante “OCESA”)";
-            ////result.Append(punto2);
-            ////result.AppendLine("\n");
-            //string punto3 = "3.-NUMERO DE REGISTRO Y OBJETO DE LA ORGANIZACIÓN: OCESA PRESENTA, S.A. de C.V. se constituyó ante el Notario Público de la Ciudad de México Lic. Ponciano López Juárez mediante la Escritura Pública 97,765 de fecha 18 de noviembre de 2010, siendo el objeto de la sociedad entre otros la contratación, promoción y puesta en escena de todo tipo de espectáculos musicales, artísticos, cinematográficos, teatrales, deportivos y comerciales, así como la contratación de artistas, músicos, grupos musicales, y corales de danza y deportistas.";
-            ////result.Append(punto3);
-            ////result.AppendLine("\n");
-            //string punto4 = "4.- NUMERO DE CONSTANCIA DE INSCRIPCIÓN Y FECHA DE REGISTRO ANTE EL INSTITUTO NACIONAL DE MIGRACIÓN: Número 1002695236.";
-            ////result.Append(punto4);
-            ////result.AppendLine("\n");
-            //string punto5 = "5.- DOMICILIO COMPLETO Y DATOS DE CONTACTO DE LA ORGANIZACIÓN:\nLa empresa tiene su domicilio ubicado en calle Independencia No. 90, Colonia Centro (área 5), Alcaldía en Cuauhtémoc, C.P. 06050, Ciudad de México, teléfono: (55) 26296900. Nombre del Contacto: Lic. Alfonso David Aragon Buendia.";
-            ////result.Append(punto5);
-            ////result.AppendLine("\n");
-            //string punto6 = $"6.-INFORMACION SOBRE LA ACTIVIDAD QUE REALIZARA LA PERSONA EXTRANJERA INVITADA:\nParticipar como {puestoParteStaff} en el(os) evento(s) denominado(s):";
-            //int numEventos = infoEventosList.InfoEventosList.Count;
-            //int eventosRecorridos = 0;
-            //foreach (IInfoEvento evento in infoEventosList.InfoEventosList)
-            //{
-            //    eventosRecorridos++;
-            //    punto6 += $" “{evento.NombreEvento}” que se llevará acabo el día {evento.FechaEvento} en el “{evento.InmuebleEvento}” en la {evento.UbicacionInmueble}";
-            //    if (eventosRecorridos < numEventos)
-            //        punto6 += $",";
-            //    else
-            //        punto6 += $".";
-            //}
-            //result.Append(punto6);
-            //result.AppendLine("\n");
-            //string punto7 = $"7.- FECHA DE ENTRADA Y SALIDA DEL INVITADO AL PAÍS:\nEntrada el día {fechaEntradaAlPais}.\nSalida el día {fechaSalidaAlPais}.";
-            //result.Append(punto7);
-            //result.AppendLine("\n");
-            //string punto8 = $"8.- SE ADJUNTA COPIA DE LA IDENTIFICACION OFICIAL DE LA\r\nPERSONA QUE SUSCRIBE LA CARTA INVITACION. Es importante señalar que {NombreInvitado} que se mencionan en es invitado por OCESA para participar en el evento antes señalado bajo la condición de estancia de VISITANTE SIN PERMISO PARA REALIZAR ACTIVIDADES REMUNERADAS, toda vez los honorarios, sueldos y gastos de estos extranjeros son pagados íntegramente fuera del territorio nacional por empresas distintas a OCESA. Se expide la presente CARTA INVITACION únicamente para los efectos de internación al país en los términos antes señalados.";
-            //result.Append(punto8);
 
             return result;
         }

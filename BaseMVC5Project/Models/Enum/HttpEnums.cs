@@ -86,6 +86,7 @@ namespace MigracionTalentoExtranjero.Models.Enum
         DELETE_CATALOG_INVITE_ANOTHER_ASSISTANTS = 25011,
         DESCARGAR_LISTA_INVITACIONES = 25012,
         DESCARGAR_REPORTE_OTROS_ASISTENTES = 25013,
+        CONSULTA_CATALOG_DOCUMENTOS_OTROS_ASISTENTES = 25014,
     }
     public static class WebAPIEndPointsEnumExtension
     {
@@ -189,6 +190,8 @@ namespace MigracionTalentoExtranjero.Models.Enum
                     return "AnotherAssistants/DownloadInvitationsAnotherAssistants";
                 case WebAPIEndPointsEnum.DESCARGAR_REPORTE_OTROS_ASISTENTES:
                     return "AnotherAssistants/DownloadReportAnotherassistants";
+                case WebAPIEndPointsEnum.CONSULTA_CATALOG_DOCUMENTOS_OTROS_ASISTENTES:
+                    return "AnotherAssistants/GetActiveDocuments";
                 default:
                     return null;
             }

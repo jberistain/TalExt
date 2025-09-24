@@ -928,6 +928,65 @@ namespace MigracionTalentoExtranjero.Models.Utils
             return result;
         }
 
+
+
+        public async Task<List<CatalogoGeneral>> DescargaCatalogosDocumentosAnotherAssistant()
+        {
+            List<CatalogoGeneral> result = new List<CatalogoGeneral>();
+            catalogs = new CatalogsManager(http);
+            var catalogList = await catalogs.DescargarCatalogoDocumentosAnotherAssistants();
+            foreach (InviteDto item in catalogList)
+            {
+                result.Add(new CatalogoGeneral()
+                {
+                    Id = item.ID_INVITE,
+                    AtributoAdicionalInt1 = (int)item.ID_EVENT_TYPE,
+                    AtributoAdicionalStr1 = item.DES_TITLE,
+                    AtributoAdicionalStr2 = item.DESC_SPANISH,
+                    AtributoAdicionalStr3 = item.DESC_ENGLISH,
+                    AtributoAdicionalStr4 = item.SIGN_1,
+                    AtributoAdicionalStr5 = item.SIGN_2,
+                    AtributoAdicionalStr6 = item.SIGN_3,
+                    AtributoAdicionalStr7 = item.SIGN_4,
+                    AtributoAdicionalStr8 = item.FOOT_PAGE,
+                });
+            }
+
+            return result;
+        }
+        public async Task<ResponseDto> DescargaCatalogoDocumentoAnotherAssistantPorId(int id)
+        {
+            ResponseDto result;
+            result = await http.GetAsJsonAsync<ResponseDto>($"AnotherAssistants/GetDocumentById?id={id}");
+            return result;
+        }
+
+        public async Task<ResponseDto> CrearDocumentoAnotherAssistant(RegInviteDto data)
+        {
+            ResponseDto result;
+
+            result = await http.PostAsJsonAsync<object, ResponseDto>(data, $"AnotherAssistants/SaveDocument");
+
+            return result;
+        }
+
+        public async Task<ResponseDto> ActualizarDocumentoAnotherAssistant(int id, RegInviteDto data)
+        {
+            ResponseDto result;
+
+            result = await http.PostAsJsonAsync<object, ResponseDto>(data, $"AnotherAssistants/UpdateDocument?id={id}");
+
+            return result;
+        }
+        public async Task<ResponseDto> EliminarDocumentoAnotherAssistant(InviteDto data)
+        {
+            ResponseDto result;
+
+            result = await http.PostAsJsonAsync<object, ResponseDto>(data, $"AnotherAssistants/DeleteDocument");
+
+            return result;
+        }
+
         public async Task<ResponseDto> ActualizarImagenFirma(int id, RegInviteDto data)
         {
             ResponseDto result;

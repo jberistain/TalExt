@@ -254,7 +254,33 @@ namespace MigracionTalentoExtranjero.Models.Utils
             return result;
         }
 
+        public async Task<List<InviteDto>> DescargarCatalogoDocumentosAnotherAssistants()
+        {
+            List<InviteDto> result = new List<InviteDto>();
 
+            var responseHttp = await http.GetAsJsonAsync<ResponseDto>(WebAPIEndPointsEnum.CONSULTA_CATALOG_DOCUMENTOS_OTROS_ASISTENTES.GetString());
+            if (!responseHttp.error)
+            {
+                foreach (var currentValue in responseHttp.response)
+                {
+                    string currentPosition = currentValue.ToString();
+                    result.Add(new InviteDto()
+                    {
+                        ID_INVITE = currentValue.iD_INVITE,
+                        ID_EVENT_TYPE = currentValue.iD_EVENT_TYPE,
+                        DES_TITLE = currentValue.deS_TITLE,
+                        DESC_SPANISH = currentValue.desC_SPANISH,
+                        DESC_ENGLISH = currentValue.desC_ENGLISH,
+                        SIGN_1 = currentValue.sigN_1,
+                        SIGN_2 = currentValue.sigN_2,
+                        SIGN_3 = currentValue.sigN_3,
+                        SIGN_4 = currentValue.sigN_4,
+                        FOOT_PAGE = currentValue.fooT_PAGE,
+                    });
+                }
+            }
+            return result;
+        }
 
         public async Task<List<InviteDto>> DescargarCatalogoDocumentos()
         {
