@@ -87,6 +87,10 @@ namespace MigracionTalentoExtranjero.Models.Enum
         DESCARGAR_LISTA_INVITACIONES = 25012,
         DESCARGAR_REPORTE_OTROS_ASISTENTES = 25013,
         CONSULTA_CATALOG_DOCUMENTOS_OTROS_ASISTENTES = 25014,
+        CATALOG_OTROS_ARTISTAS_GET_BY_ID = 25015,
+        CATALOG_OTROS_ARTISTAS_SAVE = 25016,
+        CATALOG_OTROS_ARTISTAS_UPDATE = 25017,
+        CATALOG_OTROS_ARTISTAS_DELETE = 25018,
     }
     public static class WebAPIEndPointsEnumExtension
     {
@@ -192,6 +196,14 @@ namespace MigracionTalentoExtranjero.Models.Enum
                     return "AnotherAssistants/DownloadReportAnotherassistants";
                 case WebAPIEndPointsEnum.CONSULTA_CATALOG_DOCUMENTOS_OTROS_ASISTENTES:
                     return "AnotherAssistants/GetActiveDocuments";
+                case WebAPIEndPointsEnum.CATALOG_OTROS_ARTISTAS_GET_BY_ID:
+                    return "AnotherAssistants/GetArtistsByIdEvent";
+                case WebAPIEndPointsEnum.CATALOG_OTROS_ARTISTAS_SAVE:
+                    return "AnotherAssistants/SaveArtistForEvent";
+                case WebAPIEndPointsEnum.CATALOG_OTROS_ARTISTAS_UPDATE:
+                    return "AnotherAssistants/UpdateArtistForEvent";
+                case WebAPIEndPointsEnum.CATALOG_OTROS_ARTISTAS_DELETE:
+                    return "AnotherAssistants/DeleteArtistForEvent";
                 default:
                     return null;
             }

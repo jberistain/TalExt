@@ -3,29 +3,20 @@ using CommonTools.DTOs;
 using CommonTools.DTOs.Query;
 using CommonTools.DTOs.Register;
 using CommonTools.Enums;
-using CommonTools.Implementation;
 using CommonTools.Pdf;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Microsoft.IdentityModel.Tokens;
 using Migracion.Talento.CoreWebApi.Interfaces;
-using Migracion.Talento.CoreWebApi.Services;
 using Migracion.Talento.Entities.Models;
 using Migracion.Talento.Models;
 using Migracion.Talento.WebAPI.DataConnection;
-using Org.BouncyCastle.Crypto.IO;
 using SkiaSharp;
 using System.Globalization;
-using System.Linq;
-using System.Runtime.Loader;
 using System.Text;
-using System.Text.RegularExpressions;
-using System.util;
 using static iTextSharp.text.pdf.AcroFields;
-using static System.Net.WebRequestMethods;
 
 namespace Migracion.Talento.CoreWebApi.Controllers
 {
@@ -682,6 +673,37 @@ namespace Migracion.Talento.CoreWebApi.Controllers
             }
             List<IOtroInvitadoModel> AnotherAssistantsList = OtrosInvitadosList.ToList<IOtroInvitadoModel>();
 
+            /* Buscar los artistas */
+            List<OtroInvitadoModel> OtrosArtistas = new List<OtroInvitadoModel>();
+            OtrosArtistas.Add(new OtroInvitadoModel()
+            {
+                Apellidos = regInvite.PASSPORT_LASTNAME,
+                Nombre = regInvite.PASSPORT_NAME,
+                ActvidadEnMexico = regInvite.ACTIVITY_MEXICO,
+                IdNacionalidad = regInvite.ID_NATIONALITY.ToString(),
+                Nacionalidad = regInvite.LANGUAGE.Equals("EN") ? regInvite.CAT_NATIONALITIES.DESC_NACIONALITY_EN : regInvite.CAT_NATIONALITIES.DESC_NACIONALITY_SP,
+                NumPasaporte = regInvite.PASSPORT_NUM
+            });
+            // idEvento
+            if (await _appDbContext.ANOTHER_ARTISTS_ADMON.AnyAsync(even => even.ID_EVENT == idEvento))
+            {
+                var AnotherAssistants = await _appDbContext.ANOTHER_ARTISTS_ADMON
+                    .Include("CAT_NATIONALITIES")
+                    .Where((even) => even.ID_EVENT == idEvento).ToListAsync();
+                foreach (var currentElement in AnotherAssistants)
+                {
+                    OtrosArtistas.Add(new OtroInvitadoModel()
+                    {
+                        Apellidos = currentElement.PASSPORT_LASTNAME,
+                        Nombre = currentElement.PASSPORT_NAME,
+                        ActvidadEnMexico = currentElement.ACTIVITY_MEXICO,
+                        IdNacionalidad = currentElement.ID_NATIONALITY.ToString(),
+                        Nacionalidad = regEvent.LANGUAGE.Equals("EN") ? currentElement.CAT_NATIONALITIES.DESC_NACIONALITY_EN : currentElement.CAT_NATIONALITIES.DESC_NACIONALITY_SP,
+                        NumPasaporte = currentElement.PASSPORT_NUM
+                    });
+                }
+            }
+            List<IOtroInvitadoModel> AnotherArtistsList = OtrosArtistas.ToList<IOtroInvitadoModel>();
 
             // Buscar documento a partir del primer evento encontrado
             /* El usuario definio que solo se iban  a seleccionar eventos que fueran de la misma empresa */
@@ -703,11 +725,8 @@ namespace Migracion.Talento.CoreWebApi.Controllers
 
             //Genera Carta invitacion
             PdfManager reporte = new PdfManager();
-            var invitacion = reporte.GenerateOtherAssistantsDocument(esquemaInvitacionDto, reporteInfo, AnotherAssistantsList, regEvent.LANGUAGE);
-            if (string.IsNullOrEmpty(invitacion.FileName))
-            {
-                invitacion.FileName = "Docto";
-            }
+            var invitacion = reporte.GenerateOtherAssistantsDocument(esquemaInvitacionDto, reporteInfo, AnotherAssistantsList, AnotherArtistsList, regEvent.LANGUAGE);
+            invitacion.FileName = regEvent.ID_REG.ToString()+".pdf";
 
 
 
@@ -1103,5 +1122,92 @@ namespace Migracion.Talento.CoreWebApi.Controllers
 
 
         #endregion
+
+
+        #region Catalogo otros artistas por evento
+
+        [HttpPost("GetArtistsByIdEvent")]
+        public async Task<ActionResult<ResponseDto>> GetArtistsByIdEvent(int id)
+        {
+            /* Agregar la consulta de los registros de otros artistas en caso de que existan, esto para el nuevo modulo */
+            if (!await _appDbContext.ANOTHER_ARTISTS_ADMON.AnyAsync(even => even.ID_EVENT == (id)))
+            {
+                return Ok(new ResponseDto(ResponseDtoEnum.NoData));
+            }
+            var item = await _appDbContext.ANOTHER_ARTISTS_ADMON.Where(even => even.ID_EVENT == (id)).ToListAsync();
+            ResponseDto result = new ResponseDto(ResponseDtoEnum.Success);
+            result.response = item;
+
+            return Ok(result);
+        }
+
+        [HttpPost("SaveArtistForEvent")]
+        public async Task<ActionResult> SaveArtistForEvent([FromBody] AnotherArtistDto value)
+        {
+            try
+            {
+                var model = _mapper.Map<AnotherArtistsAdmon>(value);
+                model.CREATED_BY = 2;
+                model.CREATED_DATE = DateTime.Now;
+                _appDbContext.Add(model);
+                var rsEvent = await _appDbContext.SaveChangesAsync();
+
+                return Ok(new ResponseDto(ResponseDtoEnum.Success));
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ResponseDto(ResponseDtoEnum.Error).message + ex.Message);
+            }
+
+        }
+
+
+        [HttpPost("UpdateArtistForEvent")]
+        public async Task<ActionResult> UpdateArtistForEvent([FromBody] AnotherArtistDto value)
+        {
+            try
+            {
+                AnotherArtistsAdmon itemArtist = await _appDbContext.ANOTHER_ARTISTS_ADMON
+                                 .Where((even) => even.ID == value.ID).FirstAsync();
+                itemArtist.PASSPORT_LASTNAME = value.PASSPORT_LASTNAME;
+                itemArtist.PASSPORT_NAME = value.PASSPORT_NAME;
+                itemArtist.ACTIVITY_MEXICO = value.ACTIVITY_MEXICO;
+                itemArtist.ID_NATIONALITY = value.ID_NATIONALITY;
+                itemArtist.PASSPORT_NUM = value.PASSPORT_NUM;
+
+                _appDbContext.Add(itemArtist);
+                var rsEvent = await _appDbContext.SaveChangesAsync();
+
+                return Ok(new ResponseDto(ResponseDtoEnum.Success));
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ResponseDto(ResponseDtoEnum.Error).message + ex.Message);
+            }
+
+        }
+
+        [HttpPost("DeleteArtistForEvent")]
+        public async Task<ActionResult> Delete([FromBody] AnotherArtistDto data)
+        {
+            try
+            {
+                int id = data.ID;
+                var Event = await _appDbContext.ANOTHER_ARTISTS_ADMON.FirstOrDefaultAsync(g => g.ID_EVENT.Equals(id));
+
+                if (Event == null)
+                    return Ok(new ResponseDto(ResponseDtoEnum.NoData));
+
+                _appDbContext.Remove(Event);
+                await _appDbContext.SaveChangesAsync();
+                return Ok(new ResponseDto(ResponseDtoEnum.Success));
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ResponseDto(ResponseDtoEnum.Error).message + ex.Message);
+            }
+        }
+        #endregion
+
     }
 }

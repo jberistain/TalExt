@@ -5,6 +5,7 @@ using CommonTools.DTOs.Query;
 using CommonTools.DTOs.Register;
 using CommonTools.Pdf;
 using DocumentFormat.OpenXml.Bibliography;
+using DocumentFormat.OpenXml.Office2010.Excel;
 using DocumentFormat.OpenXml.Spreadsheet;
 using Microsoft.Ajax.Utilities;
 using MigracionTalentoExtranjero.Models;
@@ -101,20 +102,14 @@ namespace MigracionTalentoExtranjero.Controllers
             List<Registro> registrosEncontradosList = new List<Registro>();
             
             List<ModuloDto> listaModulos = ConsultaModulosPerfil.ObtenerModulosDeSesion();
-            bool buscarRegistros = false;
-            foreach(var modulo in listaModulos)
-            {
-                if(!string.IsNullOrEmpty(modulo.DESC_PROCESS_SP) && modulo.DESC_PROCESS_SP.ToUpper().Equals("REGISTROS"))
-                {
-                    buscarRegistros = true;
-                }
-            }
+            bool buscarRegistros = true;
 
-            // REGRESAR CUANDO SE CONFIGUREN PERFILES
-            buscarRegistros = true;
             ViewBag.muestraRegistros = buscarRegistros;
             if(buscarRegistros)
                 registrosEncontradosList = await crud.DescargarRegistrosAnotherAssistants(filter);
+
+
+            ViewBag.MuestraModulosOtrosAsis = ConsultaModulosPerfil.ObtenerAccesoOtrosAsisDeSesion();
 
             model.Registros = registrosEncontradosList;
             return View("Index",model);
@@ -1537,5 +1532,41 @@ namespace MigracionTalentoExtranjero.Controllers
 
         #endregion
 
+
+        #region CATALOGO OTROS ARTISTAS - EVENTOS
+
+        [HttpPost]
+        public async Task<ActionResult> ObtenerOtrosArtistasPorId(AnotherArtistDto model) {
+
+            int id = model.ID;
+
+            var response = await httpManager.PostAsJsonAsync<Object, CommonTools.DTOs.Query.ResponseDto>(id, WebAPIEndPointsEnum.CATALOG_OTROS_ARTISTAS_GET_BY_ID.GetString());
+            
+            var listaArtistasDto = DynamicMapper.ConvertDynamicTo<List<AnotherArtistDto>>(response.response);
+
+            var ListaArtistas = new List<OtroInvitadoModel>();
+            if (listaArtistasDto != null && listaArtistasDto.Count > 0)
+            {
+                foreach (var artista in listaArtistasDto)
+                {
+                    ListaArtistas.Add(new OtroInvitadoModel()
+                    {
+                        Id = artista.ID,
+                        Nombre = artista.PASSPORT_NAME,
+                        Apellidos = artista.PASSPORT_LASTNAME,
+                        Nacionalidad = artista.NATIONALITY,
+                        IdNacionalidad = artista.ID_NATIONALITY,
+                        NumPasaporte = artista.PASSPORT_NUM,
+                    });
+                }
+            }
+
+            var respuesta = new RegistroInvitadoOtrosAsisModel();
+            respuesta.OtrosAsistentes = ListaArtistas;
+
+            return PartialView("OtrosArtistasPartialView", respuesta);
+        }
+
+        #endregion
     }
 }

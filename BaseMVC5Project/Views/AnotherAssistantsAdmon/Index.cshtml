@@ -16,26 +16,23 @@
         <div class="navbar-collapse collapse">
             <ul class="nav navbar-nav navbar-right">
 
-                <li class="dropdown">
-                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
-                        Otros Asistentes <span class="caret"></span>
-                    </a>
-                    <ul class="dropdown-menu">
-                        @{
-                            @*List<ModuloDto> listaModulos = ConsultaModulosPerfil.ObtenerModulosDeSesion();
+                @if (Convert.ToBoolean(ViewBag.MuestraModulosOtrosAsis))
+                {
 
-                    foreach (var modulo in listaModulos)
-                    {
-                        if (!string.IsNullOrEmpty(modulo.DESC_PROCESS_SP) && !string.IsNullOrEmpty(modulo.URL_PROCESS))
-                        {
-                            <li><a href="@Url.Content(modulo.URL_PROCESS)">@modulo.DESC_PROCESS_SP</a></li>
-                        }
-                    }*@
-                            <li><a href="@Url.Content("~/AnotherAssistantsAdmon/Index")">Ver Registros</a></li>
-                            <li><a href="@Url.Content("~/AnotherAssistantsAdmon/NuevoRegistro")">Nuevo registro</a></li>
+                    <li class="dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+                            Otros Asistentes <span class="caret"></span>
+                        </a>
+                        <ul class="dropdown-menu">
+                            @{
+
+                                <li><a href="@Url.Content("~/AnotherAssistantsAdmon/Index")">Ver Registros</a></li>
+                                <li><a href="@Url.Content("~/AnotherAssistantsAdmon/NuevoRegistro")">Nuevo registro</a></li>
+                                <li><a href="@Url.Content("~/AnotherAssistantsAdmon/Documentos")">Formatos Invitación</a></li>
                             }
-                    </ul>
-                </li>
+                        </ul>
+                    </li>
+                }
 
 
                 <li class="dropdown">
@@ -43,7 +40,7 @@
                         Catálogos <span class="caret"></span>
                     </a>
                     <ul class="dropdown-menu">
-                        @{ 
+                        @{
                             List<ModuloDto> listaModulos = ConsultaModulosPerfil.ObtenerModulosDeSesion();
 
                             foreach (var modulo in listaModulos)
@@ -679,6 +676,7 @@
             let Fecha1 = document.getElementById("Fecha1");
             let Fecha2 = document.getElementById("Fecha2");
             // Realizar la petición AJAX
+            console.log("Se va a ejecutar la descarga de excel");
             $.ajax({
                 url: '@Url.Action("ExportarReporte", "AnotherAssistantsAdmon")',
                 type: 'POST',
@@ -689,6 +687,7 @@
                 contentType: 'application/json; charset=utf-8',
                 xhrFields: { responseType: 'blob' }, // <- clave para recibir binario
                 success: function (data, status, xhr) {
+                    console.log("success - descarga excel", data);
                     const contentType = xhr.getResponseHeader('Content-Type')
                         || 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
                     const disposition = xhr.getResponseHeader('Content-Disposition');
@@ -712,14 +711,17 @@
                     URL.revokeObjectURL(url);
                 },
                 error: function (err) {
-                    console.log(err);
+                    console.log("error - descarga excel", err);
+                    
                 }
             });
         }
         catch (e) {
-            console.log(e);
+            console.log("catch - descarga excel", e);
+            
         }
         finally {
+            console.log("finally - descarga excel", e);
             hideLoader();
         }
     }

@@ -22,6 +22,7 @@
                 <th>CORREOS CC</th>
                 <th>Eliminar</th>
                 <th>EDICIÓN</th>
+                <th>EDICIÓN</th>
             </tr>
             @foreach (MigracionTalentoExtranjero.Models.Catalogs.CatalogoGeneral registro in ViewBag.CatalogList)
             {
@@ -34,6 +35,7 @@
                         <button type="button" id="btn_elimina_@registro.Id" onclick="eliminar(this.id)" class="glyphicon glyphicon-remove-sign"></button>
                     </td>
                     <td style="vertical-align:middle;"><button type="button" class="glyphicon glyphicon-pencil" id="open_register_@registro.Id" onclick="mostrarModal(this.id)"> Editar</button></td>
+                    <td style="vertical-align:middle;"><button type="button" class="glyphicon glyphicon-pencil" id="open_register_@registro.Id" onclick="mostrarModalOtrosArtistas(this.id)"> Otros Artistas</button></td>
                 </tr>
             }
         </table>
@@ -159,6 +161,21 @@
 
 
 
+<div class="contenedor-modales" id="containerAnotherArtists">
+    <div class="contenido-modal2">
+        <div class="p-2" style="width:30px; float: right; margin-top:10px;">
+            <span onclick="cerrarModalAlert()" style="cursor: pointer; color: crimson; font-weight:bold; font-size:14px;">X</span>
+        </div>
+        <div class="contenido-modal-grupos">
+            <hr>
+            <p class="subtitulos-modal">Artistas invitados</p>
+            <hr>
+            <div id="containerAnotherArtistsContent"></div>
+            <button onclick="cerrarModalAlert()" class="btn-block">Cerrar</button>
+        </div>
+    </div>
+</div>
+
 
 
 <script type="text/javascript">
@@ -166,7 +183,7 @@
     let accionCRUD = '';
     let popupAlert = document.getElementById('containerAlert');
     let accionPopupAlert = '';
-    
+
 
     function obtenerIdDelFinal(myIdString) {
 
@@ -178,8 +195,8 @@
 
     document.addEventListener("DOMContentLoaded", function () {
         hideLoader();
-        
-        
+
+
     });
 
 
@@ -188,10 +205,10 @@
 
     async function eliminar(clicked_id) {
         let idRegistro = obtenerIdDelFinal(clicked_id);
-        
+
         if (confirm(`¿Seguro que desea eliminar el registro ${idRegistro}?`)) {
             showLoader();
-        
+
             let url = "@Url.Content("~/Catalogs/EliminarElementoCatalogo")";
 
             let params =
@@ -222,7 +239,7 @@
                 accionPopupAlert = 'REFRESCAR';
             }
             hideLoader();
-        } 
+        }
     }
 
 
@@ -318,7 +335,7 @@
 
             if (borrarFecha2)
                 AtributoAdicional2Dte.value = '';
-            
+
 
             accionCRUD = "MODIFICAR";
 
@@ -329,6 +346,45 @@
         hideLoader();
 
     }
+
+
+
+    async function mostrarModalOtrosArtistas(clicked_id) {
+        showLoader();
+        let idRegistro = obtenerIdDelFinal(clicked_id);
+        console.log("id a enviar", idRegistro);
+        let url = "@Url.Action("ObtenerOtrosArtistasPorId", "AnotherAssistantsAdmon")";
+
+        let params =
+        {
+            ID: idRegistro
+        };
+
+
+         $.ajax({
+             url: url,
+             type: 'POST',
+             data: JSON.stringify(params),
+             success: function (hmtl, status, xhr) {
+                 let popup = document.getElementById('containerAnotherArtists');
+                 $("#containerAnotherArtistsContent").html(hmtl);
+                 popup.classList.add('show');
+             },
+             error: function (err) {
+                 console.log("error - descarga excel", err);
+
+             }
+         });
+
+
+
+
+        hideLoader();
+
+    }
+
+
+
 
     function formatDate(date) {
         console.log('Fecha de la funcion: ', date);

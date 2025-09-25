@@ -419,7 +419,7 @@ namespace CommonTools.Pdf
 
 
         /* Se agrega nueva version para administrador */
-        public AttachmentFileDto GenerateOtherAssistantsDocument(InviteDto regInvite, IReporteInfo reporteInfo, List<IOtroInvitadoModel> otrosInvitados, string lenguaje)
+        public AttachmentFileDto GenerateOtherAssistantsDocument(InviteDto regInvite, IReporteInfo reporteInfo, List<IOtroInvitadoModel> otrosInvitados, List<IOtroInvitadoModel> otrosArtistas, string lenguaje)
         {
             AttachmentFileDto result = new AttachmentFileDto();
             result.FileName = $"{regInvite.FILE_NAME}";
@@ -445,7 +445,7 @@ namespace CommonTools.Pdf
             doc.AddAuthor("OCESA");
 
             doc.Open();
-            plantillaOCESAOtrosAsistentes(regInvite, reporteInfo, otrosInvitados, lenguaje);
+            plantillaOCESAOtrosAsistentes(regInvite, reporteInfo, otrosInvitados, otrosArtistas, lenguaje);
 
             doc.Close();
 
@@ -517,7 +517,7 @@ namespace CommonTools.Pdf
             return result;
         }
 
-        private void plantillaOCESAOtrosAsistentes(InviteDto regInvite, IReporteInfo reporteInfo, List<IOtroInvitadoModel> otrosInvitados, string language = "ES")
+        private void plantillaOCESAOtrosAsistentes(InviteDto regInvite, IReporteInfo reporteInfo, List<IOtroInvitadoModel> otrosInvitados, List<IOtroInvitadoModel> otrosArtistas, string language = "ES")
         {
             FontFactory.RegisterDirectories();
 
@@ -575,23 +575,13 @@ namespace CommonTools.Pdf
 
             string celdaStr = celdaGen.ToString();
             Phrase phrase = GeneraParrafoCeldaConEstilos(celdaStr, 11);
-            //string celdaEspanolStr = celdaEspanol.ToString();
-            //Phrase phraseEsp = GeneraParrafoCeldaConEstilos(celdaEspanolStr);
-            //columns.AddElement(celdaEspanText);
-            //var phraseEsp = new Phrase(celdaEspanol.ToString(), FuenteArial8);
             var cellGen = new PdfPCell(phrase);
             cellGen.HorizontalAlignment = Element.ALIGN_JUSTIFIED;
             cellGen.Padding = 10;
             cellGen.BorderColorBottom = BaseColor.White;
             cellGen.Border = Rectangle.NO_BORDER;
 
-            //string celdaInglesStr = celdaIngles.ToString();
-            //Phrase phraseIng = GeneraParrafoCeldaConEstilos(celdaInglesStr);
-            //var cellIng = new PdfPCell(phraseIng);
-            //cellIng.HorizontalAlignment = Element.ALIGN_JUSTIFIED;
-            //cellIng.Padding = 10;
-            //cellIng.BorderColorBottom = BaseColor.White;
-
+            
             //Agregar celdas de los cuerpos principales
             generalTable.AddCell(cellGen);
             //generalTable.AddCell(cellIng);
@@ -637,52 +627,12 @@ namespace CommonTools.Pdf
                     generalTable.AddCell(cellFirmaImagenEsp);
                 }
 
-                //Image signImageEng;
-                //using (MemoryStream ms = new MemoryStream(bytesImage))
-                //{
-                //    if (firma.Equals(""))
-                //    {
-                //        // Dimensiones de la imagen en blanco
-                //        int width = (int)ANCHO_IMAGEN_FIRMA;  // Ancho de la imagen
-                //        int height = (int)ALTO_IMAGEN_FIRMA; // Alto de la imagen
-                //        byte[] whiteImageData = new byte[width * height * 3]; // Imagen RGB en blanco
-                //        // Rellenar con blanco (255 en cada canal)
-                //        for (int i = 0; i < whiteImageData.Length; i++)
-                //        {
-                //            whiteImageData[i] = 255;
-                //        }
-                //        signImageEng = Image.GetInstance(width, height, 3, 8, whiteImageData);
-                //    }
-                //    else
-                //    {
-                //        signImageEng = Image.GetInstance(ms);
-                //    }
-                //    signImageEng.ScaleAbsoluteHeight(ALTO_IMAGEN_FIRMA);
-                //    signImageEng.ScaleAbsoluteWidth(ANCHO_IMAGEN_FIRMA);
-
-                //    var cellFirmaImagenIng = new PdfPCell(signImageEng);
-                //    cellFirmaImagenIng.HorizontalAlignment = Element.ALIGN_CENTER;
-                //    cellFirmaImagenIng.VerticalAlignment = Element.ALIGN_MIDDLE;
-                //    //cellFirmaImagenIng.Border = Rectangle.NO_BORDER;
-                //    cellFirmaImagenIng.PaddingTop = 10;
-                //    cellFirmaImagenIng.PaddingBottom = 10;
-
-                //    generalTable.AddCell(cellFirmaImagenIng);
-                //}
-
-
                 var phraseFirmaEsp = new Phrase(seccionFirma, FuenteArial11);
                 var cellFirmaEsp = new PdfPCell(phraseFirmaEsp);
                 cellFirmaEsp.PaddingTop = 0f;
                 cellFirmaEsp.BorderColorTop = BaseColor.White;
                 cellFirmaEsp.HorizontalAlignment = Element.ALIGN_CENTER;
                 generalTable.AddCell(cellFirmaEsp);
-
-                //var phraseFirmaIng = new Phrase(seccionFirma, FuenteArial11);
-                //var cellFirmaIng = new PdfPCell(phraseFirmaIng);
-                //cellFirmaIng.BorderColorTop = BaseColor.White;
-                //cellFirmaIng.HorizontalAlignment = Element.ALIGN_CENTER;
-                //generalTable.AddCell(cellFirmaIng);
             }
 
 
@@ -1043,12 +993,12 @@ namespace CommonTools.Pdf
             return result;
         }
 
-        private StringBuilder GeneraContenidoCeldaEspanOCESA(InviteDto regInvite, IReporteInfo infoEventosList)
+        private StringBuilder GeneraContenidoCeldaEspanOCESA(InviteDto regInvite, IReporteInfo infoEventosList, List<IOtroInvitadoModel> otrosArtistas = null)
         {
 
             StringBuilder result = new StringBuilder();
             //var content = string.Format($"{regInvite.DESC_SPANISH}",  dataDocumentInsert);
-            var content = ReemplazaBanderasPorContenidoPrincipalCeldasESP(infoEventosList,regInvite.DESC_SPANISH);
+            var content = ReemplazaBanderasPorContenidoPrincipalCeldasESP(infoEventosList,regInvite.DESC_SPANISH, otrosArtistas);
             result.AppendLine(content);
 
 
@@ -1056,7 +1006,7 @@ namespace CommonTools.Pdf
         }
 
   
-        private StringBuilder GeneraContenidoCeldaEngOCESA(InviteDto regInvite, IReporteInfo infoEventosList)
+        private StringBuilder GeneraContenidoCeldaEngOCESA(InviteDto regInvite, IReporteInfo infoEventosList, List<IOtroInvitadoModel> otrosArtistas = null)
         {
             ////Parrafo 1
             //string NombreInvitado = infoEventosList.NombreInvitado;//"MIGUEL ANGEL VILLEGAS";
@@ -1079,7 +1029,7 @@ namespace CommonTools.Pdf
                 infoEventosList.FechaSalidaAlPais};
 
             StringBuilder result = new StringBuilder();
-            var content = ReemplazaBanderasPorContenidoPrincipalCeldasENG(infoEventosList, regInvite.DESC_ENGLISH);
+            var content = ReemplazaBanderasPorContenidoPrincipalCeldasENG(infoEventosList, regInvite.DESC_ENGLISH, otrosArtistas);
             result.AppendLine(content);
 
 
@@ -1125,7 +1075,7 @@ namespace CommonTools.Pdf
 
             return result;
         }
-        private string ReemplazaBanderasPorContenidoPrincipalCeldasESP(IReporteInfo infoEvento, string texto = "")
+        private string ReemplazaBanderasPorContenidoPrincipalCeldasESP(IReporteInfo infoEvento, string texto = "", List<IOtroInvitadoModel> otrosArtistas = null)
         {
             //[NOMBRE_INVITADO]
             //[NACIONALIDAD]
@@ -1134,6 +1084,23 @@ namespace CommonTools.Pdf
             //[FECHA_INGRESO_AL_PAIS]
             //[FECHA_SALIDA_DEL_PAIS]
             //[LISTA_DE_EVENTOS]
+            //[LISTA_DE_OTROS_ARTISTAS]
+
+            if (otrosArtistas != null && otrosArtistas.Count > 0) {
+                int artistasRecorridos = 0;
+                int numArtistas = otrosArtistas.Count;
+                string artistasConcatenados = "ARTISTA INVITADO";
+                foreach (IOtroInvitadoModel evento in otrosArtistas)
+                {
+                    artistasRecorridos++;
+                    artistasConcatenados += $" “{evento.Nombre} {evento.Apellidos}”";
+                    if (artistasRecorridos < numArtistas)
+                        artistasConcatenados += $",";
+                    else
+                        artistasConcatenados += $".";
+                }
+                texto = texto.Replace("[LISTA_DE_OTROS_ARTISTAS]", artistasConcatenados);
+            }
 
             texto = texto.Replace("[NOMBRE_INVITADO]", infoEvento.NombreInvitado);
             texto = texto.Replace("[NACIONALIDAD]", infoEvento.NacionalidadEsp);
@@ -1204,7 +1171,7 @@ namespace CommonTools.Pdf
             return resultado.ToString();
         }
 
-        private string ReemplazaBanderasPorContenidoPrincipalCeldasENG(IReporteInfo infoEvento, string texto = "")
+        private string ReemplazaBanderasPorContenidoPrincipalCeldasENG(IReporteInfo infoEvento, string texto = "", List<IOtroInvitadoModel> otrosArtistas = null)
         {
             //[NOMBRE_INVITADO]
             //[NACIONALIDAD]
@@ -1213,6 +1180,24 @@ namespace CommonTools.Pdf
             //[FECHA_INGRESO_AL_PAIS]
             //[FECHA_SALIDA_DEL_PAIS]
             //[LISTA_DE_EVENTOS]
+            //[LISTA_DE_OTROS_ARTISTAS]
+
+            if (otrosArtistas != null && otrosArtistas.Count > 0)
+            {
+                int artistasRecorridos = 0;
+                int numArtistas = otrosArtistas.Count;
+                string artistasConcatenados = "INVITED ARTIST";
+                foreach (IOtroInvitadoModel evento in otrosArtistas)
+                {
+                    artistasRecorridos++;
+                    artistasConcatenados += $" “{evento.Nombre} {evento.Apellidos}”";
+                    if (artistasRecorridos < numArtistas)
+                        artistasConcatenados += $",";
+                    else
+                        artistasConcatenados += $".";
+                }
+                texto = texto.Replace("[LISTA_DE_OTROS_ARTISTAS]", artistasConcatenados);
+            }
 
             texto = texto.Replace("[NOMBRE_INVITADO]", infoEvento.NombreInvitado);
             texto = texto.Replace("[NACIONALIDAD]", infoEvento.NacionalidadIng);

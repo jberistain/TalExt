@@ -1,12 +1,13 @@
 ﻿using AutoMapper;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using Migracion.Talento.Models;
-using Migracion.Talento.WebAPI.DataConnection;
 using CommonTools.DTOs.Query;
 using CommonTools.DTOs.Register;
 using CommonTools.Enums;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using Migracion.Talento.Entities.Models;
+using Migracion.Talento.Models;
+using Migracion.Talento.WebAPI.DataConnection;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -53,7 +54,7 @@ namespace Migracion.Talento.CoreWebApi.Controllers
                 return Ok(new ResponseDto(ResponseDtoEnum.NoData));
 
             var item = await _context.CAT_EVENTS
-                .Where((even) => even.ID_EVENT == id).FirstOrDefaultAsync();
+                .Where((even) => even.ID_EVENT == id).FirstAsync();
 
             ResponseDto result = new ResponseDto(ResponseDtoEnum.Success);
             result.response = item;

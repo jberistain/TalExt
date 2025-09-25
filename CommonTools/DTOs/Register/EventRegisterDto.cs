@@ -21,6 +21,7 @@ namespace CommonTools.DTOs.Register
         public int CREATED_BY { get; set; }
         public int? MODIFY_BY { get; set; }
         public int? ID_EVENT_TYPE_ADMON { get; set; }
+        public List<AnotherArtistDto> ANOTHER_ARTISTS { get; set; }
 
     }
 }
