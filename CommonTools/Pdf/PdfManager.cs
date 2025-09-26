@@ -432,12 +432,19 @@ namespace CommonTools.Pdf
             //Configuraciones de estructura del documento
             doc.SetPageSize(PageSize.Letter);
             //28.34f son los puntos que equivalen a un cm
-            doc.SetMargins(MARGEN_IZQUIERDO_OCESA_PRESENTA*4, MARGEN_DERECHO_OCESA_PRESENTA*4, MARGEN_SUPERIOR_OCESA_PRESENTA, MARGEN_IZQUIERDO_OCESA_PRESENTA);
+            doc.SetMargins(MARGEN_IZQUIERDO_OCESA_PRESENTA*4, MARGEN_DERECHO_OCESA_PRESENTA*4, MARGEN_SUPERIOR_OCESA_PRESENTA, MARGEN_INFERIOR_OCESA_PRESENTA*4);
 
 
             // Indicamos donde vamos a guardar el documento
             bufferDoc = new MemoryStream();
             writer = PdfWriter.GetInstance(doc, bufferDoc);
+
+            // Asignar evento para footer
+            writer.PageEvent = new PdfFooter
+            {
+                TextoFooter = regInvite.FOOT_PAGE
+            };
+
             // Le colocamos el título y el autor
             // **Nota: Esto no será visible en el documento
             doc.AddTitle("OCESA");
@@ -566,6 +573,15 @@ namespace CommonTools.Pdf
             generalTable.SplitLate = false;
 
 
+            /* Agregar la fecha a la derecha*/
+            string celdaFechaStr = $"Ciudad de México, a {DateTime.Now.Day} de {DateTime.Now.ToString("MMMM", new CultureInfo("es-ES"))} de {DateTime.Now.Year}";
+            Phrase phraseFecha = new Phrase(celdaFechaStr, FuenteArial11);
+            var cellFecha = new PdfPCell(phraseFecha);
+            cellFecha.HorizontalAlignment = Element.ALIGN_RIGHT;
+            cellFecha.Padding = 10;
+            cellFecha.Border = Rectangle.NO_BORDER;
+            generalTable.AddCell(cellFecha);
+
             StringBuilder celdaGen;
             if (language.Equals("EN"))
             {
@@ -588,7 +604,7 @@ namespace CommonTools.Pdf
             generalTable.AddCell(cellGen);
             //generalTable.AddCell(cellIng);
 
-
+            Image signImageAnexo = null;
             //Agregar firmas 
             string seccionFirma = regInvite.SIGN_1;
             if (!string.IsNullOrEmpty(seccionFirma))
@@ -623,29 +639,36 @@ namespace CommonTools.Pdf
                     var cellFirmaImagenEsp = new PdfPCell(signImageEsp);
                     cellFirmaImagenEsp.HorizontalAlignment = Element.ALIGN_CENTER;
                     cellFirmaImagenEsp.VerticalAlignment = Element.ALIGN_MIDDLE;
-                    //cellFirmaImagenEsp.Border = Rectangle.NO_BORDER;
+                    cellFirmaImagenEsp.Border = Rectangle.NO_BORDER;
                     cellFirmaImagenEsp.PaddingTop = 10;
                     cellFirmaImagenEsp.PaddingBottom = 10;
                     generalTable.AddCell(cellFirmaImagenEsp);
+
+
+                    signImageAnexo = Image.GetInstance(signImageEsp);
+
                 }
 
                 var phraseFirmaEsp = new Phrase(seccionFirma, FuenteArial11);
                 var cellFirmaEsp = new PdfPCell(phraseFirmaEsp);
-                cellFirmaEsp.PaddingTop = 0f;
-                cellFirmaEsp.BorderColorTop = BaseColor.White;
-                cellFirmaEsp.BorderColorLeft = BaseColor.White;
-                cellFirmaEsp.BorderColorRight = BaseColor.White;
+                cellFirmaEsp.PaddingTop = 2f;
+                cellFirmaEsp.PaddingBottom = 5f;
+                cellFirmaEsp.Border = Rectangle.TOP_BORDER;
+                cellFirmaEsp.BorderWidthTop = 1f;
                 cellFirmaEsp.HorizontalAlignment = Element.ALIGN_CENTER;
+                cellFirmaEsp.VerticalAlignment = Element.ALIGN_MIDDLE;
+
                 generalTable.AddCell(cellFirmaEsp);
+
             }
 
 
 
-            var footerList = new List<Paragraph>();
-            if (!string.IsNullOrEmpty(regInvite.FOOT_PAGE))
-            {
-                footerList = GeneraParrafoFooterConEstilos(regInvite.FOOT_PAGE);
-            }
+            //var footerList = new List<Paragraph>();
+            //if (!string.IsNullOrEmpty(regInvite.FOOT_PAGE))
+            //{
+            //    footerList = GeneraParrafoFooterConEstilos(regInvite.FOOT_PAGE);
+            //}
 
 
 
@@ -658,6 +681,7 @@ namespace CommonTools.Pdf
             #region Seccion Anexo 1
 
             doc.NewPage();
+            doc.Add(new Paragraph("\n\n")); // dos saltos de línea
             // 3) Tabla de 5 columnas
             var tableTituloAnexo = new PdfPTable(1)
             {
@@ -741,10 +765,46 @@ namespace CommonTools.Pdf
             doc.Add(table);
             #endregion
 
-            foreach (var footer in footerList)
+
+            #region FirmaAnexo
+            if (signImageAnexo != null)
             {
-                doc.Add(footer);
+                PdfPCell cellFirmaAnexo = null;
+                
+                var tableFirmaAnexo = new PdfPTable(new float[] { 100f });
+                tableFirmaAnexo.WidthPercentage = 100;
+                tableFirmaAnexo.SplitLate = false;
+
+                var cellFirmaImagenEsp = new PdfPCell(signImageAnexo);
+                cellFirmaImagenEsp.HorizontalAlignment = Element.ALIGN_CENTER;
+                cellFirmaImagenEsp.VerticalAlignment = Element.ALIGN_MIDDLE;
+                cellFirmaImagenEsp.Border = Rectangle.NO_BORDER;
+                cellFirmaImagenEsp.PaddingTop = 10;
+                cellFirmaImagenEsp.PaddingBottom = 10;
+                tableFirmaAnexo.AddCell(cellFirmaImagenEsp);
+
+
+
+                var phraseFirmaEsp = new Phrase(seccionFirma, FuenteArial11);
+                var cellFirmaEsp = new PdfPCell(phraseFirmaEsp);
+                cellFirmaEsp.PaddingTop = 2f;
+                cellFirmaEsp.PaddingBottom = 5f;
+                cellFirmaEsp.Border = Rectangle.TOP_BORDER;
+                cellFirmaEsp.BorderWidthTop = 1f;
+                cellFirmaEsp.HorizontalAlignment = Element.ALIGN_CENTER;
+                cellFirmaEsp.VerticalAlignment = Element.ALIGN_MIDDLE;
+                
+                tableFirmaAnexo.AddCell(cellFirmaEsp);
+
+                doc.Add(tableFirmaAnexo);
             }
+            #endregion
+
+
+            //foreach (var footer in footerList)
+            //{
+            //    doc.Add(footer);
+            //}
         }
 
         private PdfPCell CreaNuevaCeldaTablaOtrosInvitados(string phraseStr) {
