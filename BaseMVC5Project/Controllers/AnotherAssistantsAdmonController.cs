@@ -38,7 +38,7 @@ namespace MigracionTalentoExtranjero.Controllers
     public class AnotherAssistantsAdmonController : Controller
     {
         private ComboBoxHelper CB = new ComboBoxHelper();
-        private RegistroInvitadoModel registroInvitado;
+        private RegistroInvitadoOtrosAsisModel registroInvitado;
         private ResponseModel responseObject;
         private HttpManager httpManager = new HttpManager(Constants.WebAPIUrl);
         private CRUDManager crud;
@@ -122,12 +122,12 @@ namespace MigracionTalentoExtranjero.Controllers
         /// <param name="language"></param>
         /// <param name="modelFound"></param>
         /// <returns></returns>
-        public async Task<ActionResult> NuevoRegistro(string language, RegistroInvitadoModel modelFound)
+        public async Task<ActionResult> NuevoRegistro(string language, RegistroInvitadoOtrosAsisModel modelFound)
         {
             try
             {
                 if (modelFound == null)
-                    registroInvitado = new RegistroInvitadoModel();
+                    registroInvitado = new RegistroInvitadoOtrosAsisModel();
                 else
                 {
                     registroInvitado = modelFound;
@@ -646,6 +646,37 @@ namespace MigracionTalentoExtranjero.Controllers
                     }
                 }
                 ViewBag.NacionalidadesOptionsHTML = HtmlOpcionesNacionalidades;
+
+
+                /* Llenar las nacionalidades de cada elemento existente de otros invitados */
+                if(registroInvitado.OtrosAsistentes != null && registroInvitado.OtrosAsistentes.Count > 0)
+                {
+                    registroInvitado.OtrosAsistentesNacionalidadesComboBox = new List<string>();
+                    for (int j= 0; j< registroInvitado.OtrosAsistentes.Count; j++)
+                    {
+                        string HtmlOpcionesNacionalidadesActual = "<select class=\"form-control\" id=\"OtrosAsistentes_"+ j + "__IdNacionalidad\" name=\"OtrosAsistentes["+ j + "].IdNacionalidad\" required=\"required\" style=\"position:initial\">";
+                        /* recorrer las nacionalidades t selecciona la que tiene el asistente, asigna el html al equivalente */
+                        for (int i = 0; i < ListaNacionalidades.Count; i++)
+                        {
+                            string opcionSeleccionada = "";
+                            if (ListaNacionalidades[i].Id.ToString().Equals(registroInvitado.OtrosAsistentes[j].IdNacionalidad))
+                                opcionSeleccionada = "selected=\"selected\"";
+                            if (ListaNacionalidades[i].AtributoAdicionalStr1.Equals("SI"))
+                            {
+                                HtmlOpcionesNacionalidadesActual += $"<option {opcionSeleccionada} style=\"color:red;\" value=\"{ListaNacionalidades[i].Id}\">{ListaNacionalidades[i].Descripcion}</option>";
+                            }
+                            else
+                            {
+                                HtmlOpcionesNacionalidadesActual += $"<option {opcionSeleccionada} style value=\"{ListaNacionalidades[i].Id}\">{ListaNacionalidades[i].Descripcion}</option>";
+                            }
+                        }
+
+                        HtmlOpcionesNacionalidadesActual += "</select>";
+                        registroInvitado.OtrosAsistentesNacionalidadesComboBox.Add(HtmlOpcionesNacionalidadesActual);
+                    }
+
+                }
+
             }
             catch (Exception e)
             {
@@ -745,6 +776,27 @@ namespace MigracionTalentoExtranjero.Controllers
 
                     }
 
+
+                    /* Agregar artistas nuevos */
+                    List<AnotherArtistDto> Artists = null;
+                    if (model.ArtistasInvitados != null && model.ArtistasInvitados.Count > 0)
+                    {
+                        Artists = new List<AnotherArtistDto>();
+                        foreach (OtroInvitadoModel currentInvite in model.ArtistasInvitados)
+                        {
+                            if (!string.IsNullOrEmpty(currentInvite.Nombre))
+                            {
+                                int idCurrentAssistant = string.IsNullOrEmpty(currentInvite.Id) ? 0 : int.Parse(currentInvite.Id);
+                                Artists.Add(new AnotherArtistDto
+                                {
+                                    ID = idCurrentAssistant,
+                                    PASSPORT_NAME = currentInvite.Nombre
+                                });
+                            }
+                        }
+
+                    }
+
                     DateTime fechaInicioVigenciaPasaporte = new DateTime(Convert.ToInt32(model.AnioExpPas), Convert.ToInt32(model.MesExpPas), Convert.ToInt32(model.DiaExpPas));
                     DateTime fechaExpiracionPasaporte = new DateTime(Convert.ToInt32(model.AnioVenPas), Convert.ToInt32(model.MesVenPas), Convert.ToInt32(model.DiaVenPas));
 
@@ -787,7 +839,8 @@ namespace MigracionTalentoExtranjero.Controllers
                         MODIFY_BY = idUser,
                         CHECK_VERIFY = model.CHECK_VERIFY,
                         Events = Events,
-                        ANOTHER_ASSISTANTS_ADMON_LIST = Assistants
+                        ANOTHER_ASSISTANTS_ADMON_LIST = Assistants,
+                        ANOTHER_ARTISTS_ADMON_LIST = Artists
                     };
 
                     response = await httpManager.PostAsJsonAsync<Object, ResponseDto>(requestObject, WebAPIEndPointsEnum.UPDATE_REGISTER_ANOTHER_ASSISTANTS.GetString());
@@ -1538,7 +1591,7 @@ namespace MigracionTalentoExtranjero.Controllers
         [HttpPost]
         public async Task<ActionResult> ObtenerOtrosArtistasPorId(AnotherArtistDto model) {
 
-            int id = model.ID;
+            int id = model.ID_EVENT;
 
             var response = await httpManager.PostAsJsonAsync<Object, CommonTools.DTOs.Query.ResponseDto>(id, WebAPIEndPointsEnum.CATALOG_OTROS_ARTISTAS_GET_BY_ID.GetString());
             
@@ -1564,7 +1617,86 @@ namespace MigracionTalentoExtranjero.Controllers
             var respuesta = new RegistroInvitadoOtrosAsisModel();
             respuesta.OtrosAsistentes = ListaArtistas;
 
+
+            CRUDManager crud = new CRUDManager(httpManager);
+
+            var ListaNacionalidades = await crud.DescargaCatalogosNacionalidad("ES");
+
+            string htmlNacionalidades = "<select class=\"form-control\" id=\"Nacionalidad\" name=\"Nacionalidad\" required=\"required\" style=\"position:initial\">" +
+                "<option value=\"\"></option>\r\n"
+                ;
+            for (int i = 0; i < ListaNacionalidades.Count; i++)
+            {
+                string opcionSeleccionada = "";
+                if (ListaNacionalidades[i].AtributoAdicionalStr1.Equals("SI"))
+                {
+                    htmlNacionalidades += $"<option {opcionSeleccionada} style=\"color:red;\" value=\"{ListaNacionalidades[i].Id}\">{ListaNacionalidades[i].Descripcion}</option>";
+                }
+                else
+                {
+                    htmlNacionalidades += $"<option {opcionSeleccionada} style value=\"{ListaNacionalidades[i].Id}\">{ListaNacionalidades[i].Descripcion}</option>";
+                }
+            }
+
+            htmlNacionalidades += "</select>";
+            ViewBag.HTMLNacionalidades = htmlNacionalidades;
+
+            respuesta.IdEvento = model.ID_EVENT;
+
+
             return PartialView("OtrosArtistasPartialView", respuesta);
+        }
+
+        [HttpPost]
+        public async Task<ActionResult> CrearArtista(RegistroInvitadoOtrosAsisModel model)
+        {
+            responseObject = new ResponseModel();
+            AnotherArtistDto artista = new AnotherArtistDto()
+            {
+                PASSPORT_NAME = model.Nombre,
+                PASSPORT_LASTNAME = model.Apellidos,
+                ACTIVITY_MEXICO = model.ActividadEnMexico,
+                ID_NATIONALITY = Convert.ToInt32(model.Nacionalidad),
+                PASSPORT_NUM = model.NumeroPasaporte,
+                ID_EVENT = model.IdEvento
+            };
+            var response = await httpManager.PostAsJsonAsync<Object, CommonTools.DTOs.Query.ResponseDto>(artista, WebAPIEndPointsEnum.CATALOG_OTROS_ARTISTAS_SAVE.GetString());
+
+            if (!response.error)
+            {
+                responseObject.SetDefaultSuccessConfiguration();
+                responseObject.result = response;
+            }
+            return Json(responseObject);
+        }
+
+        [HttpPost]
+        public async Task<ActionResult> ActualizarArtista(AnotherArtistDto model)
+        {
+            responseObject = new ResponseModel();
+            var response = await httpManager.PostAsJsonAsync<Object, CommonTools.DTOs.Query.ResponseDto>(model, WebAPIEndPointsEnum.CATALOG_OTROS_ARTISTAS_UPDATE.GetString());
+
+            if (!response.error)
+            {
+                responseObject.SetDefaultSuccessConfiguration();
+                responseObject.result = response;
+            }
+            return Json(responseObject);
+        }
+
+        [HttpPost]
+        public async Task<ActionResult> BorrarArtista(AnotherArtistDto model)
+        {
+
+            responseObject = new ResponseModel();
+            var response = await httpManager.PostAsJsonAsync<Object, CommonTools.DTOs.Query.ResponseDto>(model, WebAPIEndPointsEnum.CATALOG_OTROS_ARTISTAS_DELETE.GetString());
+
+            if (!response.error)
+            {
+                responseObject.SetDefaultSuccessConfiguration();
+                responseObject.result = response;
+            }
+            return Json(responseObject);
         }
 
         #endregion

@@ -35,7 +35,10 @@ namespace Migracion.Talento.WebAPI.DataConnection
         public DbSet<AnotherArtistsAdmon> ANOTHER_ARTISTS_ADMON { get; set; }
         public DbSet<RegInviteAdmon> REG_INVITE_ADMON { get; set; }
         public DbSet<RegEventsAdmon> REG_EVENTS_ADMON { get; set; }
-        public DbSet<RegEvenStateDateAdmon> REG_EVENT_ESTATES_DATE_ADMON { get; set; } 
+        public DbSet<RegEvenStateDateAdmon> REG_EVENT_ESTATES_DATE_ADMON { get; set; }
+
+
+
 
 
     }

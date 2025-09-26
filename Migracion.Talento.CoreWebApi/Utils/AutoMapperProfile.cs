@@ -33,7 +33,6 @@ namespace Migracion.Talento.CoreWebApi.Utils
             CreateMap<RegEventAnotherAssistantDto, RegEventsAdmon>();
             CreateMap<RegEvenStateDateDto, RegEvenStateDateAdmon>();
             CreateMap<AnotherAssistantDto, AnotherAssistantsAdmon>();
-            CreateMap<AnotherAssistantDto, AnotherArtistsAdmon>();
 
 
 
@@ -66,8 +65,9 @@ namespace Migracion.Talento.CoreWebApi.Utils
             CreateMap<RegEvenStateDateAdmon, RegEvenStateDateAdmonDto>();
             CreateMap<RegInviteAdmon, InviteDto>();
             CreateMap<AnotherAssistantsAdmon, AnotherAssistantDto>();
-            CreateMap<AnotherArtistsAdmon, AnotherAssistantDto>();
             CreateMap<RegInviteDto, RegInviteAdmon>();
+            CreateMap<AnotherArtistDto, AnotherArtistsAdmon>();
+            CreateMap<AnotherArtistsAdmon, AnotherArtistDto>();
 
         }
     }

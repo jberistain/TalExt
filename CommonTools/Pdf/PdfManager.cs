@@ -445,7 +445,9 @@ namespace CommonTools.Pdf
             doc.AddAuthor("OCESA");
 
             doc.Open();
-            plantillaOCESAOtrosAsistentes(regInvite, reporteInfo, otrosInvitados, otrosArtistas, lenguaje);
+            /* Obtener el nombre del primer evento */
+            string nombrePrimerEvento = reporteInfo.InfoEventosList[0].NombreEvento;
+            plantillaOCESAOtrosAsistentes(regInvite, reporteInfo, otrosInvitados, otrosArtistas, nombrePrimerEvento, lenguaje);
 
             doc.Close();
 
@@ -517,7 +519,7 @@ namespace CommonTools.Pdf
             return result;
         }
 
-        private void plantillaOCESAOtrosAsistentes(InviteDto regInvite, IReporteInfo reporteInfo, List<IOtroInvitadoModel> otrosInvitados, List<IOtroInvitadoModel> otrosArtistas, string language = "ES")
+        private void plantillaOCESAOtrosAsistentes(InviteDto regInvite, IReporteInfo reporteInfo, List<IOtroInvitadoModel> otrosInvitados, List<IOtroInvitadoModel> otrosArtistas, string nombrePrimerEvento, string language = "ES")
         {
             FontFactory.RegisterDirectories();
 
@@ -567,10 +569,10 @@ namespace CommonTools.Pdf
             StringBuilder celdaGen;
             if (language.Equals("EN"))
             {
-                celdaGen = GeneraContenidoCeldaEngOCESA(regInvite, reporteInfo);
+                celdaGen = GeneraContenidoCeldaEngOCESA(regInvite, reporteInfo, otrosArtistas);
             }
             else {
-                celdaGen = GeneraContenidoCeldaEspanOCESA(regInvite, reporteInfo);
+                celdaGen = GeneraContenidoCeldaEspanOCESA(regInvite, reporteInfo, otrosArtistas, nombrePrimerEvento);
             }
 
             string celdaStr = celdaGen.ToString();
@@ -631,6 +633,8 @@ namespace CommonTools.Pdf
                 var cellFirmaEsp = new PdfPCell(phraseFirmaEsp);
                 cellFirmaEsp.PaddingTop = 0f;
                 cellFirmaEsp.BorderColorTop = BaseColor.White;
+                cellFirmaEsp.BorderColorLeft = BaseColor.White;
+                cellFirmaEsp.BorderColorRight = BaseColor.White;
                 cellFirmaEsp.HorizontalAlignment = Element.ALIGN_CENTER;
                 generalTable.AddCell(cellFirmaEsp);
             }
@@ -649,6 +653,43 @@ namespace CommonTools.Pdf
             //doc.Add(new Paragraph("\n"));
             //doc.Add(columns);
             doc.Add(generalTable);
+
+
+            #region Seccion Anexo 1
+
+            doc.NewPage();
+            // 3) Tabla de 5 columnas
+            var tableTituloAnexo = new PdfPTable(1)
+            {
+                WidthPercentage = 100f,
+                SpacingBefore = 5f,
+                SpacingAfter = 5f
+            };
+            tableTituloAnexo.SetWidths(new float[] { 10 });
+
+            var cellTituloAnexo = new PdfPCell(new Phrase("ANEXO 1", FuenteArial11Negrita))
+            {
+                Border = Rectangle.NO_BORDER,
+                Padding = 5f,
+                HorizontalAlignment = Element.ALIGN_CENTER,
+                VerticalAlignment = Element.ALIGN_MIDDLE
+            };
+            //
+            //
+            string tituloAnexo1 = "LISTA DE INVITADOS EVENTO [NOMBRE_PRIMER_EVENTO] [LISTA_DE_OTROS_ARTISTAS]";
+            tituloAnexo1 = GeneraTituloAnexo1OtrosInvitados(tituloAnexo1, otrosArtistas, nombrePrimerEvento);
+            
+            var cellTituloAnexolista = new PdfPCell(new Phrase(tituloAnexo1, FuenteArial11Negrita))
+            {
+                Border = Rectangle.NO_BORDER,
+                Padding = 5f,
+                HorizontalAlignment = Element.ALIGN_CENTER,
+                VerticalAlignment = Element.ALIGN_MIDDLE
+            };
+            tableTituloAnexo.AddCell(cellTituloAnexo);
+            tableTituloAnexo.AddCell(cellTituloAnexolista);
+
+            doc.Add(tableTituloAnexo);
 
             /* Agregar extra de la lista */
             // 2) Fuentes
@@ -698,6 +739,7 @@ namespace CommonTools.Pdf
 
             // 6) Agregar la tabla al documento
             doc.Add(table);
+            #endregion
 
             foreach (var footer in footerList)
             {
@@ -993,12 +1035,12 @@ namespace CommonTools.Pdf
             return result;
         }
 
-        private StringBuilder GeneraContenidoCeldaEspanOCESA(InviteDto regInvite, IReporteInfo infoEventosList, List<IOtroInvitadoModel> otrosArtistas = null)
+        private StringBuilder GeneraContenidoCeldaEspanOCESA(InviteDto regInvite, IReporteInfo infoEventosList, List<IOtroInvitadoModel> otrosArtistas = null, string nombrePrimerEvento="")
         {
 
             StringBuilder result = new StringBuilder();
             //var content = string.Format($"{regInvite.DESC_SPANISH}",  dataDocumentInsert);
-            var content = ReemplazaBanderasPorContenidoPrincipalCeldasESP(infoEventosList,regInvite.DESC_SPANISH, otrosArtistas);
+            var content = ReemplazaBanderasPorContenidoPrincipalCeldasESP(infoEventosList,regInvite.DESC_SPANISH, otrosArtistas, nombrePrimerEvento);
             result.AppendLine(content);
 
 
@@ -1075,7 +1117,7 @@ namespace CommonTools.Pdf
 
             return result;
         }
-        private string ReemplazaBanderasPorContenidoPrincipalCeldasESP(IReporteInfo infoEvento, string texto = "", List<IOtroInvitadoModel> otrosArtistas = null)
+        private string ReemplazaBanderasPorContenidoPrincipalCeldasESP(IReporteInfo infoEvento, string texto = "", List<IOtroInvitadoModel> otrosArtistas = null, string nombrePrimerEvento = "")
         {
             //[NOMBRE_INVITADO]
             //[NACIONALIDAD]
@@ -1085,15 +1127,16 @@ namespace CommonTools.Pdf
             //[FECHA_SALIDA_DEL_PAIS]
             //[LISTA_DE_EVENTOS]
             //[LISTA_DE_OTROS_ARTISTAS]
+            //[NOMBRE_PRIMER_EVENTO]
 
             if (otrosArtistas != null && otrosArtistas.Count > 0) {
                 int artistasRecorridos = 0;
                 int numArtistas = otrosArtistas.Count;
-                string artistasConcatenados = "ARTISTA INVITADO";
+                string artistasConcatenados = " ARTISTA INVITADO";
                 foreach (IOtroInvitadoModel evento in otrosArtistas)
                 {
                     artistasRecorridos++;
-                    artistasConcatenados += $" “{evento.Nombre} {evento.Apellidos}”";
+                    artistasConcatenados += $" “{evento.Nombre}”";
                     if (artistasRecorridos < numArtistas)
                         artistasConcatenados += $",";
                     else
@@ -1108,6 +1151,7 @@ namespace CommonTools.Pdf
             texto = texto.Replace("[PUESTO_STAFF]", infoEvento.PuestoParteStaff);
             texto = texto.Replace("[FECHA_INGRESO_AL_PAIS]", infoEvento.FechaEntradaAlPais);
             texto = texto.Replace("[FECHA_SALIDA_DEL_PAIS]", infoEvento.FechaSalidaAlPais);
+            texto = texto.Replace("[NOMBRE_PRIMER_EVENTO]", $"“{nombrePrimerEvento}”");
 
 
             int numEventos = infoEvento.InfoEventosList.Count;
@@ -1127,6 +1171,34 @@ namespace CommonTools.Pdf
 
             return texto;
         }
+
+        private string GeneraTituloAnexo1OtrosInvitados(string texto = "", List<IOtroInvitadoModel> otrosArtistas = null, string nombrePrimerEvento="")
+        {
+            //[LISTA_DE_OTROS_ARTISTAS]
+            //[NOMBRE_PRIMER_EVENTO]
+
+            if (otrosArtistas != null && otrosArtistas.Count > 0)
+            {
+                int artistasRecorridos = 0;
+                int numArtistas = otrosArtistas.Count;
+                string artistasConcatenados = " ARTISTA INVITADO";
+                foreach (IOtroInvitadoModel evento in otrosArtistas)
+                {
+                    artistasRecorridos++;
+                    artistasConcatenados += $" “{evento.Nombre}”";
+                    if (artistasRecorridos < numArtistas)
+                        artistasConcatenados += $",";
+                    else
+                        artistasConcatenados += $".";
+                }
+                texto = texto.Replace("[LISTA_DE_OTROS_ARTISTAS]", artistasConcatenados);
+            }
+
+            texto = texto.Replace("[NOMBRE_PRIMER_EVENTO]", $"“{nombrePrimerEvento}”");
+
+            return texto;
+        }
+
 
         private string RemplazaIntervaloDeFechasEventoPorTexto(string fechaInicioStr, string fechaFinStr, bool lenguajeES = true)
         {

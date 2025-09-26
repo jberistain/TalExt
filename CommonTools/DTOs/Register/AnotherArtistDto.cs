@@ -7,6 +7,7 @@ namespace CommonTools.DTOs.Register
     public class AnotherArtistDto
     {
         public int ID { get; set; }
+        public int ID_EVENT { get; set; }
         public string PASSPORT_LASTNAME { get; set; }
         public string PASSPORT_NAME { get; set; }
         public string ACTIVITY_MEXICO { get; set; }

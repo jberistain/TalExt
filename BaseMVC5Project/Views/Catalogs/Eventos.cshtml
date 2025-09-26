@@ -22,7 +22,6 @@
                 <th>CORREOS CC</th>
                 <th>Eliminar</th>
                 <th>EDICIÓN</th>
-                <th>EDICIÓN</th>
             </tr>
             @foreach (MigracionTalentoExtranjero.Models.Catalogs.CatalogoGeneral registro in ViewBag.CatalogList)
             {
@@ -35,7 +34,6 @@
                         <button type="button" id="btn_elimina_@registro.Id" onclick="eliminar(this.id)" class="glyphicon glyphicon-remove-sign"></button>
                     </td>
                     <td style="vertical-align:middle;"><button type="button" class="glyphicon glyphicon-pencil" id="open_register_@registro.Id" onclick="mostrarModal(this.id)"> Editar</button></td>
-                    <td style="vertical-align:middle;"><button type="button" class="glyphicon glyphicon-pencil" id="open_register_@registro.Id" onclick="mostrarModalOtrosArtistas(this.id)"> Otros Artistas</button></td>
                 </tr>
             }
         </table>
@@ -357,14 +355,16 @@
 
         let params =
         {
-            ID: idRegistro
+            ID_EVENT: idRegistro
         };
 
-
+        let jsonStr = JSON.stringify(params);
+        console.log(jsonStr);
          $.ajax({
              url: url,
              type: 'POST',
-             data: JSON.stringify(params),
+             data: jsonStr,
+             contentType: 'application/json; charset=utf-8',
              success: function (hmtl, status, xhr) {
                  let popup = document.getElementById('containerAnotherArtists');
                  $("#containerAnotherArtistsContent").html(hmtl);

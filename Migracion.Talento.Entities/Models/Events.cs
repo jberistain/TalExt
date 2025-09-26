@@ -23,6 +23,5 @@ namespace Migracion.Talento.Models
         public DateTime? MODIFY_DATE { get; set; }
         public int? MODIFY_BY { get; set; }
         public int? ID_EVENT_TYPE_ADMON { get; set; }
-        public List<AnotherArtistsAdmon> ANOTHER_ARTISTS { get; set; }
     }
 }

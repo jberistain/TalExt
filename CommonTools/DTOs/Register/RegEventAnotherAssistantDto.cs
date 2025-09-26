@@ -44,5 +44,6 @@ namespace CommonTools.DTOs.Register
         public string NOMBRE_NUEVA_AEROLINEA { get; set; }
         public List<RegEvenStateDateDto> EVENTS { get; set; }
         public List<AnotherAssistantDto> ANOTHER_ASSISTANTS { get; set; }
+        public List<AnotherArtistDto> ANOTHER_ARTISTS { get; set; }
     }
 }

@@ -4,133 +4,234 @@
 }
 <div class="panel-body">
     <div class="container">
-
-        <div class="panel panel-info" style="margin-right: 60px; ">
-            <div class="row">
-                <div class="col-xs-12 col-sm-12 col-md-4">
-                    <div class="">
-                        <div class="form-group">
-                            <label>* @Model.LabelNombre</label>
-                            @Html.TextBoxFor(m => m.Nombre, new { @class = "form-control", required = "required" })
-                            @Html.ValidationMessageFor(m => m.Nombre, null, new { @class = "label label-danger" })
-                        </div>
-                    </div>
-                </div>
-                <div class="col-xs-12 col-sm-12 col-md-4">
-                    <div class="">
-                        <div class="form-group">
-                            <label>* @Model.LabelApellidos</label>
-                            @Html.TextBoxFor(m => m.Apellidos, new { @class = "form-control", required = "required" })
-                            @Html.ValidationMessageFor(m => m.Apellidos, null, new { @class = "label label-danger" })
-                        </div>
-                    </div>
-                </div>
-                <div class="col-xs-12 col-sm-12 col-md-4">
-                    <div class="">
-                        <div class="form-group">
-                            <label>* @Model.LabelActividadEnMexico</label>
-                            @Html.TextBoxFor(m => m.ActividadEnMexico, new { @class = "form-control", required = "required" })
-                            @Html.ValidationMessageFor(m => m.ActividadEnMexico, null, new { @class = "label label-danger" })
-                        </div>
-                    </div>
-                </div>
-                <div class="col-xs-12 col-sm-12 col-md-4">
-                    <div class="">
-                        <div class="form-group">
-                            <label>* @Model.LabelNacionalidad</label>
-                            @Html.Raw(ViewBag.HTMLNacionalidades)
-                        </div>
-                    </div>
-                </div>
-                <div class="col-xs-12 col-sm-12 col-md-4">
-                    <div class="">
-                        <div class="form-group">
-                            <label>* @Model.LabelNumPasaporte</label>
-                            @Html.TextBoxFor(m => m.NumeroPasaporte, new { @class = "form-control", required = "required" })
-                            @Html.ValidationMessageFor(m => m.NumeroPasaporte, null, new { @class = "label label-danger" })
-                        </div>
-                    </div>
-                </div>
-                <div class="col-xs-12 col-sm-12 col-md-4">
-                    <div class="">
-                        <div class="form-group">
-                            <button onclick="GuardarNuevoArtista()" class="btn-block">Guardar nuevo artista</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-        </div>
-
-
-        @if (!Model.OtrosAsistentes.Any())
+        @using (Html.BeginForm("", "", FormMethod.Post, new { id = "frm-nuevo-artista" }))
         {
-            <div class="row">
-                <div class="col-xs-12 col-sm-12 col-md-4">
-                    <div class="">
-                        <div class="form-group">
-                            <label>Sin registros</label>
+            @Html.HiddenFor(m=> m.IdEvento)
+            <div class="panel panel-info" style="margin-right: 60px; ">
+                <div class="row">
+                    <div class="col-xs-12 col-sm-12 col-md-4">
+                        <div class="">
+                            <div class="form-group">
+                                <label>* @Model.LabelNombre</label>
+                                @Html.TextBoxFor(m => m.Nombre, new { @class = "form-control", required = "required" })
+                                @Html.ValidationMessageFor(m => m.Nombre, null, new { @class = "label label-danger" })
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xs-12 col-sm-12 col-md-4">
+                        <div class="">
+                            <div class="form-group">
+                                <label>* @Model.LabelApellidos</label>
+                                @Html.TextBoxFor(m => m.Apellidos, new { @class = "form-control", required = "required" })
+                                @Html.ValidationMessageFor(m => m.Apellidos, null, new { @class = "label label-danger" })
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xs-12 col-sm-12 col-md-4">
+                        <div class="">
+                            <div class="form-group">
+                                <label>* @Model.LabelActividadEnMexico</label>
+                                @Html.TextBoxFor(m => m.ActividadEnMexico, new { @class = "form-control", required = "required" })
+                                @Html.ValidationMessageFor(m => m.ActividadEnMexico, null, new { @class = "label label-danger" })
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xs-12 col-sm-12 col-md-4">
+                        <div class="">
+                            <div class="form-group">
+                                <label>* @Model.LabelNacionalidad</label>
+                                @Html.Raw(ViewBag.HTMLNacionalidades)
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xs-12 col-sm-12 col-md-4">
+                        <div class="">
+                            <div class="form-group">
+                                <label>* @Model.LabelNumPasaporte</label>
+                                @Html.TextBoxFor(m => m.NumeroPasaporte, new { @class = "form-control", required = "required" })
+                                @Html.ValidationMessageFor(m => m.NumeroPasaporte, null, new { @class = "label label-danger" })
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xs-12 col-sm-12 col-md-4">
+                        <div class="">
+                            <div class="form-group">
+                                <button onclick="GuardarNuevoArtista()" class="btn-block">Guardar nuevo artista</button>
+                            </div>
                         </div>
                     </div>
                 </div>
+
             </div>
         }
-        else
-        {
-            for (int index = 0; index < Model.OtrosAsistentes.Count; index++)
-            {
 
-                <div class="panel panel-info" id="panel_otroinvitado_@index" style="margin-right: 60px; background-color: #EDFEFF ">
-                    <div class="row">
-                        <div class="col-xs-12 col-sm-12 col-md-4">
-                            <div class="">
-                                <div class="form-group">
-                                    <label>* @Model.LabelNombre</label>
-                                    @Html.TextBoxFor(m => m.OtrosAsistentes[index].Nombre, new { @class = "form-control", required = "required" })
-                                    @Html.ValidationMessageFor(m => m.OtrosAsistentes[index].Nombre, null, new { @class = "label label-danger" })
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-xs-12 col-sm-12 col-md-4">
-                            <div class="">
-                                <div class="form-group">
-                                    <label>* @Model.LabelApellidos</label>
-                                    @Html.TextBoxFor(m => m.OtrosAsistentes[index].Apellidos, new { @class = "form-control", required = "required" })
-                                    @Html.ValidationMessageFor(m => m.OtrosAsistentes[index].Apellidos, null, new { @class = "label label-danger" })
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-xs-12 col-sm-12 col-md-4">
-                            <div class="">
-                                <div class="form-group">
-                                    <label>* @Model.LabelActividadEnMexico</label>
-                                    @Html.TextBoxFor(m => m.OtrosAsistentes[index].ActvidadEnMexico, new { @class = "form-control", required = "required" })
-                                    @Html.ValidationMessageFor(m => m.OtrosAsistentes[index].ActvidadEnMexico, null, new { @class = "label label-danger" })
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-xs-12 col-sm-12 col-md-4">
-                            <div class="">
-                                <div class="form-group">
-                                    <label>* @Model.LabelNacionalidad</label>
-                                    @*@Html.DropDownListFor(m => m.Nacionalidad, (List<SelectListItem>)ViewBag.NacionalidadesList, new { @class = "form-control", style = "position:initial", required = "required" })*@
-                                    @Html.Raw(ViewBag.HTMLNacionalidades)
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-xs-12 col-sm-12 col-md-4">
-                            <div class="">
-                                <div class="form-group">
-                                    <label>* @Model.LabelNumPasaporte</label>
-                                    @Html.TextBoxFor(m => m.OtrosAsistentes[index].NumPasaporte, new { @class = "form-control", required = "required" })
-                                    @Html.ValidationMessageFor(m => m.OtrosAsistentes[index].NumPasaporte, null, new { @class = "label label-danger" })
-                                </div>
+            @if (!Model.OtrosAsistentes.Any())
+            {
+                <div class="row">
+                    <div class="col-xs-12 col-sm-12 col-md-4">
+                        <div class="">
+                            <div class="form-group">
+                                <label>Sin registros</label>
                             </div>
                         </div>
                     </div>
-
                 </div>
             }
-        }
-    </div>
+            else
+            {
+                for (int index = 0; index < Model.OtrosAsistentes.Count; index++)
+                {
+
+                    <div class="panel panel-info" id="panel_otroinvitado_@index" style="margin-right: 60px; background-color: #EDFEFF ">
+                        <div class="row">
+                            @Html.HiddenFor(m=> m.OtrosAsistentes[index].Id)
+                            <div class="col-xs-12 col-sm-12 col-md-4">
+                                <div class="">
+                                    <div class="form-group">
+                                        <label>* @Model.LabelNombre</label>
+                                        @Html.TextBoxFor(m => m.OtrosAsistentes[index].Nombre, new { @class = "form-control", required = "required" })
+                                        @Html.ValidationMessageFor(m => m.OtrosAsistentes[index].Nombre, null, new { @class = "label label-danger" })
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-xs-12 col-sm-12 col-md-4">
+                                <div class="">
+                                    <div class="form-group">
+                                        <label>* @Model.LabelApellidos</label>
+                                        @Html.TextBoxFor(m => m.OtrosAsistentes[index].Apellidos, new { @class = "form-control", required = "required" })
+                                        @Html.ValidationMessageFor(m => m.OtrosAsistentes[index].Apellidos, null, new { @class = "label label-danger" })
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-xs-12 col-sm-12 col-md-4">
+                                <div class="">
+                                    <div class="form-group">
+                                        <label>* @Model.LabelActividadEnMexico</label>
+                                        @Html.TextBoxFor(m => m.OtrosAsistentes[index].ActvidadEnMexico, new { @class = "form-control", required = "required" })
+                                        @Html.ValidationMessageFor(m => m.OtrosAsistentes[index].ActvidadEnMexico, null, new { @class = "label label-danger" })
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-xs-12 col-sm-12 col-md-4">
+                                <div class="">
+                                    <div class="form-group">
+                                        <label>* @Model.LabelNacionalidad</label>
+                                        @*@Html.DropDownListFor(m => m.Nacionalidad, (List<SelectListItem>)ViewBag.NacionalidadesList, new { @class = "form-control", style = "position:initial", required = "required" })*@
+                                        @Html.Raw(ViewBag.HTMLNacionalidades)
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-xs-12 col-sm-12 col-md-4">
+                                <div class="">
+                                    <div class="form-group">
+                                        <label>* @Model.LabelNumPasaporte</label>
+                                        @Html.TextBoxFor(m => m.OtrosAsistentes[index].NumPasaporte, new { @class = "form-control", required = "required" })
+                                        @Html.ValidationMessageFor(m => m.OtrosAsistentes[index].NumPasaporte, null, new { @class = "label label-danger" })
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-xs-12 col-sm-12 col-md-4">
+                                <div class="">
+                                    <div class="form-group">
+                                        <button onclick="EliminarArtista(@Model.OtrosAsistentes[index].Id)" class="btn-block">Eliminar</button>
+                                        <button onclick="ActualizarArtista(@Model.OtrosAsistentes[index].Id)" class="btn-block">Actualizar</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                }
+            }
         </div>
+</div>
+
+<script type="text/javascript">
+    document.addEventListener("DOMContentLoaded", function () {
+        hideLoader();
+    });
+
+    async function GuardarNuevoArtista() {
+        showLoader();
+        let form = document.getElementById('frm-nuevo-artista');
+        console.log(form);
+            let formJson = serializeForm(form);
+            let url = "@Url.Content("~/AnotherAssistantsAdmon/CrearArtista")";
+
+            const response = httpPost(
+                url,
+                formJson
+            );
+            const dataResponse = await response
+                .then(data => {
+                    return data;
+                })
+                .catch(error => {
+                    console.log(error);
+                });
+
+        console.log(dataResponse);
+        if (dataResponse.response !== false) {
+            window.location.reload(true);
+        }
+
+        hideLoader();
+    }
+
+    async function ActualizarArtista(idArtista) {
+        showLoader();
+        let form = document.getElementById('frm-nuevo');
+        console.log(form);
+            let formJson = serializeForm(form);
+            let url = "@Url.Content("~/AnotherAssistantsAdmon/ActualizarArtista")";
+
+            const response = httpPost(
+                url,
+                formJson
+            );
+            const dataResponse = await response
+                .then(data => {
+                    return data;
+                })
+                .catch(error => {
+                    console.log(error);
+                });
+
+        console.log(dataResponse);
+        if (dataResponse.response !== false) {
+            window.location.reload(true);
+        }
+
+        hideLoader();
+    }
+
+    async function EliminarArtista(idArtista) {
+        showLoader();
+        let form = document.getElementById('frm-nuevo');
+        console.log(form);
+            let formJson = serializeForm(form);
+            let url = "@Url.Content("~/AnotherAssistantsAdmon/BorrarArtista")";
+
+            const response = httpPost(
+                url,
+                formJson
+            );
+            const dataResponse = await response
+                .then(data => {
+                    return data;
+                })
+                .catch(error => {
+                    console.log(error);
+                });
+
+        console.log(dataResponse);
+        if (dataResponse.response !== false) {
+            window.location.reload(true);
+        }
+
+        hideLoader();
+    }
+
+</script>
+
+

@@ -41,27 +41,22 @@
                 </div>
                 <div class="navbar-collapse collapse">
                     <ul class="nav navbar-nav navbar-right">
-                        <li class="dropdown">
-                            <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
-                                Otros Asistentes <span class="caret"></span>
-                            </a>
-                            <ul class="dropdown-menu">
-                                @{
-                                    @*List<ModuloDto> listaModulos = ConsultaModulosPerfil.ObtenerModulosDeSesion();
+                        @if (ConsultaModulosPerfil.ObtenerAccesoOtrosAsisDeSesion())
+                        {
+                            <li class="dropdown">
+                                <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+                                    Otros Asistentes <span class="caret"></span>
+                                </a>
+                                <ul class="dropdown-menu">
+                                    @{
 
-                                    foreach (var modulo in listaModulos)
-                                    {
-                                        if (!string.IsNullOrEmpty(modulo.DESC_PROCESS_SP) && !string.IsNullOrEmpty(modulo.URL_PROCESS))
-                                        {
-                                            <li><a href="@Url.Content(modulo.URL_PROCESS)">@modulo.DESC_PROCESS_SP</a></li>
-                                        }
-                                    }*@
-                                    <li><a href="@Url.Content("~/AnotherAssistantsAdmon/Index")">Ver Registros</a></li>
-                                    <li><a href="@Url.Content("~/AnotherAssistantsAdmon/NuevoRegistro")">Nuevo registro</a></li>
-                                }
-                            </ul>
-                        </li>
-
+                                        <li><a href="@Url.Content("~/AnotherAssistantsAdmon/Index")">Ver Registros</a></li>
+                                        <li><a href="@Url.Content("~/AnotherAssistantsAdmon/NuevoRegistro")">Nuevo registro</a></li>
+                                        <li><a href="@Url.Content("~/AnotherAssistantsAdmon/Documentos")">Formatos Invitación</a></li>
+                                    }
+                                </ul>
+                            </li>
+                        }
 
                         <li class="dropdown">
                             <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">

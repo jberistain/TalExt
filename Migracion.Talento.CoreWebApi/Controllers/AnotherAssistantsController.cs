@@ -202,6 +202,19 @@ namespace Migracion.Talento.CoreWebApi.Controllers
                     RegEventsDto.ANOTHER_ASSISTANTS_ADMON_LIST = listAnotherAssistantsFound;
 
 
+
+                List<AnotherArtistDto> listAnotherArtistsFound = null;
+                if (await _appDbContext.ANOTHER_ARTISTS_ADMON.AnyAsync(even => even.ID_REG == id))
+                {
+                    listAnotherArtistsFound = new List<AnotherArtistDto>();
+
+                    var itemsEvents = await _appDbContext.ANOTHER_ARTISTS_ADMON
+                        .Where((eventos) => eventos.ID_REG == id).ToListAsync();
+                    listAnotherArtistsFound = _mapper.Map<List<AnotherArtistDto>>(itemsEvents);
+                }
+                if (listAnotherArtistsFound != null)
+                    RegEventsDto.ANOTHER_ARTISTS_ADMON_LIST = listAnotherArtistsFound;
+
                 ResponseDto result = new ResponseDto(ResponseDtoEnum.Success);
                 result.response = RegEventsDto;
 
@@ -302,6 +315,23 @@ namespace Migracion.Talento.CoreWebApi.Controllers
                         modelEvent.ACTIVITY_MEXICO = currentElement.ACTIVITY_MEXICO;
                         modelEvent.ID_NATIONALITY = currentElement.ID_NATIONALITY;
                         modelEvent.PASSPORT_NUM = currentElement.PASSPORT_NUM;
+                        modelEvent.ACTIVE = true;
+                        modelEvent.CREATED_DATE = DateTime.Now;
+                        modelEvent.CREATED_BY = 2;
+                        modelEvent.ID_REG = model.ID_REG;
+                        _appDbContext.Add(modelEvent);
+                        var rsEvent = await _appDbContext.SaveChangesAsync();
+                    }
+                }
+
+
+                /* Guardar los otros artistas */
+                if (newEvent.ANOTHER_ARTISTS != null)
+                {
+                    foreach (AnotherArtistDto currentElement in newEvent.ANOTHER_ARTISTS)
+                    {
+                        var modelEvent = _mapper.Map<AnotherArtistsAdmon>(currentElement);
+                        modelEvent.PASSPORT_NAME = currentElement.PASSPORT_NAME;
                         modelEvent.ACTIVE = true;
                         modelEvent.CREATED_DATE = DateTime.Now;
                         modelEvent.CREATED_BY = 2;
@@ -433,6 +463,40 @@ namespace Migracion.Talento.CoreWebApi.Controllers
                     }
                 }
 
+                /* Actualizar lista de otros artistas invitados */
+                if (newEvent.ANOTHER_ARTISTS_ADMON_LIST != null)
+                {
+                    foreach (AnotherArtistDto currentEvent in newEvent.ANOTHER_ARTISTS_ADMON_LIST)
+                    {
+                        AnotherArtistsAdmon itemEvent;
+                        if (currentEvent.ID != 0)
+                        {
+                            id = currentEvent.ID;
+                            itemEvent = await _appDbContext.ANOTHER_ARTISTS_ADMON
+                                 .Where((even) => even.ID == currentEvent.ID).FirstAsync();
+                            itemEvent.PASSPORT_NAME = currentEvent.PASSPORT_NAME;
+                            itemEvent.MODIFY_BY = newEvent.MODIFY_BY;
+                            itemEvent.MODIFY_DATE = DateTime.Now;
+                            itemEvent.ACTIVE = true;
+                        }
+                        else
+                        {
+                            itemEvent = new AnotherArtistsAdmon();
+                            itemEvent.CREATED_DATE = DateTime.Now;
+                            itemEvent.CREATED_BY = newEvent.MODIFY_BY;
+                            itemEvent.ID_REG = newEvent.ID_REG;
+
+                            itemEvent.PASSPORT_NAME = currentEvent.PASSPORT_NAME;
+                            itemEvent.MODIFY_BY = newEvent.MODIFY_BY;
+                            itemEvent.MODIFY_DATE = DateTime.Now;
+                            itemEvent.ACTIVE = true;
+
+                            await _appDbContext.AddAsync(itemEvent);
+                        }
+
+                        var rsEvent = await _appDbContext.SaveChangesAsync();
+                    }
+                }
 
                 id = newEvent.ID_REG;
                 var genderDb = await _appDbContext.REG_EVENTS_ADMON.AnyAsync(g => g.ID_REG == id);
@@ -562,8 +626,10 @@ namespace Migracion.Talento.CoreWebApi.Controllers
                                 PASSPORT_LASTNAME = dto.PASSPORT_LASTNAME,
                                 PASSPORT_NAME = dto.PASSPORT_NAME,
                                 ACTIVITY_MEXICO = dto.ACTIVITY_MEXICO,
-                                ID_NATIONALITY = dto.ID_NATIONALITY,
-                                PASSPORT_NUM = pass
+                                ID_NATIONALITY = currentNationality.ID_NATIONALITY,
+                                PASSPORT_NUM = pass,
+                                ACTIVE = true,
+                                CREATED_BY=2
                             };
                             await _appDbContext.AddAsync(newAssistant);
                         }
@@ -684,22 +750,16 @@ namespace Migracion.Talento.CoreWebApi.Controllers
                 Nacionalidad = regInvite.LANGUAGE.Equals("EN") ? regInvite.CAT_NATIONALITIES.DESC_NACIONALITY_EN : regInvite.CAT_NATIONALITIES.DESC_NACIONALITY_SP,
                 NumPasaporte = regInvite.PASSPORT_NUM
             });
-            // idEvento
-            if (await _appDbContext.ANOTHER_ARTISTS_ADMON.AnyAsync(even => even.ID_EVENT == idEvento))
+
+            if (await _appDbContext.ANOTHER_ARTISTS_ADMON.AnyAsync(even => even.ID_REG == regEvent.ID_REG))
             {
                 var AnotherAssistants = await _appDbContext.ANOTHER_ARTISTS_ADMON
-                    .Include("CAT_NATIONALITIES")
-                    .Where((even) => even.ID_EVENT == idEvento).ToListAsync();
+                    .Where((even) => even.ID_REG == regEvent.ID_REG).ToListAsync();
                 foreach (var currentElement in AnotherAssistants)
                 {
                     OtrosArtistas.Add(new OtroInvitadoModel()
                     {
-                        Apellidos = currentElement.PASSPORT_LASTNAME,
                         Nombre = currentElement.PASSPORT_NAME,
-                        ActvidadEnMexico = currentElement.ACTIVITY_MEXICO,
-                        IdNacionalidad = currentElement.ID_NATIONALITY.ToString(),
-                        Nacionalidad = regEvent.LANGUAGE.Equals("EN") ? currentElement.CAT_NATIONALITIES.DESC_NACIONALITY_EN : currentElement.CAT_NATIONALITIES.DESC_NACIONALITY_SP,
-                        NumPasaporte = currentElement.PASSPORT_NUM
                     });
                 }
             }
@@ -1126,30 +1186,32 @@ namespace Migracion.Talento.CoreWebApi.Controllers
 
         #region Catalogo otros artistas por evento
 
-        [HttpPost("GetArtistsByIdEvent")]
+        [HttpPost("GetArtistsByIdRegEvent")]
         public async Task<ActionResult<ResponseDto>> GetArtistsByIdEvent(int id)
         {
             /* Agregar la consulta de los registros de otros artistas en caso de que existan, esto para el nuevo modulo */
-            if (!await _appDbContext.ANOTHER_ARTISTS_ADMON.AnyAsync(even => even.ID_EVENT == (id)))
+            if (!await _appDbContext.ANOTHER_ARTISTS_ADMON.AnyAsync(even => even.ID_REG == (id)))
             {
                 return Ok(new ResponseDto(ResponseDtoEnum.NoData));
             }
-            var item = await _appDbContext.ANOTHER_ARTISTS_ADMON.Where(even => even.ID_EVENT == (id)).ToListAsync();
+            var item = await _appDbContext.ANOTHER_ARTISTS_ADMON.Where(even => even.ID_REG == (id)).ToListAsync();
             ResponseDto result = new ResponseDto(ResponseDtoEnum.Success);
             result.response = item;
 
             return Ok(result);
         }
 
-        [HttpPost("SaveArtistForEvent")]
+        [HttpPost("SaveArtistForRegEvent")]
         public async Task<ActionResult> SaveArtistForEvent([FromBody] AnotherArtistDto value)
         {
             try
             {
+                // En nationality llega el numero del catalogo seleccionado
                 var model = _mapper.Map<AnotherArtistsAdmon>(value);
                 model.CREATED_BY = 2;
                 model.CREATED_DATE = DateTime.Now;
-                _appDbContext.Add(model);
+                model.ACTIVE = true;
+                _appDbContext.ANOTHER_ARTISTS_ADMON.Add(model);
                 var rsEvent = await _appDbContext.SaveChangesAsync();
 
                 return Ok(new ResponseDto(ResponseDtoEnum.Success));
@@ -1162,18 +1224,14 @@ namespace Migracion.Talento.CoreWebApi.Controllers
         }
 
 
-        [HttpPost("UpdateArtistForEvent")]
+        [HttpPost("UpdateArtistForRegEvent")]
         public async Task<ActionResult> UpdateArtistForEvent([FromBody] AnotherArtistDto value)
         {
             try
             {
                 AnotherArtistsAdmon itemArtist = await _appDbContext.ANOTHER_ARTISTS_ADMON
                                  .Where((even) => even.ID == value.ID).FirstAsync();
-                itemArtist.PASSPORT_LASTNAME = value.PASSPORT_LASTNAME;
                 itemArtist.PASSPORT_NAME = value.PASSPORT_NAME;
-                itemArtist.ACTIVITY_MEXICO = value.ACTIVITY_MEXICO;
-                itemArtist.ID_NATIONALITY = value.ID_NATIONALITY;
-                itemArtist.PASSPORT_NUM = value.PASSPORT_NUM;
 
                 _appDbContext.Add(itemArtist);
                 var rsEvent = await _appDbContext.SaveChangesAsync();
@@ -1187,13 +1245,13 @@ namespace Migracion.Talento.CoreWebApi.Controllers
 
         }
 
-        [HttpPost("DeleteArtistForEvent")]
+        [HttpPost("DeleteArtistForRegEvent")]
         public async Task<ActionResult> Delete([FromBody] AnotherArtistDto data)
         {
             try
             {
                 int id = data.ID;
-                var Event = await _appDbContext.ANOTHER_ARTISTS_ADMON.FirstOrDefaultAsync(g => g.ID_EVENT.Equals(id));
+                var Event = await _appDbContext.ANOTHER_ARTISTS_ADMON.FirstOrDefaultAsync(g => g.ID_REG.Equals(id));
 
                 if (Event == null)
                     return Ok(new ResponseDto(ResponseDtoEnum.NoData));

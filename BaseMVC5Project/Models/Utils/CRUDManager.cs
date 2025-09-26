@@ -303,9 +303,30 @@ namespace MigracionTalentoExtranjero.Models.Utils
                     }
                 }
                 if (OtrosAsistentes.Count == 0)
-                    result.OtrosAsistentes = new List<OtroInvitadoModel>() { new OtroInvitadoModel() };
+                    result.OtrosAsistentes = new List<OtroInvitadoModel>();
                 else
                     result.OtrosAsistentes = OtrosAsistentes;
+
+
+                /* Para otros artistas invitados*/
+                /* Para los otros asistentes */
+                List<OtroInvitadoModel> OtrosArtistas = new List<OtroInvitadoModel>();
+                
+                if (responseHttp.response.anotheR_ARTISTS_ADMON_LIST != null)
+                {
+                    foreach (var currentValue in responseHttp.response.anotheR_ARTISTS_ADMON_LIST)
+                    {
+                        OtrosArtistas.Add(new CommonTools.Pdf.OtroInvitadoModel()
+                        {
+                            Id = currentValue.id,
+                            Nombre = currentValue.passporT_NAME,
+                        });
+                    }
+                }
+                if (OtrosArtistas.Count == 0)
+                    result.ArtistasInvitados = new List<OtroInvitadoModel>();
+                else
+                    result.ArtistasInvitados = OtrosArtistas;
             }
             return result;
         }
