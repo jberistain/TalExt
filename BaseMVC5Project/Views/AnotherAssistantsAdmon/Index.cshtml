@@ -687,41 +687,45 @@
                 contentType: 'application/json; charset=utf-8',
                 xhrFields: { responseType: 'blob' }, // <- clave para recibir binario
                 success: function (data, status, xhr) {
-                    console.log("success - descarga excel", data);
-                    const contentType = xhr.getResponseHeader('Content-Type')
-                        || 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
-                    const disposition = xhr.getResponseHeader('Content-Disposition');
-                    const fileName = getFileNameFromDisposition(disposition) || 'Reporte.xlsx';
 
-                    const blob = new Blob([data], { type: contentType });
+                    if (data.response != undefined && !data.response) {
+                        console.log("error - descarga excel", data);
 
-                    // IE/Edge legado
-                    if (window.navigator && window.navigator.msSaveOrOpenBlob) {
-                        window.navigator.msSaveOrOpenBlob(blob, fileName);
-                        return;
                     }
+                    else {
+                        console.log("success - descarga excel", data);
+                        const contentType = xhr.getResponseHeader('Content-Type')
+                            || 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
+                        const disposition = xhr.getResponseHeader('Content-Disposition');
+                        const fileName = getFileNameFromDisposition(disposition) || 'Reporte.xlsx';
 
-                    const url = URL.createObjectURL(blob);
-                    const a = document.createElement('a');
-                    a.href = url;
-                    a.download = fileName; // hace que se guarde con ese nombre
-                    document.body.appendChild(a);
-                    a.click();
-                    a.remove();
-                    URL.revokeObjectURL(url);
+                        const blob = new Blob([data], { type: contentType });
+
+                        // IE/Edge legado
+                        if (window.navigator && window.navigator.msSaveOrOpenBlob) {
+                            window.navigator.msSaveOrOpenBlob(blob, fileName);
+                            return;
+                        }
+
+                        const url = URL.createObjectURL(blob);
+                        const a = document.createElement('a');
+                        a.href = url;
+                        a.download = fileName; // hace que se guarde con ese nombre
+                        document.body.appendChild(a);
+                        a.click();
+                        a.remove();
+                        URL.revokeObjectURL(url);
+                    }
                 },
                 error: function (err) {
                     console.log("error - descarga excel", err);
-                    
                 }
             });
         }
         catch (e) {
             console.log("catch - descarga excel", e);
-            
         }
         finally {
-            console.log("finally - descarga excel", e);
             hideLoader();
         }
     }
