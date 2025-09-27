@@ -166,14 +166,14 @@
                                 <div class="col-xs-12 col-sm-12 col-md-6">
                                     <div class="form-group">
                                         <label>* @Model.LabelCorreoElectronico</label>
-                                        @Html.TextBoxFor(m => m.Correo, new { @class = "form-control", type = "email" })
+                                        @Html.TextBoxFor(m => m.Correo, new { @class = "form-control", type = "email", required = "required" })
                                         @Html.ValidationMessageFor(m => m.NumeroPasaporte, null, new { @class = "label label-danger" })
                                     </div>
                                 </div>
                                 <div class="col-xs-12 col-sm-12 col-md-6">
                                     <div class="form-group">
                                         <label>* @Model.LabelConfirmaCorreoElectronico</label>
-                                        @Html.TextBoxFor(m => m.ConfirmacionCorreo, new { @class = "form-control", type = "email"})
+                                        @Html.TextBoxFor(m => m.ConfirmacionCorreo, new { @class = "form-control", type = "email", required = "required" })
                                         @Html.ValidationMessageFor(m => m.NumeroPasaporte, null, new { @class = "label label-danger" })
                                     </div>
                                 </div>

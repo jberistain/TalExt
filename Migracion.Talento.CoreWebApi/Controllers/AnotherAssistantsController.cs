@@ -741,15 +741,15 @@ namespace Migracion.Talento.CoreWebApi.Controllers
 
             /* Buscar los artistas */
             List<OtroInvitadoModel> OtrosArtistas = new List<OtroInvitadoModel>();
-            OtrosArtistas.Add(new OtroInvitadoModel()
-            {
-                Apellidos = regInvite.PASSPORT_LASTNAME,
-                Nombre = regInvite.PASSPORT_NAME,
-                ActvidadEnMexico = regInvite.ACTIVITY_MEXICO,
-                IdNacionalidad = regInvite.ID_NATIONALITY.ToString(),
-                Nacionalidad = regInvite.LANGUAGE.Equals("EN") ? regInvite.CAT_NATIONALITIES.DESC_NACIONALITY_EN : regInvite.CAT_NATIONALITIES.DESC_NACIONALITY_SP,
-                NumPasaporte = regInvite.PASSPORT_NUM
-            });
+            //OtrosArtistas.Add(new OtroInvitadoModel()
+            //{
+            //    Apellidos = regInvite.PASSPORT_LASTNAME,
+            //    Nombre = regInvite.PASSPORT_NAME,
+            //    ActvidadEnMexico = regInvite.ACTIVITY_MEXICO,
+            //    IdNacionalidad = regInvite.ID_NATIONALITY.ToString(),
+            //    Nacionalidad = regInvite.LANGUAGE.Equals("EN") ? regInvite.CAT_NATIONALITIES.DESC_NACIONALITY_EN : regInvite.CAT_NATIONALITIES.DESC_NACIONALITY_SP,
+            //    NumPasaporte = regInvite.PASSPORT_NUM
+            //});
 
             if (await _appDbContext.ANOTHER_ARTISTS_ADMON.AnyAsync(even => even.ID_REG == regEvent.ID_REG))
             {

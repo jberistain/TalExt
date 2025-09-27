@@ -1188,11 +1188,11 @@ namespace CommonTools.Pdf
             //[LISTA_DE_EVENTOS]
             //[LISTA_DE_OTROS_ARTISTAS]
             //[NOMBRE_PRIMER_EVENTO]
-
+            string artistasConcatenados="";
             if (otrosArtistas != null && otrosArtistas.Count > 0) {
                 int artistasRecorridos = 0;
                 int numArtistas = otrosArtistas.Count;
-                string artistasConcatenados = " ARTISTA INVITADO";
+                artistasConcatenados = " ARTISTA INVITADO";
                 foreach (IOtroInvitadoModel evento in otrosArtistas)
                 {
                     artistasRecorridos++;
@@ -1202,9 +1202,9 @@ namespace CommonTools.Pdf
                     else
                         artistasConcatenados += $".";
                 }
-                texto = texto.Replace("[LISTA_DE_OTROS_ARTISTAS]", artistasConcatenados);
             }
 
+            texto = texto.Replace("[LISTA_DE_OTROS_ARTISTAS]", artistasConcatenados);
             texto = texto.Replace("[NOMBRE_INVITADO]", infoEvento.NombreInvitado);
             texto = texto.Replace("[NACIONALIDAD]", infoEvento.NacionalidadEsp);
             texto = texto.Replace("[NUMERO_PASAPORTE]", infoEvento.NumPasaporte);
