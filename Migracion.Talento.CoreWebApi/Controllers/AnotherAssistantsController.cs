@@ -1074,20 +1074,23 @@ namespace Migracion.Talento.CoreWebApi.Controllers
 
                 List<ReporteDto> reporteList = new List<ReporteDto>();
 
-                foreach (var grupo in bucketsByMonth) 
+                /* Recorrer las cartas por cada mes (grupos por meses) */
+                foreach (var grupoCartasMesActual in bucketsByMonth) 
                 {
                     ReporteDto reporte = new ReporteDto();
 
-                    var listaIDs = grupo.Select(g => g.ID_REG).ToList();    
+                    var listaIDs = grupoCartasMesActual.Select(g => g.ID_REG).ToList();    
 
 
                     // Totales de asistentes invitados por mes
-                    var totalInvitados = _appDbContext.ANOTHER_ASSISTANTS_ADMON
+                    var totalOtrosInvitados = _appDbContext.ANOTHER_ASSISTANTS_ADMON
                       .Where(a => listaIDs.Contains(a.ID_REG))
                       .Count();
 
-                    // Obten NAcionalidades
-                    var nacionalidades = grupo
+
+                    // Obten NAcionalidades no restringidas
+                    var nacionalidades = grupoCartasMesActual
+                     .Where(i => !i.CAT_NATIONALITIES.RESTRICTION) // filtra solo los no restringidos
                      .GroupBy(i => i.CAT_NATIONALITIES.DESC_NACIONALITY_SP) // agrupar por nombre del catálogo
                      .Select(g => new NacionalidadesFrecuentes
                      {
@@ -1098,8 +1101,8 @@ namespace Migracion.Talento.CoreWebApi.Controllers
                      .ToList();
 
 
-                    // Obten NAcionalidades
-                    var nacionalidadesRestringidas = grupo
+                    // Obten NAcionalidades restringidas
+                    var nacionalidadesRestringidas = grupoCartasMesActual
                      .Where(i => i.CAT_NATIONALITIES.RESTRICTION) // filtra solo los restringidos
                      .GroupBy(i => i.CAT_NATIONALITIES.DESC_NACIONALITY_SP) // agrupar por nombre del catálogo
                      .Select(g => new RestringidosFrecuentes
@@ -1110,11 +1113,71 @@ namespace Migracion.Talento.CoreWebApi.Controllers
                      .OrderBy(x => x.Nacionalidad)
                      .ToList();
 
+                    var extranjerosPorEventoList = new List<DesgloceExtranjerosPorEvento>();
 
-                    reporte.TotalExtranjerosInmvitados = (grupo.Count() + totalInvitados).ToString();
-                    reporte.TotalCartasGeneradas = grupo.Count().ToString();
+                    /* Recorrer cada carta para obtener otros asistentes y total de eventos
+                     Tambien se van a complementar los numeros de nacionalidades de los invitados */
+                    foreach (var cartaActual in grupoCartasMesActual)
+                    {
+                        var listaEventos = await _appDbContext.REG_EVENT_ESTATES_DATE_ADMON
+                            .Where(e => e.ID_REG == cartaActual.ID_REG)
+                            .Include(e => e.CAT_EVENTS)
+                            .ToListAsync();
+
+                        var listaOtrosAsistentes = await _appDbContext.ANOTHER_ASSISTANTS_ADMON
+                            .Where(e => e.ID_REG == cartaActual.ID_REG)
+                            .Include(e => e.CAT_NATIONALITIES)
+                            .ToListAsync();
+
+                        /* Armar los objetos a agregar a las listas */
+                        foreach(var otroAsistente in listaOtrosAsistentes)
+                        {
+                            if (otroAsistente.CAT_NATIONALITIES == null)
+                            {
+                                continue;
+                            }    
+
+                            var nacionalidadOtroAsistente = otroAsistente.CAT_NATIONALITIES.DESC_NACIONALITY_SP;
+                            if (otroAsistente.CAT_NATIONALITIES.RESTRICTION)
+                            {
+                                AgregarContadorNacionalidadRestringida(nacionalidadesRestringidas, new RestringidosFrecuentes
+                                {
+                                    Nacionalidad = nacionalidadOtroAsistente,
+                                    Total = 1
+                                });
+                            }
+                            else
+                            {
+                                AgregarContadorNacionalidadFrecuente(nacionalidades, new NacionalidadesFrecuentes
+                                {
+                                    Nacionalidad = nacionalidadOtroAsistente,
+                                    Total = 1
+                                });
+                            }                            
+                        }
+
+                        int totalExtranjerosActuales = 1 + listaOtrosAsistentes.Count; // 1 por el invitado principal
+                        // Agregar conteo por evento
+                        foreach (var evento in listaEventos)
+                        {
+                            var nombreEvento = evento.CAT_EVENTS != null ? evento.CAT_EVENTS.DESC_EVENT_SP : "NO ESPECIFICADO";
+                            AgregarContadorExtranjeroPorEvento(extranjerosPorEventoList, new DesgloceExtranjerosPorEvento
+                            {
+                                Evento = nombreEvento,
+                                Total = totalExtranjerosActuales
+                            });
+                        }
+                       
+
+
+                    }
+
+
+                    reporte.TotalExtranjerosInmvitados = (grupoCartasMesActual.Count() + totalOtrosInvitados).ToString();
+                    reporte.TotalCartasGeneradas = grupoCartasMesActual.Count().ToString();
                     reporte.NacionalidadesFrecuentesList = nacionalidades;
                     reporte.RestringidosFrecuentesList = nacionalidadesRestringidas;
+                    reporte.DesgloceExtranjerosPorEventoList = extranjerosPorEventoList;
                     reporteList.Add(reporte);
                 }
                 response.error = false;
@@ -1128,6 +1191,60 @@ namespace Migracion.Talento.CoreWebApi.Controllers
             }
         }
 
+
+
+        private void AgregarContadorNacionalidadFrecuente(List<NacionalidadesFrecuentes> lista, NacionalidadesFrecuentes nuevo)
+        {
+            // Busca si ya existe una nacionalidad igual (ignorar mayúsculas/minúsculas y espacios extras)
+            var existente = lista.FirstOrDefault(x =>
+                x.Nacionalidad.Trim().Equals(nuevo.Nacionalidad.Trim(), StringComparison.OrdinalIgnoreCase));
+
+            if (existente != null)
+            {
+                // Si existe, solo incrementa el total
+                existente.Total += nuevo.Total;
+            }
+            else
+            {
+                // Si no existe, lo agrega como nuevo
+                lista.Add(nuevo);
+            }
+        }
+        private void AgregarContadorNacionalidadRestringida(List<RestringidosFrecuentes> lista, RestringidosFrecuentes nuevo)
+        {
+            // Busca si ya existe una nacionalidad igual (ignorar mayúsculas/minúsculas y espacios extras)
+            var existente = lista.FirstOrDefault(x =>
+                x.Nacionalidad.Trim().Equals(nuevo.Nacionalidad.Trim(), StringComparison.OrdinalIgnoreCase));
+
+            if (existente != null)
+            {
+                // Si existe, solo incrementa el total
+                existente.Total += nuevo.Total;
+            }
+            else
+            {
+                // Si no existe, lo agrega como nuevo
+                lista.Add(nuevo);
+            }
+        }
+
+        private void AgregarContadorExtranjeroPorEvento(List<DesgloceExtranjerosPorEvento> lista, DesgloceExtranjerosPorEvento nuevo)
+        {
+            // Busca si ya existe una nacionalidad igual (ignorar mayúsculas/minúsculas y espacios extras)
+            var existente = lista.FirstOrDefault(x =>
+                x.Evento.Trim().Equals(nuevo.Evento.Trim(), StringComparison.OrdinalIgnoreCase));
+
+            if (existente != null)
+            {
+                // Si existe, solo incrementa el total
+                existente.Total += nuevo.Total;
+            }
+            else
+            {
+                // Si no existe, lo agrega como nuevo
+                lista.Add(nuevo);
+            }
+        }
         #endregion
 
         #region Obtener permisos de usuario

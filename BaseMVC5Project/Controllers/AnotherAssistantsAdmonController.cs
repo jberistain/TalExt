@@ -1459,18 +1459,20 @@ namespace MigracionTalentoExtranjero.Controllers
                     worksheet.Cells[1, 4].Value = "NACIONALIDADES MAS FRECUENTES";
                     worksheet.Cells[1, 5].Value = "RESTRINGIDOS MAS FRECUENTES";
 
-                    int row = 2;
+                    int filaInicialActual = 2;
+                    int filaSiguienteSegmento = 2;
+                    int row = filaInicialActual;
                     bool primerElemento = true;
                     /* Se va a recorrer cada renglon "general" que tendra el reporte*/
                     foreach (var item in reportesFinal)
                     {
                         /* Datos de un solo renglon */
-                        worksheet.Cells[row, 1].Value = item.TotalExtranjerosInmvitados;
-                        worksheet.Cells[row, 2].Value = item.TotalCartasGeneradas;
+                        worksheet.Cells[filaSiguienteSegmento, 1].Value = item.TotalExtranjerosInmvitados;
+                        worksheet.Cells[filaSiguienteSegmento, 2].Value = item.TotalCartasGeneradas;
 
                       
                         /* Reiniciar para pasar al siguiente columna - Extranjeros por evento */
-                        row = 2;
+                        row = filaInicialActual;
                         primerElemento = true;
                         if (item.DesgloceExtranjerosPorEventoList != null && item.DesgloceExtranjerosPorEventoList.Count > 0)
                         {
@@ -1478,11 +1480,15 @@ namespace MigracionTalentoExtranjero.Controllers
                             {
                                 worksheet.Cells[row, 3].Value = $"{elemento.Evento}: {elemento.Total}";
                                 row++;
+                                if(row> filaSiguienteSegmento)
+                                {
+                                    filaSiguienteSegmento = row;
+                                }
                             }
                         }
 
                         /* Reiniciar para pasar al siguiente columna - Nacionalidades mas frecuentes */
-                        row = 2;
+                        row = filaInicialActual;
                         primerElemento = true;
                         if (item.NacionalidadesFrecuentesList != null && item.NacionalidadesFrecuentesList.Count > 0)
                         {
@@ -1490,11 +1496,15 @@ namespace MigracionTalentoExtranjero.Controllers
                             {
                                 worksheet.Cells[row, 4].Value = $"{elemento.Nacionalidad}: {elemento.Total}";
                                 row++;
+                                if (row > filaSiguienteSegmento)
+                                {
+                                    filaSiguienteSegmento = row;
+                                }
                             }
                         }
 
                         /* Reiniciar para pasar al siguiente columna - Restringidos mas frecuentes */
-                        row = 2;
+                        row = filaInicialActual;
                         primerElemento = true;
                         if (item.RestringidosFrecuentesList != null && item.RestringidosFrecuentesList.Count > 0)
                         {
@@ -1502,8 +1512,13 @@ namespace MigracionTalentoExtranjero.Controllers
                             {
                                 worksheet.Cells[row, 5].Value = $"{elemento.Nacionalidad}: {elemento.Total}";
                                 row++;
+                                if (row > filaSiguienteSegmento)
+                                {
+                                    filaSiguienteSegmento = row;
+                                }
                             }
                         }
+                        filaInicialActual= filaSiguienteSegmento;
                     }
 
                     worksheet.Cells[worksheet.Dimension.Address].AutoFitColumns();

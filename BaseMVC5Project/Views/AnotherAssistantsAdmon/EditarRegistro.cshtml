@@ -589,7 +589,7 @@
 <div class="contenedor-modales" id="containerAlert">
     <div class="contenido-modal2">
         <div class="p-2" style="width:30px; float: right; margin-top:10px;">
-            <span onclick="cerrarModalAlert()" style="cursor: pointer; color: crimson; font-weight:bold; font-size:14px;">X</span>
+            <span onclick="cerrarModalAlert()" id="modalCerrarX" style="cursor: pointer; color: crimson; font-weight:bold; font-size:14px;">X</span>
         </div>
         <div class="contenido-modal-grupos">
             <hr>
@@ -600,7 +600,7 @@
                     <div id="modalAlertMessageResult"></div>
                 </div>
             </div>
-            <button onclick="cerrarModalAlert()" class="btn-block">Cerrar</button>
+            <button onclick="cerrarModalAlert()" id="modalCerrarBtn" class="btn-block">Cerrar</button>
         </div>
     </div>
 </div>
@@ -845,16 +845,30 @@
                 let messageError = dataResponse.message;
                 setErrorMessageForm(messageError, 'modalAlertMessageResult');
                 popupAlert.classList.add('show');
+                hideLoader();
             }
             else {
+                $("#modalCerrarX").one('click', function () {
+                    console.log("Se agrega evento a modalCerrarX");
+                    cerrarModalAlert(function () {
+                        showLoader();
+                        window.location.reload();
+                    });
+                });
+                $("#modalCerrarBtn").one('click', function () {
+                    console.log("Se agrega evento a modalCerrarBtn");
+                    cerrarModalAlert(function () {
+                        showLoader();
+                        window.location.reload();
+                    });
+                });
                 setSuccessMessageForm(dataResponse.message, 'modalAlertMessageResult');
                 popupAlert.classList.add('show');
             }
+            
         }
         catch (e) {
             console.log(e);
-        }
-        finally {
             hideLoader();
         }
 
@@ -1326,11 +1340,10 @@
 
                 document.getElementById("pdfViewer").src = url;
             }
+            hideLoader();
         }
         catch (e) {
             setErrorMessageForm(messageError, 'modalAlertMessageResult');
-        }
-        finally {
             hideLoader();
         }
     }
@@ -1351,8 +1364,12 @@
         return new Blob(byteArrays, { type: contentType });
     }
 
-    function cerrarModalAlert() {
+    function cerrarModalAlert(callback = null) {
         popupAlert.classList.remove('show');
+        if (callback != null) {
+            console.log("Se usara callback de cerrar modal alert");
+            callback();
+        }
     }
 
     async function CargaExcel() {
@@ -1374,28 +1391,40 @@
                       let messageError = dataResponse.message;
                       setErrorMessageForm(messageError, 'modalAlertMessageResult');
                       popupAlert.classList.add('show');
+                      hideLoader();
                   }
                   else {
-                      $('#modalAlertMessageResult').one('hidden.bs.modal', function () {
-                          window.location.reload();
-                      });
+                      hideLoader();
                       let message= dataResponse.message;
                       setSuccessMessageForm(message, 'modalAlertMessageResult');
                       popupAlert.classList.add('show');
-
+                      console.log("Se debe recargar");
+                      $("#modalCerrarX").one('click', function () {
+                          console.log("Se agrega evento a modalCerrarX");
+                          cerrarModalAlert(function () {
+                              showLoader();
+                              window.location.reload();
+                          });
+                      });
+                      $("#modalCerrarBtn").one('click', function () {
+                          console.log("Se agrega evento a modalCerrarBtn");
+                          cerrarModalAlert(function () {
+                              showLoader();
+                              window.location.reload();
+                          });
+                      });
                   }
                 },
                 error: function (error) {
-
+                    hideLoader();
                 }
             });
 
 
      }
      catch (e) {
+         console.log("catch cargaExcel", e);
          setErrorMessageForm(e, 'modalAlertMessageResult');
-     }
-     finally {
          hideLoader();
      }
     }

@@ -843,12 +843,14 @@
                     .catch(error => {
                         console.log(error);
                         btnEnviarAvisoPrivacidad.disabled = false;
+                        hideLoader();
                     });
 
                 if (dataResponse.response === false) {
                     let messageError = dataResponse.message;
                     setErrorMessageForm(messageError, 'messageErrorModal');
                     btnEnviarAvisoPrivacidad.disabled = false;
+                    hideLoader();
                 }
                 else {
                     //Escenario correccto, redireccionar
@@ -867,9 +869,6 @@
             }
         }
         catch (error) {
-
-        }
-        finally {
             hideLoader();
         }
 

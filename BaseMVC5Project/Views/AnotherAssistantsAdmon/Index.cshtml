@@ -294,15 +294,29 @@
 
 
         //Agregar Listeners para agregar evento enter al filtro
-        let Fecha1 = document.getElementById("Fecha1");
-        let Fecha2 = document.getElementById("Fecha2");
         //Fecha1.addEventListener('keydown', ejecutaAccionEnter);
         //Fecha2.addEventListener('keydown', ejecutaAccionEnter);
+
+        // Fecha actual
+        let hoy = new Date();
+
+        // Fecha de inicio del mes (día 1, misma hora/mes/año que hoy)
+        let inicioMes = new Date(hoy.getFullYear(), hoy.getMonth(), 1);
+
+        fechaInicioInput.value = formatoFechaReporte(inicioMes);
+        fechaFinInput.value = formatoFechaReporte(hoy);
 
         hideLoader();
 
     });
 
+    // Formatear a yyyy-MM-dd (lo que suelen usar los inputs type="date")
+    function formatoFechaReporte(fecha) {
+        let year = fecha.getFullYear();
+        let month = String(fecha.getMonth() + 1).padStart(2, '0'); // meses empiezan en 0
+        let day = String(fecha.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
+    }
 
     function marcaTodosLosChecksEnPantalla(id) {
 
@@ -716,16 +730,16 @@
                         a.remove();
                         URL.revokeObjectURL(url);
                     }
+                    hideLoader();
                 },
                 error: function (err) {
                     console.log("error - descarga excel", err);
+                    hideLoader();
                 }
             });
         }
         catch (e) {
             console.log("catch - descarga excel", e);
-        }
-        finally {
             hideLoader();
         }
     }
