@@ -854,6 +854,7 @@
                 }
                 else {
                     //Escenario correccto, redireccionar
+                    showLoader();
                     console.log('Resultado guardado',dataResponse);
                     let urlResultado = dataResponse.result.Url;
                     let params = {
@@ -869,6 +870,7 @@
             }
         }
         catch (error) {
+            console.log("Entro al catch de enviar formulario");
             hideLoader();
         }
 
