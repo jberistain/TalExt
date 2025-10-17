@@ -1250,7 +1250,18 @@ namespace MigracionTalentoExtranjero.Controllers
                             catalogResponse.AtributoAdicionalStr6 = resultHttpRequest.response.iD_EVENT_TYPE != null ? resultHttpRequest.response.iD_EVENT_TYPE.ToString() : 0;
                         }
                         break;
+                    case "IMAGENFIRMA":
+                        resultHttpRequest = await crud.DescargaCatalogoDocumentoAnotherAssistantPorId(data.Id);
+                        if (resultHttpRequest != null && !resultHttpRequest.error)
+                        {
+                            catalogResponse.Id = resultHttpRequest.response.iD_INVITE;
+                            catalogResponse.AtributoAdicionalStr1 = resultHttpRequest.response.deS_TITLE;
+                            catalogResponse.AtributoAdicionalStr4 = resultHttpRequest.response.sigN_1;
+                            catalogResponse.AtributoAdicionalStr6 = resultHttpRequest.response.iD_EVENT_TYPE != null ? resultHttpRequest.response.iD_EVENT_TYPE.ToString() : 0;
+                            catalogResponse.AtributoAdicionalStr7 = resultHttpRequest.response.sigN_BLOB;
 
+                        }
+                        break;
                     default:
                         resultHttpRequest = null;
                         break;
@@ -1397,6 +1408,14 @@ namespace MigracionTalentoExtranjero.Controllers
                 case "DOCUMENTO":
                     resultHttpRequest = await crud.ActualizarDocumentoAnotherAssistant(data.Id, new RegInviteDto() { DES_TITLE = data.AtributoAdicionalStr1, DESC_SPANISH = data.AtributoAdicionalStr2, DESC_ENGLISH = data.AtributoAdicionalStr3, SIGN_1 = data.AtributoAdicionalStr4, FOOT_PAGE = data.AtributoAdicionalStr5, ID_EVENT_TYPE = Convert.ToInt32(data.AtributoAdicionalStr6), MODIFY_BY = idUser });
                     break;
+                case "IMAGENFIRMA":
+                    var streamFileImg = ArchivoImagen.InputStream;
+                    byte[] fileBytesImg = streamFileImg.ReadAsBytes();
+                    var base64FileImg = Convert.ToBase64String(fileBytesImg);
+
+                    resultHttpRequest = await crud.ActualizarImagenFirmaAnotherAssistant(data.Id, new RegInviteDto() { SIGN_BLOB = base64FileImg, MODIFY_BY = idUser });
+                    break;
+
                 default:
                     resultHttpRequest = null;
                     break;
@@ -1423,6 +1442,25 @@ namespace MigracionTalentoExtranjero.Controllers
 
             return Json(responseObject);
         }
+
+
+        public async Task<ActionResult> FirmasDocumentos()
+        {
+            ViewBag.Title = "FIRMAS PARA CARTAS DE ADMINISTRADOR - OTROS ASISTENTES";
+
+            crud = new CRUDManager(httpManager);
+
+            List<CatalogoGeneral> catalogoGeneralList;
+
+            ViewBag.ListaTiposEvento = await CB.GetSearchComboBox(CatalogosEnum.CAT_TIPOS_EVENTOS.GetString(), 0, "");
+
+            catalogoGeneralList = await crud.DescargaCatalogosDocumentosAnotherAssistant();
+
+            ViewBag.CatalogList = catalogoGeneralList;
+
+            return View();
+        }
+
         #endregion
 
         #region EXPORTA REPORTE

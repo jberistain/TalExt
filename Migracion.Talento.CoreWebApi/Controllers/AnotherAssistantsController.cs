@@ -1008,8 +1008,6 @@ namespace Migracion.Talento.CoreWebApi.Controllers
                 item.SIGN_3 = value.SIGN_3;
                 item.SIGN_4 = value.SIGN_4;
                 item.FOOT_PAGE = value.FOOT_PAGE;
-                item.FILE_NAME= value.FILE_NAME;
-                item.SIGN_BLOB = value.SIGN_BLOB;
                 item.MODIFY_BY = value.MODIFY_BY;
                 item.MODIFY_DATE = DateTime.Now;
 
@@ -1044,6 +1042,38 @@ namespace Migracion.Talento.CoreWebApi.Controllers
                 return BadRequest(new ResponseDto(ResponseDtoEnum.Error).message + ex.Message);
             }
         }
+
+
+
+
+        // PUT api/<DocumentsController>/5
+        [HttpPost("UpdateSignDocument")]
+        public async Task<ActionResult<ResponseDto>> UpdateSignDocument(int id, [FromBody] RegInviteDto value)
+        {
+            try
+            {
+                var documentDb = await _appDbContext.REG_INVITE_ADMON.AnyAsync(g => g.ID_INVITE == id);
+                if (!documentDb)
+                    return Ok(new ResponseDto(ResponseDtoEnum.NoData));
+
+                var item = await _appDbContext.REG_INVITE_ADMON
+                     .Where((even) => even.ID_INVITE == id).FirstOrDefaultAsync();
+
+                item.SIGN_BLOB = value.SIGN_BLOB;
+                item.MODIFY_BY = value.MODIFY_BY;
+                item.MODIFY_DATE = DateTime.Now;
+
+                await _appDbContext.SaveChangesAsync();
+
+                return Ok(new ResponseDto(ResponseDtoEnum.Success));
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ResponseDto(ResponseDtoEnum.Error).message + ex.Message);
+            }
+        }
+
+
         #endregion
 
         #region REPORTE

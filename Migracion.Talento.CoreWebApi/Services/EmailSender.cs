@@ -39,7 +39,7 @@ namespace Migracion.Talento.CoreWebApi.Services
             // Receiver
             //foreach (string mailAddress in data.To)
             mail.To.Add(MailboxAddress.Parse(data.To));
-            if (data.EmailsCC.Count > 0)
+            if (data.EmailsCC != null && data.EmailsCC.Count > 0)
             {
                 foreach (string emailCC in data.EmailsCC)
                 {

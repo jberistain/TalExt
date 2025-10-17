@@ -3,27 +3,26 @@
 
 }
 
-    <div class="navbar navbar-inverse navbar-fixed-top">
-        <div class="container">
-            <div class="navbar-header">
-                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
-                    <span class="icon-bar"></span>
-                    <span class="icon-bar"></span>
-                    <span class="icon-bar"></span>
-                </button>
-            </div>
-            <div class="navbar-collapse collapse">
-                <ul class="nav navbar-nav navbar-right">
-                    <li><a href="@Url.Content("~/AnotherAssistantsAdmon/FirmasDocumentos")">Firmas Documentos Administrador</a></li>
-                    <li>
-                        <a href="@Url.Content("~/Administrator/logout")">Finalizar Sesión</a>
-                    </li>
+<div class="navbar navbar-inverse navbar-fixed-top">
+    <div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+        </div>
+        <div class="navbar-collapse collapse">
+            <ul class="nav navbar-nav navbar-right">
+                <li><a href="@Url.Content("~/Catalogs/FirmasDocumentos")">Firmas Documentos Extranjeros</a></li>
+                <li>
+                    <a href="@Url.Content("~/Administrator/logout")">Finalizar Sesión</a>
+                </li>
 
-
-                </ul>
-            </div>
+            </ul>
         </div>
     </div>
+</div>
 
 
 
@@ -282,8 +281,8 @@
         let AtributoAdicionalStr1 = document.getElementById("AtributoAdicionalStr1");
         let AtributoAdicionalStr4 = document.getElementById("AtributoAdicionalStr4");
         let AtributoAdicionalStr6 = document.getElementById("AtributoAdicionalStr6");
-        
-        
+
+
 
         const formDataFile = new FormData();
         formDataFile.append("ArchivoImagen", archivo, "ArchivoImagen.png");

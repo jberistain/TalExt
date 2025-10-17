@@ -422,7 +422,6 @@ namespace CommonTools.Pdf
         public AttachmentFileDto GenerateOtherAssistantsDocument(InviteDto regInvite, IReporteInfo reporteInfo, List<IOtroInvitadoModel> otrosInvitados, List<IOtroInvitadoModel> otrosArtistas, string lenguaje)
         {
             AttachmentFileDto result = new AttachmentFileDto();
-            result.FileName = $"{regInvite.FILE_NAME}";
             //string attachment = $"attachment; filename={nombreArchivo}\"{DateTime.Now.ToString()}.pdf";
 
 

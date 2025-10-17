@@ -999,6 +999,19 @@ namespace MigracionTalentoExtranjero.Models.Utils
 
             return result;
         }
+
+
+        public async Task<ResponseDto> ActualizarImagenFirmaAnotherAssistant(int id, RegInviteDto data)
+        {
+            ResponseDto result;
+
+            result = await http.PostAsJsonAsync<object, ResponseDto>(data, $"AnotherAssistants/UpdateSignDocument?id={id}");
+
+            return result;
+        }
+
+
+
         public async Task<ResponseDto> EliminarDocumentoAnotherAssistant(InviteDto data)
         {
             ResponseDto result;

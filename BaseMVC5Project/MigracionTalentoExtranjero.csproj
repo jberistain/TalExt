@@ -326,6 +326,7 @@
     <Content Include="Views\AnotherAssistantsAdmon\NuevoRegistro.cshtml" />
     <Content Include="Views\AnotherAssistantsAdmon\Documentos.cshtml" />
     <Content Include="Views\AnotherAssistantsAdmon\OtrosArtistasPartialView.cshtml" />
+    <Content Include="Views\AnotherAssistantsAdmon\FirmasDocumentos.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
