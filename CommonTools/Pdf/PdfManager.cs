@@ -439,9 +439,11 @@ namespace CommonTools.Pdf
             writer = PdfWriter.GetInstance(doc, bufferDoc);
 
             // Asignar evento para footer
+            string footerCurrent = "";
+            footerCurrent = string.IsNullOrEmpty(regInvite.FOOT_PAGE) ? "" : regInvite.FOOT_PAGE;
             writer.PageEvent = new PdfFooter
             {
-                TextoFooter = regInvite.FOOT_PAGE
+                TextoFooter = footerCurrent
             };
 
             // Le colocamos el título y el autor
@@ -699,7 +701,11 @@ namespace CommonTools.Pdf
             };
             //
             //
-            string tituloAnexo1 = "LISTA DE INVITADOS EVENTO [NOMBRE_PRIMER_EVENTO] [LISTA_DE_OTROS_ARTISTAS]";
+            string tituloAnexo1 = "LISTA DE INVITADOS EVENTO [NOMBRE_PRIMER_EVENTO]";
+            if(otrosArtistas!= null && otrosArtistas.Count > 0)
+            {
+                tituloAnexo1 += " [LISTA_DE_OTROS_ARTISTAS]"; 
+            }
             tituloAnexo1 = GeneraTituloAnexo1OtrosInvitados(tituloAnexo1, otrosArtistas, nombrePrimerEvento);
             
             var cellTituloAnexolista = new PdfPCell(new Phrase(tituloAnexo1, FuenteArial11Negrita))

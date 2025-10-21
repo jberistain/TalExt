@@ -780,6 +780,14 @@ namespace Migracion.Talento.CoreWebApi.Controllers
 
             /* Se gennera un solo documento, se obtiene el primero que se encuentre activo */
             RegInviteAdmon esquemaInvitacion = await _appDbContext.REG_INVITE_ADMON.Where(doc => doc.ID_EVENT_TYPE == firstEventType.ID_EVENT_TYPE && doc.ACTIVE == true).FirstOrDefaultAsync();
+
+            if (esquemaInvitacion == null) {
+                responseDto.error = true;
+                responseDto.code = 401;
+                responseDto.message = "El evento seleccionado no tiene asignado un tipo de Evento para fase 3";
+
+            }
+            
             InviteDto esquemaInvitacionDto = _mapper.Map<InviteDto>(esquemaInvitacion);
 
 
@@ -973,7 +981,7 @@ namespace Migracion.Talento.CoreWebApi.Controllers
                     return Ok(new ResponseDto(ResponseDtoEnum.Duplicated));
 
                 var document = _mapper.Map<RegInviteAdmon>(value);
-
+                document.ACTIVE = true;
                 await _appDbContext.REG_INVITE_ADMON.AddAsync(document);
                 await _appDbContext.SaveChangesAsync();
                 return Ok(new ResponseDto(ResponseDtoEnum.Success));
@@ -1010,6 +1018,7 @@ namespace Migracion.Talento.CoreWebApi.Controllers
                 item.FOOT_PAGE = value.FOOT_PAGE;
                 item.MODIFY_BY = value.MODIFY_BY;
                 item.MODIFY_DATE = DateTime.Now;
+                item.ACTIVE = true;
 
                 await _appDbContext.SaveChangesAsync();
 
