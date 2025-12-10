@@ -826,7 +826,73 @@
             let form = document.getElementById('frm-registro-invitado');
             let formJson = serializeForm(form);
             let url = "@Url.Content("~/AnotherAssistantsAdmon/ActualizarRegistroInvidato")";
-            console.log(url);
+            // 1) Eliminar TODAS las propiedades tipo "OtrosAsistentes[0].Nombre", etc.
+            let contadorNuevosInvitados = 0;
+            Object.keys(formJson).forEach(function (key) {
+                // Si empiezan con "OtrosAsistentes[" las borramos
+                if (key.indexOf("OtrosAsistentes[") === 0) {
+                    delete formJson[key];
+                }
+            });
+            // 2) Forzar que OtrosAsistentes sea un arreglo vacío
+            formJson.OtrosAsistentes = [];
+
+
+            // Reindexar los nuevos
+            // 1. Obtener todas las claves de NuevosAsistentes
+            const nuevosKeys = Object.keys(formJson).filter(k => k.startsWith("NuevosAsistentes["));
+
+            // Si no existe nada, no hacer nada
+            if (nuevosKeys.length > 0) {
+
+                // 2. Agrupar por índice original
+                let grupos = {};
+                nuevosKeys.forEach(key => {
+                    // Ejemplo key: NuevosAsistentes[245].Nombre
+                    let match = key.match(/^NuevosAsistentes\[(\d+)\]\.(.+)$/);
+                    if (match) {
+                        let idx = parseInt(match[1], 10);
+                        let prop = match[2];
+
+                        if (!grupos[idx]) grupos[idx] = {};
+                        grupos[idx][prop] = formJson[key];
+                    }
+                });
+
+                // 3. Ordenar índices originales para generar 0,1,2...
+                let indicesOrdenados = Object.keys(grupos).map(n => parseInt(n, 10)).sort((a, b) => a - b);
+
+                // 4. Construir nuevo arreglo con reindexado
+                let nuevosReindexados = [];
+
+                indicesOrdenados.forEach((oldIndex, newIndex) => {
+                    let item = grupos[oldIndex];
+                    let temp = {};
+
+                    // Reconstruir con claves nuevas
+                    Object.keys(item).forEach(prop => {
+                        temp[`NuevosAsistentes[${newIndex}].${prop}`] = item[prop];
+                    });
+
+                    nuevosReindexados.push(temp);
+                });
+
+                // 5. Eliminar claves viejas
+                nuevosKeys.forEach(k => delete formJson[k]);
+
+                // 6. Insertar claves nuevas en formJson
+                nuevosReindexados.forEach(obj => {
+                    Object.keys(obj).forEach(k => {
+                        formJson[k] = obj[k];
+                    });
+                });
+            }
+
+
+
+
+
+            console.log("Se imprime el formulario serializado");
             console.log(formJson);
             const response = httpPost(
                 url,
@@ -865,7 +931,7 @@
                 setSuccessMessageForm(dataResponse.message, 'modalAlertMessageResult');
                 popupAlert.classList.add('show');
             }
-            
+
         }
         catch (e) {
             console.log(e);
@@ -1211,7 +1277,7 @@
             <div class="">
                 <div class="form-group">
                     <label>* Nombre</label>
-                    <input class="form-control" id="OtrosAsistentes_${nextEventId}__Nombre" name="OtrosAsistentes[${nextEventId}].Nombre" type="text" value="" wtx-context="CC91F8CA-7582-4F2D-98CF-5510ADB2CF13">
+                    <input class="form-control" id="NuevosAsistentes_${nextEventId}__Nombre" name="NuevosAsistentes[${nextEventId}].Nombre" type="text" value="" wtx-context="CC91F8CA-7582-4F2D-98CF-5510ADB2CF13">
                 </div>
             </div>
         </div>
@@ -1219,7 +1285,7 @@
             <div class="">
                 <div class="form-group">
                     <label>* Apellidos</label>
-                    <input class="form-control" id="OtrosAsistentes_${nextEventId}__Apellidos" name="OtrosAsistentes[${nextEventId}].Apellidos" type="text" value="" wtx-context="CC91F8CA-7582-4F2D-98CF-5510ADB2CF13">
+                    <input class="form-control" id="NuevosAsistentes_${nextEventId}__Apellidos" name="NuevosAsistentes[${nextEventId}].Apellidos" type="text" value="" wtx-context="CC91F8CA-7582-4F2D-98CF-5510ADB2CF13">
                 </div>
             </div>
         </div>
@@ -1227,7 +1293,7 @@
             <div class="">
                 <div class="form-group">
                     <label>* Actividad</label>
-                    <input class="form-control" id="OtrosAsistentes_${nextEventId}__ActvidadEnMexico" name="OtrosAsistentes[${nextEventId}].ActvidadEnMexico" type="text" value="" wtx-context="CC91F8CA-7582-4F2D-98CF-5510ADB2CF13">
+                    <input class="form-control" id="NuevosAsistentes_${nextEventId}__ActvidadEnMexico" name="NuevosAsistentes[${nextEventId}].ActvidadEnMexico" type="text" value="" wtx-context="CC91F8CA-7582-4F2D-98CF-5510ADB2CF13">
                 </div>
             </div>
         </div>
@@ -1235,7 +1301,7 @@
             <div class="">
                 <div class="form-group">
                     <label>* Nacionalidad</label>
-                    <select class="form-control" id="OtrosAsistentes_${nextEventId}__IdNacionalidad" name="OtrosAsistentes[${nextEventId}].IdNacionalidad" style="position:initial" wtx-context="00C8D930-EF5F-4FA9-A88D-E4CECCC7C974">
+                    <select class="form-control" id="NuevosAsistentes_${nextEventId}__IdNacionalidad" name="NuevosAsistentes[${nextEventId}].IdNacionalidad" style="position:initial" wtx-context="00C8D930-EF5F-4FA9-A88D-E4CECCC7C974">
 				        @Html.Raw(ViewBag.NacionalidadesOptionsHTML)
                     </select>
                 </div>
@@ -1245,7 +1311,7 @@
             <div class="">
                 <div class="form-group">
                     <label>* Num pasaporte</label>
-                    <input class="form-control" id="OtrosAsistentes_${nextEventId}__NumPasaporte" name="OtrosAsistentes[${nextEventId}].NumPasaporte" type="text" value="" wtx-context="CC91F8CA-7582-4F2D-98CF-5510ADB2CF13">
+                    <input class="form-control" id="NuevosAsistentes_${nextEventId}__NumPasaporte" name="NuevosAsistentes[${nextEventId}].NumPasaporte" type="text" value="" wtx-context="CC91F8CA-7582-4F2D-98CF-5510ADB2CF13">
                 </div>
             </div>
         </div>
@@ -1311,9 +1377,12 @@
     async function generarVistaPrevia(idioma) {
         try {
             showLoader();
-            let form = document.getElementById('frm-registro-invitado');
+            //let form = document.getElementById('frm-registro-invitado');
             $('#IdiomaInvitacion').val(idioma);
-            let formJson = serializeForm(form);
+            let formJson = {
+                Id: $("#Id").val(),
+                IdiomaInvitacion: idioma
+            };
             let url = "@Url.Content("~/AnotherAssistantsAdmon/DescargaPDFVistaPrevia")";
             const response = httpPost(
                 url,

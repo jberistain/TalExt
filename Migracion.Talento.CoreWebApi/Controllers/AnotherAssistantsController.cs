@@ -194,7 +194,7 @@ namespace Migracion.Talento.CoreWebApi.Controllers
                     listAnotherAssistantsFound = new List<AnotherAssistantDto>();
 
                     var itemsEvents = await _appDbContext.ANOTHER_ASSISTANTS_ADMON
-                        .Where((eventos) => eventos.ID_REG == id).ToListAsync();
+                        .Where((eventos) => eventos.ID_REG == id).OrderBy(m=> m.ID).ToListAsync();
                     listAnotherAssistantsFound = _mapper.Map<List<AnotherAssistantDto>>(itemsEvents);
 
                 }
@@ -463,6 +463,50 @@ namespace Migracion.Talento.CoreWebApi.Controllers
                     }
                 }
 
+                /* Para los nuevos asistentes ingresados manualmente */
+                if (newEvent.NEW_ASSISTANTS_ADMON_LIST != null)
+                {
+                    foreach (AnotherAssistantDto currentEvent in newEvent.NEW_ASSISTANTS_ADMON_LIST)
+                    {
+                        AnotherAssistantsAdmon itemEvent = null;
+                        if (currentEvent.ID != 0)
+                        {
+                            id = currentEvent.ID;
+                            itemEvent = await _appDbContext.ANOTHER_ASSISTANTS_ADMON
+                                 .Where((even) => even.ID == id).FirstAsync();
+                            itemEvent.PASSPORT_LASTNAME = currentEvent.PASSPORT_LASTNAME;
+                            itemEvent.PASSPORT_NAME = currentEvent.PASSPORT_NAME;
+                            itemEvent.ACTIVITY_MEXICO = currentEvent.ACTIVITY_MEXICO;
+                            itemEvent.ID_NATIONALITY = currentEvent.ID_NATIONALITY;
+                            itemEvent.PASSPORT_NUM = currentEvent.PASSPORT_NUM;
+                            itemEvent.MODIFY_BY = newEvent.MODIFY_BY;
+                            itemEvent.MODIFY_DATE = DateTime.Now;
+                            itemEvent.ACTIVE = true;
+                        }
+                        else
+                        {
+                            itemEvent = new AnotherAssistantsAdmon();
+                            itemEvent.CREATED_DATE = DateTime.Now;
+                            itemEvent.CREATED_BY = newEvent.MODIFY_BY;
+                            itemEvent.ID_REG = newEvent.ID_REG;
+
+                            itemEvent.PASSPORT_LASTNAME = currentEvent.PASSPORT_LASTNAME;
+                            itemEvent.PASSPORT_NAME = currentEvent.PASSPORT_NAME;
+                            itemEvent.ACTIVITY_MEXICO = currentEvent.ACTIVITY_MEXICO;
+                            itemEvent.ID_NATIONALITY = currentEvent.ID_NATIONALITY;
+                            itemEvent.PASSPORT_NUM = currentEvent.PASSPORT_NUM;
+                            itemEvent.MODIFY_BY = newEvent.MODIFY_BY;
+                            itemEvent.MODIFY_DATE = DateTime.Now;
+                            itemEvent.ACTIVE = true;
+
+                            await _appDbContext.AddAsync(itemEvent);
+                        }
+
+                        var rsEvent = await _appDbContext.SaveChangesAsync();
+                    }
+                }
+
+
                 /* Actualizar lista de otros artistas invitados */
                 if (newEvent.ANOTHER_ARTISTS_ADMON_LIST != null)
                 {
@@ -590,9 +634,13 @@ namespace Migracion.Talento.CoreWebApi.Controllers
                         .ToList();
 
                     // 2) Trae de una sola vez los existentes para este evento
-                    var existingMap = await _appDbContext.ANOTHER_ASSISTANTS_ADMON
-                        .Where(a => a.ID_REG == idRegEvent && passports.Contains(a.PASSPORT_NUM))
-                        .ToDictionaryAsync(a => a.PASSPORT_NUM, StringComparer.OrdinalIgnoreCase);
+                    //var existingMap = await _appDbContext.ANOTHER_ASSISTANTS_ADMON
+                    //    .Where(a => a.ID_REG == idRegEvent && passports.Contains(a.PASSPORT_NUM))
+                    //    .ToDictionaryAsync(a => a.PASSPORT_NUM, StringComparer.OrdinalIgnoreCase);
+
+                    // 2) Eliminar antes de que se cargue la nueva info
+                    await _appDbContext.Database.ExecuteSqlInterpolatedAsync(
+                    $"DELETE FROM ANOTHER_ASSISTANTS_ADMON WHERE ID_REG = {idRegEvent}");
 
                     // 3) Upsert en memoria
                     foreach (var dto in list)
@@ -609,16 +657,16 @@ namespace Migracion.Talento.CoreWebApi.Controllers
                         var currentNationality = await _appDbContext.CAT_NATIONALITIES
                             .Where(m => m.DESC_NACIONALITY_EN.ToUpper().Equals(dto.NATIONALITY.ToUpper()) || m.DESC_NACIONALITY_SP.ToUpper().Equals(dto.NATIONALITY.ToUpper())).FirstAsync();
 
-                        if (existingMap.TryGetValue(pass, out var assistant))
-                        {
-                            // Update
-                            assistant.PASSPORT_LASTNAME = dto.PASSPORT_LASTNAME;
-                            assistant.PASSPORT_NAME = dto.PASSPORT_NAME;
-                            assistant.ACTIVITY_MEXICO = dto.ACTIVITY_MEXICO;
-                            assistant.ID_NATIONALITY = currentNationality.ID_NATIONALITY;
-                        }
-                        else
-                        {
+                        //if (existingMap.TryGetValue(pass, out var assistant))
+                        //{
+                        //    // Update
+                        //    assistant.PASSPORT_LASTNAME = dto.PASSPORT_LASTNAME;
+                        //    assistant.PASSPORT_NAME = dto.PASSPORT_NAME;
+                        //    assistant.ACTIVITY_MEXICO = dto.ACTIVITY_MEXICO;
+                        //    assistant.ID_NATIONALITY = currentNationality.ID_NATIONALITY;
+                        //}
+                        //else
+                        //{
                             // Insert
                             var newAssistant = new AnotherAssistantsAdmon
                             {
@@ -632,7 +680,7 @@ namespace Migracion.Talento.CoreWebApi.Controllers
                                 CREATED_BY=2
                             };
                             await _appDbContext.AddAsync(newAssistant);
-                        }
+                        //}
                         numRegsAfectados++;
                     }
 
@@ -723,7 +771,7 @@ namespace Migracion.Talento.CoreWebApi.Controllers
             {
                 var AnotherAssistants = await _appDbContext.ANOTHER_ASSISTANTS_ADMON
                     .Include("CAT_NATIONALITIES")
-                    .Where((even) => even.ID_REG == regEvent.ID_REG).ToListAsync();
+                    .Where((even) => even.ID_REG == regEvent.ID_REG).OrderBy(m=> m.ID).ToListAsync();
                 foreach (var currentElement in AnotherAssistants)
                 {
                     OtrosInvitadosList.Add(new OtroInvitadoModel()

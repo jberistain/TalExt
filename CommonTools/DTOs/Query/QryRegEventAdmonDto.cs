@@ -65,6 +65,7 @@ namespace CommonTools.DTOs.Query
         public int MODIFY_BY { get; set; }
         public List<RegEvenStateDateAdmonDto> EVENTS { get; set; }
         public List<AnotherAssistantDto> ANOTHER_ASSISTANTS_ADMON_LIST { get; set; }
+        public List<AnotherAssistantDto> NEW_ASSISTANTS_ADMON_LIST { get; set; }
         public List<AnotherArtistDto> ANOTHER_ARTISTS_ADMON_LIST { get; set; }
         public string EVENTOS { get; set; }
 

@@ -768,6 +768,33 @@ namespace MigracionTalentoExtranjero.Controllers
 
                     }
 
+                    List<object> NewAssistants = null;
+                    if (model.NuevosAsistentes != null && model.NuevosAsistentes.Count > 0)
+                    {
+                        NewAssistants = new List<object>();
+                        foreach (OtroInvitadoModel currentInvite in model.NuevosAsistentes)
+                        {
+                            if (!string.IsNullOrEmpty(currentInvite.Nombre) &&
+                                !string.IsNullOrEmpty(currentInvite.Apellidos) &&
+                                !string.IsNullOrEmpty(currentInvite.ActvidadEnMexico) &&
+                                Convert.ToInt32(currentInvite.IdNacionalidad) > 0 &&
+                                !string.IsNullOrEmpty(currentInvite.NumPasaporte))
+                            {
+                                int idCurrentAssistant = currentInvite.Id == null ? 0 : int.Parse(currentInvite.Id);
+                                NewAssistants.Add(new
+                                {
+                                    ID = idCurrentAssistant,
+                                    PASSPORT_NAME = currentInvite.Nombre,//Se deja este nombre para enviar el ID del combobox
+                                    PASSPORT_LASTNAME = currentInvite.Apellidos,
+                                    ACTIVITY_MEXICO = currentInvite.ActvidadEnMexico,
+                                    ID_NATIONALITY = currentInvite.IdNacionalidad,
+                                    PASSPORT_NUM = currentInvite.NumPasaporte,
+                                });
+                            }
+                        }
+
+                    }
+
 
                     /* Agregar artistas nuevos */
                     List<AnotherArtistDto> Artists = null;
@@ -832,6 +859,7 @@ namespace MigracionTalentoExtranjero.Controllers
                         CHECK_VERIFY = model.CHECK_VERIFY,
                         Events = Events,
                         ANOTHER_ASSISTANTS_ADMON_LIST = Assistants,
+                        NEW_ASSISTANTS_ADMON_LIST = NewAssistants,
                         ANOTHER_ARTISTS_ADMON_LIST = Artists
                     };
 
